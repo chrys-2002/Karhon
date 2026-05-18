@@ -1,0 +1,155 @@
+﻿"use client";
+import { useState } from "react";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
+
+export default function DevisPage() {
+  const [formData, setFormData] = useState({
+    typeAssurance: "auto",
+    nom: "",
+    prenom: "",
+    email: "",
+    telephone: "",
+    ville: "Abidjan",
+    vehiculeMarque: "",
+    vehiculeModele: "",
+    vehiculeAnnee: "",
+    habitationType: "",
+    habitationSurface: "",
+    santeNombrePersonnes: "1",
+    message: ""
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      console.log("Devis soumis:", formData);
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    }, 1500);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="py-20 bg-gray-50 min-h-screen">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <div className="bg-white rounded-lg shadow-md p-8">
+            <div className="text-6xl mb-4">✅</div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">Demande envoyée !</h1>
+            <p className="text-gray-600 mb-6">
+              Merci {formData.prenom} ! Votre demande de devis a bien été reçue.
+            </p>
+            <p className="text-gray-600 mb-8">
+              Un conseiller KARHON vous contactera dans les meilleurs délais.
+            </p>
+            <Link href="/">
+              <Button variant="primary">Retour à l'accueil</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-12 bg-gray-50 min-h-screen">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">Demande de devis gratuit</h1>
+          <p className="text-gray-600">
+            Remplissez le formulaire ci-dessous et nous vous ferons parvenir une offre personnalisée sous 48h.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Tous les champs marqués d&apos;un * sont obligatoires
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 md:p-8">
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Type d&apos;assurance <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="typeAssurance"
+              value={formData.typeAssurance}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900"
+              required
+            >
+              <option value="auto">Assurance Auto</option>
+              <option value="habitation">Assurance Habitation</option>
+              <option value="sante">Assurance Santé</option>
+              <option value="voyage">Assurance Voyage</option>
+              <option value="vie">Assurance Vie</option>
+              <option value="professionnelle">Assurance Professionnelle</option>
+            </select>
+          </div>
+
+          <div className="border-t border-gray-200 pt-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Vos informations</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                <input type="text" name="nom" value={formData.nom} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
+                <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900" />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 pt-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Détails de votre besoin</h2>
+            
+            {formData.typeAssurance === "auto" && (
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
+                  <input type="text" name="vehiculeMarque" value={formData.vehiculeMarque} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Modèle</label>
+                  <input type="text" name="vehiculeModele" value={formData.vehiculeModele} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
+                  <input type="text" name="vehiculeAnnee" value={formData.vehiculeAnnee} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message complémentaire</label>
+              <textarea name="message" rows={4} value={formData.message} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900"></textarea>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <button type="submit" disabled={isSubmitting} className="bg-blue-900 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold text-lg disabled:opacity-50">
+              {isSubmitting ? "Envoi en cours..." : "Envoyer ma demande de devis"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
