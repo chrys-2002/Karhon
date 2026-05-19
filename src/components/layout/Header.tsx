@@ -34,6 +34,7 @@ export default function Header() {
   const goToHome = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     router.push("/");
+    setIsMenuOpen(false);
   };
   
   return (
@@ -43,7 +44,7 @@ export default function Header() {
       }`}>
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            {/* Logo - retour à l'accueil */}
+            {/* Logo */}
             <button 
               onClick={goToHome}
               className="text-base sm:text-xl md:text-2xl font-bold z-20 hover:opacity-80 transition-opacity cursor-pointer bg-transparent border-none"
@@ -69,7 +70,7 @@ export default function Header() {
               </Link>
             </div>
             
-            {/* Bouton menu mobile */}
+            {/* Bouton menu mobile - 3 barres simples */}
             <button 
               className="md:hidden text-white p-2 rounded-lg glass z-20"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -91,6 +92,7 @@ export default function Header() {
       <div className={`fixed inset-0 z-40 transition-all duration-400 ${
         isMenuOpen ? "visible" : "invisible"
       }`}>
+        {/* Overlay */}
         <div 
           className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-400 ${
             isMenuOpen ? "opacity-100" : "opacity-0"
@@ -98,9 +100,11 @@ export default function Header() {
           onClick={() => setIsMenuOpen(false)}
         ></div>
         
+        {/* Menu panel */}
         <div className={`absolute top-0 right-0 h-full w-72 bg-white shadow-2xl transition-transform duration-400 ease-out ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}>
+          {/* Header du menu */}
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <button onClick={goToHome} className="cursor-pointer bg-transparent border-none text-left">
@@ -112,6 +116,7 @@ export default function Header() {
               <button 
                 onClick={() => setIsMenuOpen(false)}
                 className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                aria-label="Fermer"
               >
                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -120,6 +125,7 @@ export default function Header() {
             </div>
           </div>
           
+          {/* Navigation */}
           <div className="flex flex-col p-4">
             <button onClick={goToHome} className="text-left py-4 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl transition-all duration-200 font-medium cursor-pointer bg-transparent border-none">
               Accueil
@@ -147,6 +153,7 @@ export default function Header() {
             </Link>
           </div>
           
+          {/* Bouton CTA */}
           <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
             <Link 
               href="/client" 
