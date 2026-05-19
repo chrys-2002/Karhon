@@ -4,13 +4,12 @@ import React from "react";
 interface InputProps {
   label: string;
   name: string;
-  type?: "text" | "email" | "tel" | "password" | "date" | "textarea" | "number";
-  value?: string | number;
+  type?: "text" | "email" | "tel" | "password" | "date" | "textarea";
+  value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   required?: boolean;
   error?: string;
   placeholder?: string;
-  rows?: number;
 }
 
 export default function Input({ 
@@ -21,11 +20,8 @@ export default function Input({
   onChange, 
   required = false,
   error,
-  placeholder,
-  rows = 4
+  placeholder
 }: InputProps) {
-  const baseClassName = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900 " + (error ? "border-red-500" : "border-gray-300");
-  
   return (
     <div className="mb-4">
       <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
@@ -35,23 +31,23 @@ export default function Input({
         <textarea
           id={name}
           name={name}
-          value={value as string}
+          value={value || ""}
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          rows={rows}
-          className={baseClassName}
+          rows={4}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900 ${error ? "border-red-500" : "border-gray-300"}`}
         />
       ) : (
         <input
           type={type}
           id={name}
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          className={baseClassName}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900 ${error ? "border-red-500" : "border-gray-300"}`}
         />
       )}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
