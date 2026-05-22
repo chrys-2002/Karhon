@@ -8,14 +8,20 @@ export default function ClientLoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({ email: "", password: "", nom: "", prenom: "", telephone: "" });
+  const [formData, setFormData] = useState({ 
+    email: "", 
+    password: "", 
+    nom: "", 
+    prenom: "", 
+    telephone: "" 
+  });
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setError("");
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setTimeout(() => {
@@ -44,18 +50,41 @@ export default function ClientLoginPage() {
 
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input 
+              type="email" 
+              name="email" 
+              value={formData.email} 
+              onChange={handleChange} 
+              placeholder="Email" 
+              required 
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            />
           </div>
           <div className="mb-6">
-            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Mot de passe" required className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input 
+              type="password" 
+              name="password" 
+              value={formData.password} 
+              onChange={handleChange} 
+              placeholder="Mot de passe" 
+              required 
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            />
           </div>
-          <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all">
+          <button 
+            type="submit" 
+            disabled={isLoading} 
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all"
+          >
             {isLoading ? "Chargement..." : "Se connecter"}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <button onClick={() => setIsLogin(!isLogin)} className="text-blue-600 hover:underline text-sm">
+          <button 
+            onClick={() => setIsLogin(!isLogin)} 
+            className="text-blue-600 hover:underline text-sm"
+          >
             Pas encore de compte ? Creez-en un
           </button>
         </div>
