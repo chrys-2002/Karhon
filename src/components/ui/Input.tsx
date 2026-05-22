@@ -4,12 +4,13 @@ import React from "react";
 interface InputProps {
   label: string;
   name: string;
-  type?: "text" | "email" | "tel" | "password" | "date" | "textarea";
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  type?: "text" | "email" | "tel" | "password" | "date" | "textarea" | "select";
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   required?: boolean;
-  error?: string;
   placeholder?: string;
+  options?: { value: string; label: string }[];
+  rows?: number;
 }
 
 export default function Input({ 
@@ -18,39 +19,49 @@ export default function Input({
   type = "text", 
   value, 
   onChange, 
-  required = false,
-  error,
-  placeholder
+  required = false, 
+  placeholder = "",
+  options = [],
+  rows = 4
 }: InputProps) {
   return (
     <div className="mb-4">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        {label} {required && <span className="text-blue-500 text-xs">*</span>}
       </label>
       {type === "textarea" ? (
         <textarea
-          id={name}
           name={name}
-          value={value || ""}
+          value={value}
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          rows={4}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900 ${error ? "border-red-500" : "border-gray-300"}`}
+          rows={rows}
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50/50 hover:bg-white"
         />
+      ) : type === "select" ? (
+        <select
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50/50 hover:bg-white"
+        >
+          {options.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       ) : (
         <input
           type={type}
-          id={name}
           name={name}
-          value={value || ""}
+          value={value}
           onChange={onChange}
           required={required}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900 ${error ? "border-red-500" : "border-gray-300"}`}
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50/50 hover:bg-white"
         />
       )}
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 }

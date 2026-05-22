@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -9,163 +10,59 @@ export default function Dashboard() {
   
   useEffect(() => {
     const userData = localStorage.getItem("user");
-    if (!userData) {
-      router.push("/client");
-    } else {
-      setUser(JSON.parse(userData));
-    }
+    if (!userData) router.push("/client");
+    else setUser(JSON.parse(userData));
   }, [router]);
-  
+
   const stats = [
-    { label: "Contrats actifs", value: "3", icone: "📄", couleur: "bg-blue-100 text-blue-900" },
-    { label: "Sinistres en cours", value: "1", icone: "⚠️", couleur: "bg-orange-100 text-orange-900" },
-    { label: "Devis en attente", value: "2", icone: "📋", couleur: "bg-green-100 text-green-900" },
-    { label: "Échéances à venir", value: "2", icone: "📅", couleur: "bg-purple-100 text-purple-900" }
+    { label: "Contrats actifs", value: "3", icone: "📄", color: "from-blue-500 to-blue-600" },
+    { label: "Sinistres en cours", value: "1", icone: "⚠️", color: "from-orange-500 to-orange-600" },
+    { label: "Devis en attente", value: "2", icone: "📋", color: "from-green-500 to-green-600" },
+    { label: "Échéances", value: "2", icone: "📅", color: "from-purple-500 to-purple-600" }
   ];
-  
+
   const contrats = [
     { id: "C001", produit: "Assurance Auto", compagnie: "SUNU", prime: "185 000 FCFA", echeance: "31/12/2024", statut: "actif" },
-    { id: "C002", produit: "Assurance Habitation", compagnie: "NSIA", prime: "95 000 FCFA", echeance: "15/03/2025", statut: "actif" },
-    { id: "C003", produit: "Assurance Santé", compagnie: "AXA", prime: "245 000 FCFA", echeance: "30/06/2024", statut: "actif" }
+    { id: "C002", produit: "Assurance Habitation", compagnie: "NSIA", prime: "95 000 FCFA", echeance: "15/03/2025", statut: "actif" }
   ];
-  
-  const sinistres = [
-    { id: "S001", contrat: "Assurance Auto", date: "10/01/2024", statut: "En cours", montant: "250 000 FCFA" }
-  ];
-  
-  if (!user) {
-    return (
-      <div className="py-20 bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center">Chargement...</div>
-      </div>
-    );
-  }
-  
+
+  if (!user) return <div className="py-20 text-center">Chargement...</div>;
+
   return (
-    <div className="py-8 bg-gray-50 min-h-screen">
+    <div className="py-8 bg-gradient-to-br from-gray-50 to-white min-h-screen">
       <div className="max-w-6xl mx-auto px-4">
-        {/* En-tête */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Bonjour, {user.prenom || user.nom || "Client"}
-          </h1>
-          <p className="text-gray-600">Bienvenue dans votre espace client KARHON Assurances</p>
-        </div>
-        
-        {/* Statistiques */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Bonjour, {user.prenom || user.nom || "Client"} 👋</h1>
+          <p className="text-gray-500">Bienvenue dans votre espace client KARHON</p>
+        </motion.div>
+
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-                </div>
-                <div className={"text-3xl " + stat.couleur.split(" ")[0] + " bg-opacity-20 p-3 rounded-full"}>
-                  {stat.icone}
-                </div>
-              </div>
-            </div>
+            <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} whileHover={{ y: -5 }} className={`bg-gradient-to-r ${stat.color} rounded-2xl p-6 text-white shadow-lg`}>
+              <div className="flex justify-between items-start"><div><p className="text-white/80 text-sm">{stat.label}</p><p className="text-3xl font-bold mt-1">{stat.value}</p></div><div className="text-4xl">{stat.icone}</div></div>
+            </motion.div>
           ))}
         </div>
-        
-        {/* Contrats */}
-        <div className="bg-white rounded-lg shadow-md mb-8">
-          <div className="border-b px-6 py-4 flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-800">Mes contrats</h2>
-            <Link href="/client/contrats" className="text-blue-900 hover:underline text-sm">
-              Voir tous →
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Contrat</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produit</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Compagnie</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prime</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Échéance</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                </tr>
-              </thead>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="border-b px-6 py-4 bg-gray-50"><h2 className="text-xl font-semibold text-gray-800">Mes contrats</h2></div>
+            <div className="overflow-x-auto">
+              <table className="w-full"><thead className="bg-gray-50"><tr>{["N°", "Produit", "Compagnie", "Prime", "Statut"].map(h => <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{h}</th>)}</tr></thead>
               <tbody className="divide-y divide-gray-200">
-                {contrats.map((contrat) => (
-                  <tr key={contrat.id}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{contrat.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{contrat.produit}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{contrat.compagnie}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{contrat.prime}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{contrat.echeance}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
-                        {contrat.statut}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        {/* Sinistres récents */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="border-b px-6 py-4">
-              <h2 className="text-xl font-semibold text-gray-800">Sinistres récents</h2>
+                {contrats.map((c) => (<tr key={c.id}><td className="px-6 py-4 text-sm font-medium text-gray-900">{c.id}</td><td className="px-6 py-4 text-sm text-gray-600">{c.produit}</td><td className="px-6 py-4 text-sm text-gray-600">{c.compagnie}</td><td className="px-6 py-4 text-sm text-gray-600">{c.prime}</td><td className="px-6 py-4"><span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">✅ {c.statut}</span></td></tr>))}
+              </tbody></table>
             </div>
-            <div className="p-6">
-              {sinistres.length === 0 ? (
-                <p className="text-gray-500 text-center">Aucun sinistre déclaré</p>
-              ) : (
-                sinistres.map((sinistre) => (
-                  <div key={sinistre.id} className="border-b last:border-0 py-3">
-                    <div className="flex justify-between">
-                      <div>
-                        <p className="font-semibold">{sinistre.contrat}</p>
-                        <p className="text-sm text-gray-500">Date: {sinistre.date}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-orange-600">{sinistre.statut}</p>
-                        <p className="text-sm text-gray-500">{sinistre.montant}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-              <Link href="/client/sinistres" className="block text-center text-blue-900 hover:underline text-sm mt-4">
-                Déclarer un sinistre →
-              </Link>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="bg-white rounded-2xl shadow-xl p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Actions rapides</h2>
+            <div className="space-y-3">
+              <Link href="/client/sinistres/nouveau"><motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all">📋 Déclarer un sinistre</motion.button></Link>
+              <Link href="/devis"><motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full border-2 border-blue-900 text-blue-900 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all">💰 Demander un devis</motion.button></Link>
+              <button onClick={() => { localStorage.removeItem("user"); router.push("/client"); }} className="w-full text-red-600 py-3 rounded-xl font-semibold hover:bg-red-50 transition-all">🚪 Se déconnecter</button>
             </div>
-          </div>
-          
-          {/* Actions rapides */}
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="border-b px-6 py-4">
-              <h2 className="text-xl font-semibold text-gray-800">Actions rapides</h2>
-            </div>
-            <div className="p-6 space-y-3">
-              <Link href="/client/sinistres/nouveau" className="block w-full text-center bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
-                Déclarer un sinistre
-              </Link>
-              <Link href="/devis" className="block w-full text-center border-2 border-blue-900 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-50">
-                Demander un devis
-              </Link>
-              <Link href="/client/profil" className="block w-full text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
-                Modifier mon profil
-              </Link>
-              <button
-                onClick={() => {
-                  localStorage.removeItem("user");
-                  router.push("/client");
-                }}
-                className="block w-full text-center text-red-600 px-4 py-2 rounded-lg hover:bg-red-50"
-              >
-                Se déconnecter
-              </button>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

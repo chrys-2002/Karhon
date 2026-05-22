@@ -1,0 +1,210 @@
+﻿<mxfile host="65bd71144e">
+    <diagram name="Diagramme de classes - KARHON" id="class-diagram">
+        <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                
+                <!-- Classe User -->
+                <mxCell id="User" value="User" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="40" width="280" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserAttr1" value="- id: Long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="User">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserAttr2" value="- nom: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="User">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserAttr3" value="- email: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="User">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserAttr4" value="- telephone: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="User">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserAttr5" value="- password: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="User">
+                    <mxGeometry y="134" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserMeth1" value="+ authenticate(): Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="User">
+                    <mxGeometry y="160" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Classe Client -->
+                <mxCell id="Client" value="Client" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="280" width="280" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="ClientAttr1" value="- adresse: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Client">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ClientAttr2" value="- dateInscription: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Client">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ClientMeth1" value="+ getContrats(): List&lt;Contrat&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Client">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ClientMeth2" value="+ getSinistres(): List&lt;Sinistre&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Client">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Classe Admin -->
+                <mxCell id="Admin" value="Admin" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="500" width="280" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="AdminAttr1" value="- role: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Admin">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="AdminMeth1" value="+ gererDevis(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Admin">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="AdminMeth2" value="+ gererClients(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Admin">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Héritage -->
+                <mxCell id="inheritance1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=0;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" parent="1" source="User" target="Client">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="inheritance2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;endFill=0;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" parent="1" source="User" target="Admin">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                
+                <!-- Classe Devis -->
+                <mxCell id="Devis" value="Devis" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="400" y="40" width="280" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="DevisAttr1" value="- id: Long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Devis">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="DevisAttr2" value="- dateCreation: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Devis">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="DevisAttr3" value="- statut: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Devis">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="DevisAttr4" value="- montant: Double" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Devis">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="DevisMeth1" value="+ soumettre(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Devis">
+                    <mxGeometry y="134" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Classe Contrat -->
+                <mxCell id="Contrat" value="Contrat" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="750" y="40" width="280" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="ContratAttr1" value="- numero: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Contrat">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ContratAttr2" value="- dateDebut: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Contrat">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ContratAttr3" value="- dateFin: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Contrat">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ContratAttr4" value="- prime: Double" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Contrat">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ContratMeth1" value="+ resilier(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Contrat">
+                    <mxGeometry y="134" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Classe Sinistre -->
+                <mxCell id="Sinistre" value="Sinistre" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="400" y="280" width="280" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="SinistreAttr1" value="- id: Long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Sinistre">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="SinistreAttr2" value="- date: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Sinistre">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="SinistreAttr3" value="- description: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Sinistre">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="SinistreAttr4" value="- montantIndemnise: Double" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Sinistre">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="SinistreMeth1" value="+ getStatut(): String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Sinistre">
+                    <mxGeometry y="134" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Classe Produit -->
+                <mxCell id="Produit" value="Produit" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="750" y="280" width="280" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="ProduitAttr1" value="- id: Long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Produit">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ProduitAttr2" value="- nom: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Produit">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ProduitAttr3" value="- type: String (IARD/VIE)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Produit">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="ProduitAttr4" value="- garanties: List&lt;String&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Produit">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                
+                <!-- Association Client - Devis (1..*) -->
+                <mxCell id="assoc1" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;startArrow=none;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" parent="1" source="Client" target="Devis">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="card1" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="385" y="220" width="30" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="card2" value="*" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="385" y="240" width="30" height="20" as="geometry"/>
+                </mxCell>
+                
+                <!-- Association Client - Contrat (1..*) -->
+                <mxCell id="assoc2" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;startArrow=none;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" parent="1" source="Client" target="Contrat">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="680" y="370"/>
+                            <mxPoint x="680" y="140"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="card3" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="680" y="290" width="30" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="card4" value="*" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="680" y="310" width="30" height="20" as="geometry"/>
+                </mxCell>
+                
+                <!-- Association Contrat - Sinistre (1..*) -->
+                <mxCell id="assoc3" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;startArrow=none;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" parent="1" source="Contrat" target="Sinistre">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="card5" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="700" y="240" width="30" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="card6" value="*" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="700" y="260" width="30" height="20" as="geometry"/>
+                </mxCell>
+                
+                <!-- Association Contrat - Produit (*..1) -->
+                <mxCell id="assoc4" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;startArrow=none;strokeColor=#1e3a8a;strokeWidth=2;dashed=1;" edge="1" parent="1" source="Contrat" target="Produit">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="card7" value="*" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="1040" y="180" width="30" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="card8" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="1040" y="200" width="30" height="20" as="geometry"/>
+                </mxCell>
+                
+                <!-- Association Devis - Contrat (0..1) -->
+                <mxCell id="assoc5" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;startArrow=none;strokeColor=#6b7280;strokeWidth=1;dashed=1;" edge="1" parent="1" source="Devis" target="Contrat">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="card9" value="0..1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="690" y="140" width="40" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="card10" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="690" y="160" width="30" height="20" as="geometry"/>
+                </mxCell>
+                
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

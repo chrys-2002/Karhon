@@ -1,0 +1,107 @@
+﻿<mxfile host="65bd71144e">
+    <diagram name="Séquence - Demande Devis" id="sequence-diagram">
+        <mxGraphModel dx="1300" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                
+                <!-- Acteurs -->
+                <mxCell id="client" value="Client" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="30" y="100" width="40" height="80" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="ui" value="Interface Web" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="160" y="100" width="100" height="600" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="controller" value="DevisController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="100" width="100" height="600" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="service" value="DevisService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="520" y="100" width="100" height="600" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="db" value="Base de données" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="700" y="100" width="100" height="600" as="geometry"/>
+                </mxCell>
+                
+                <mxCell id="admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="880" y="100" width="40" height="80" as="geometry"/>
+                </mxCell>
+                
+                <!-- Messages -->
+                <mxCell id="m1" value="1: Remplit formulaire" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="client" target="ui">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="70" y="220" as="sourcePoint"/>
+                        <mxPoint x="160" y="220" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m2" value="2: Soumet la demande" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="ui" target="controller">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="260" y="270" as="sourcePoint"/>
+                        <mxPoint x="340" y="270" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m3" value="3: Valide les données" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="controller" target="controller">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="390" y="320" as="sourcePoint"/>
+                        <mxPoint x="440" y="320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m4" value="4: Crée le devis" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="controller" target="service">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="440" y="370" as="sourcePoint"/>
+                        <mxPoint x="520" y="370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m5" value="5: Sauvegarde en BDD" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="service" target="db">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="620" y="420" as="sourcePoint"/>
+                        <mxPoint x="700" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m6" value="6: Confirmation" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;dashed=1;" edge="1" parent="1" source="db" target="service">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="700" y="470" as="sourcePoint"/>
+                        <mxPoint x="620" y="470" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m7" value="7: Retour succès" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;dashed=1;" edge="1" parent="1" source="service" target="controller">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="520" y="520" as="sourcePoint"/>
+                        <mxPoint x="440" y="520" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m8" value="8: Affiche confirmation" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="controller" target="ui">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="340" y="570" as="sourcePoint"/>
+                        <mxPoint x="260" y="570" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m9" value="9: Notification" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="ui" target="client">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="160" y="620" as="sourcePoint"/>
+                        <mxPoint x="70" y="620" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+                <mxCell id="m10" value="10: Notification admin" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="controller" target="admin">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="440" y="670" as="sourcePoint"/>
+                        <mxPoint x="880" y="670" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

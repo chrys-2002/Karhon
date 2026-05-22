@@ -1,7 +1,7 @@
-ï»¿"use client";
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 export default function NouveauSinistre() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function NouveauSinistre() {
     setIsSubmitting(true);
     
     setTimeout(() => {
-      console.log("Sinistre dÃ©clarÃ©:", formData, files);
+      console.log("Sinistre déclaré:", formData, files);
       setIsSubmitting(false);
       router.push("/client/dashboard");
     }, 1500);
@@ -34,19 +34,19 @@ export default function NouveauSinistre() {
   const contrats = [
     { id: "C001", produit: "Assurance Auto" },
     { id: "C002", produit: "Assurance Habitation" },
-    { id: "C003", produit: "Assurance SantÃ©" }
+    { id: "C003", produit: "Assurance Santé" }
   ];
 
   return (
     <div className="py-12 bg-gray-50 min-h-screen">
       <div className="max-w-3xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">DÃ©claration de sinistre</h1>
-          <p className="text-gray-600 mb-6">Remplissez ce formulaire pour dÃ©clarer votre sinistre</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Déclaration de sinistre</h1>
+          <p className="text-gray-600 mb-6">Remplissez ce formulaire pour déclarer votre sinistre</p>
           
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contrat concernÃ© *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contrat concerné *</label>
               <select
                 name="contratId"
                 value={formData.contratId}
@@ -54,7 +54,7 @@ export default function NouveauSinistre() {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900"
               >
-                <option value="">SÃ©lectionnez un contrat</option>
+                <option value="">Sélectionnez un contrat</option>
                 {contrats.map((contrat) => (
                   <option key={contrat.id} value={contrat.id}>
                     {contrat.id} - {contrat.produit}
@@ -83,13 +83,13 @@ export default function NouveauSinistre() {
                 value={formData.circonstances}
                 onChange={handleChange}
                 required
-                placeholder="DÃ©crivez prÃ©cisÃ©ment les circonstances du sinistre..."
+                placeholder="Décrivez précisément les circonstances du sinistre..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900"
               />
             </div>
             
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Montant estimÃ© des dommages (FCFA)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Montant estimé des dommages (FCFA)</label>
               <input
                 type="number"
                 name="montantEstime"
@@ -101,13 +101,13 @@ export default function NouveauSinistre() {
             </div>
             
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">TÃ©moins (nom et contact)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Témoins (nom et contact)</label>
               <input
                 type="text"
                 name="temoins"
                 value={formData.temoins}
                 onChange={handleChange}
-                placeholder="Nom, tÃ©lÃ©phone..."
+                placeholder="Nom, téléphone..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900"
               />
             </div>
@@ -127,7 +127,7 @@ export default function NouveauSinistre() {
             
             <div className="flex gap-4">
               <Button type="submit" variant="primary" disabled={isSubmitting}>
-                {isSubmitting ? "Envoi en cours..." : "DÃ©clarer le sinistre"}
+                {isSubmitting ? "Envoi en cours..." : "Déclarer le sinistre"}
               </Button>
               <button
                 type="button"
@@ -143,3 +143,4 @@ export default function NouveauSinistre() {
     </div>
   );
 }
+
