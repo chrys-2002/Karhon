@@ -11,7 +11,7 @@ export default function ClientPage() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (email === "client@karhon.ci" && password === "password") {
-      localStorage.setItem("user", JSON.stringify({ email }));
+      localStorage.setItem("user", JSON.stringify({ email: email }));
       router.push("/client/dashboard");
     } else {
       setError("Email ou mot de passe incorrect");
@@ -26,15 +26,36 @@ export default function ClientPage() {
             <span className="text-2xl text-white font-bold">K</span>
           </div>
           <h1 className="text-2xl font-bold">Espace Client</h1>
-          <p className="text-gray-500 text-sm">Connectez-vous a votre compte</p>
+          <p className="text-gray-500 text-sm">Connectez-vous à votre compte</p>
         </div>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm">{error}</div>}
         <form onSubmit={handleLogin}>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full p-3 border rounded-xl mb-4" />
-          <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 border rounded-xl mb-6" />
-          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">Se connecter</button>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full p-3 border rounded-xl mb-4"
+          />
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full p-3 border rounded-xl mb-6"
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+          >
+            Se connecter
+          </button>
         </form>
-        <div className="mt-4 p-3 bg-blue-50 rounded-xl text-center text-sm">Demo: client@karhon.ci / password</div>
+        <div className="mt-4 p-3 bg-blue-50 rounded-xl text-center text-sm">
+          Demo: client@karhon.ci / password
+        </div>
       </div>
     </div>
   );
