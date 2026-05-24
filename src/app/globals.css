@@ -137,3 +137,9 @@ html {
     transform: perspective(1000px) rotateX(3deg) rotateY(3deg) translateY(-5px);
   }
 }
+
+/* Forcer le header transparent sur la page accueil */
+body.home-page header {
+  background-color: transparent !important;
+  background: transparent !important;
+}
