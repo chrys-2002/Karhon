@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<{ email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
@@ -68,7 +68,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Stats */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
@@ -89,7 +89,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Contrats */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
@@ -124,7 +124,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Actions */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
