@@ -1,88 +1,119 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
-import Select from "@/components/ui/Select";
+'use client';
+import { motion } from 'framer-motion';
+import { Phone, MapPin, Clock, Mail, CheckCircle } from 'lucide-react';
 
 export default function ContactPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [formData, setFormData] = useState({ nom: "", prenom: "", email: "", telephone: "", sujet: "info", message: "" });
-
-  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => { setIsSubmitting(false); setIsSubmitted(true); }, 1000);
-  };
-
-  if (isSubmitted) {
-    return (
-      <div className="py-20 bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="max-w-md text-center bg-white rounded-xl shadow-lg p-8">
-          <div className="text-5xl mb-4">??</div>
-          <h1 className="text-xl font-bold mb-2">Message envoyÈ</h1>
-          <p className="text-gray-500 text-sm mb-4">Merci, nous vous rÈpondrons rapidement.</p>
-          <Link href="/" className="text-blue-800 text-sm hover:underline">Retour ‡ l'accueil</Link>
-        </div>
-      </div>
-    );
-  }
-
-  const sujetOptions = [
-    { value: "info", label: "Demande d'information" },
-    { value: "devis", label: "Demande de devis" },
-    { value: "sinistre", label: "DÈclaration de sinistre" }
-  ];
-
   return (
-    <div className="py-12 bg-gray-50 min-h-screen">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Contactez-nous</h1>
-          <p className="text-gray-500 text-sm">Notre Èquipe est ‡ votre Ècoute</p>
-        </div>
+    <div className="min-h-screen bg-white pt-28 pb-20">
+      <div className="container mx-auto px-6 max-w-6xl">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Contactez KARHON Assurances</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Un interlocuteur unique √† votre √©coute. Nous vous r√©pondons rapidement.
+          </p>
+        </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-5">
-            <h3 className="font-semibold text-gray-800 mb-3">?? Adresse</h3>
-            <p className="text-gray-500 text-sm">Abidjan, CÙte d'Ivoire</p>
-            <p className="text-gray-400 text-xs mt-1">Plateau - Avenue Chardy</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-5">
-            <h3 className="font-semibold text-gray-800 mb-3">?? TÈlÈphone</h3>
-            <p className="text-gray-500 text-sm">+225 07 07 10 87 43</p>
-            <p className="text-gray-400 text-xs mt-1">Lun-Ven 8h30-17h30</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-5">
-            <h3 className="font-semibold text-gray-800 mb-3">?? Email</h3>
-            <p className="text-gray-500 text-sm">contact@karhon-assurances.ci</p>
-            <p className="text-gray-400 text-xs mt-1">RÈponse sous 24h</p>
-          </div>
-        </div>
+        <div className="grid lg:grid-cols-5 gap-10">
+          {/* Informations */}
+          <div className="lg:col-span-3 space-y-10">
+            <div className="bg-white rounded-3xl shadow-xl p-10 border" style={{ borderColor: "#e0ecec" }}>
+              <h2 className="text-3xl font-bold mb-8" style={{ color: "#1a2e5a" }}>Pourquoi nous contacter ?</h2>
+              <div className="space-y-8">
+                {[
+                  { label: "√âtude personnalis√©e gratuite", desc: "Nous analysons votre situation et vous proposons la meilleure offre du march√© ivoirien." },
+                  { label: "Accompagnement sinistre", desc: "Nous vous assistons de la d√©claration jusqu'au r√®glement de votre dossier." },
+                  { label: "Aucun honoraire", desc: "Nos services sont enti√®rement pris en charge par les compagnies d'assurance." },
+                ].map((item) => (
+                  <div key={item.label} className="flex gap-5">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#e8f5f5" }}>
+                      <CheckCircle size={28} style={{ color: "#2a8a8a" }} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg" style={{ color: "#1a2e5a" }}>{item.label}</h3>
+                      <p className="text-gray-600">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Envoyez-nous un message</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-              <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom" required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
-              <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="PrÈnom" required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
-              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
-              <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="TÈlÈphone" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
+            {/* Coordonn√©es */}
+            <div className="bg-white rounded-3xl shadow-xl p-10 border" style={{ borderColor: "#e0ecec" }}>
+              <h2 className="text-2xl font-bold mb-8" style={{ color: "#1a2e5a" }}>Nos Coordonn√©es</h2>
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="flex gap-4">
+                  <Phone className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
+                  <div>
+                    <p className="font-semibold" style={{ color: "#1a2e5a" }}>T√©l√©phone</p>
+                    <a href="tel:+2250707108743" className="text-2xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
+                      +225 07 07 10 87 43
+                    </a>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <Mail className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
+                  <div>
+                    <p className="font-semibold" style={{ color: "#1a2e5a" }}>Email</p>
+                    <p className="text-gray-700">contact@karhon-assurances.ci</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <MapPin className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
+                  <div>
+                    <p className="font-semibold" style={{ color: "#1a2e5a" }}>Adresse</p>
+                    <p className="text-gray-700">Abidjan, C√¥te d&apos;Ivoire</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <Clock className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
+                  <div>
+                    <p className="font-semibold" style={{ color: "#1a2e5a" }}>Horaires</p>
+                    <p className="text-gray-700">Lundi - Vendredi : 08h30 - 17h30<br />Sur rendez-vous de pr√©f√©rence</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="mb-4">
-              <Select label="Sujet" name="sujet" value={formData.sujet} onChange={handleChange} options={sujetOptions} required />
+          </div>
+
+          {/* Formulaire */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-3xl shadow-xl p-10 sticky top-8 border" style={{ borderColor: "#e0ecec" }}>
+              <h3 className="text-2xl font-bold mb-8 text-center" style={{ color: "#1a2e5a" }}>Envoyez-nous un message</h3>
+              <form className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <input type="text" placeholder="Nom" className="border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" />
+                  <input type="text" placeholder="Pr√©nom" className="border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" />
+                </div>
+                <input type="tel" placeholder="T√©l√©phone" className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" />
+                <input type="email" placeholder="Email" className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" />
+                <select className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm text-gray-600">
+                  <option value="">Type de demande</option>
+                  <option value="devis">Demande de devis</option>
+                  <option value="sinistre">D√©claration de sinistre</option>
+                  <option value="rendezvous">Prendre rendez-vous</option>
+                  <option value="information">Demande d&apos;information</option>
+                </select>
+                <textarea
+                  placeholder="D√©crivez votre besoin..."
+                  rows={5}
+                  className="w-full border border-gray-200 rounded-3xl px-5 py-4 focus:outline-none resize-none transition text-sm"
+                />
+                <button
+                  type="submit"
+                  className="w-full text-white font-semibold py-4 rounded-2xl transition-all text-lg shadow-lg hover:scale-105 active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                >
+                  Envoyer le message
+                </button>
+              </form>
             </div>
-            <div className="mb-5">
-              <textarea name="message" rows={4} value={formData.message} onChange={handleChange} placeholder="Votre message..." required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 resize-none text-sm"></textarea>
-            </div>
-            <button type="submit" disabled={isSubmitting} className="w-full bg-blue-800 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 transition disabled:opacity-50">
-              {isSubmitting ? "Envoi..." : "Envoyer le message"}
-            </button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

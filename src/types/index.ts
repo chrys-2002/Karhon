@@ -1,4 +1,4 @@
-﻿// Types pour KARHON Assurances
+// Types pour KARHON Assurances
 
 export type Role = 'client' | 'admin';
 

@@ -1,104 +1,88 @@
-﻿"use client";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+'use client';
+import { motion } from 'framer-motion';
+import { CheckCircle, Shield, Phone } from 'lucide-react';
 
 export default function AproposPage() {
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    setIsVisible(true);
-    window.scrollTo(0, 0);
-  }, []);
-
-  const valeurs = [
-    { titre: "Neutralité", description: "Indépendant de toute compagnie. Nous défendons uniquement vos intérêts.", icone: "⚖️" },
-    { titre: "Confidentialité", description: "Totale confidentialité de vos informations personnelles garantie.", icone: "🔒" },
-    { titre: "Personnalisation", description: "Solutions sur-mesure adaptées à votre situation spécifique.", icone: "🎯" },
-    { titre: "Réactivité", description: "Contact direct avec toutes les compagnies pour un traitement rapide.", icone: "⚡" },
-    { titre: "Gratuité", description: "Nos services sont entièrement financés par les compagnies partenaires.", icone: "💰" },
-    { titre: "Excellence", description: "Accès aux meilleures compagnies du marché ivoirien.", icone: "🏆" }
-  ];
-
-  const missions = [
-    "Rechercher les produits adaptés à chaque client",
-    "Établir des offres personnalisées",
-    "Gérer les dossiers administratifs",
-    "Accompagner lors des sinistres",
-    "Conseiller et orienter sur les meilleurs produits"
-  ];
-
   return (
-    <div className="py-12 bg-gray-50 min-h-screen">
-      <div className="max-w-5xl mx-auto px-4">
-        
-        {/* Titre */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Qui sommes-nous ?</h1>
-          <div className="w-16 h-1 bg-orange-500 mx-auto"></div>
-        </div>
+    <div className="min-h-screen bg-white">
 
-        {/* Notre Cabinet */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <div className="inline-block bg-orange-100 px-3 py-1 rounded-full mb-3">
-                <span className="text-sm text-orange-600 font-medium">Fondé en 2020</span>
-              </div>
-              <h2 className="text-xl font-bold text-gray-800 mb-3">Notre Cabinet</h2>
-              <p className="text-gray-600 leading-relaxed">
-                KARHON Assurances place son expertise, son expérience et sa compétence au service de ses clients. 
-                Nous proposons un service personnalisé dans tous les domaines d'assurances avec les meilleures 
-                compagnies du marché ivoirien.
-              </p>
+      <div className="text-white pt-32 pb-20 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
+        <div className="absolute inset-0 bg-[radial-gradient(at_top_right,#2a8a8a_0%,transparent_50%)]"></div>
+        <div className="container mx-auto px-6 relative">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl">
+            <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-full text-sm mb-6 border border-white/20">
+              Agrément n°0305/MEF/DGTCP/DA du 02 Septembre 2021
             </div>
-            <div className="bg-orange-50 rounded-xl p-5 text-center min-w-[200px]">
-              <div className="text-4xl mb-2">🏢</div>
-              <p className="font-semibold text-gray-800">Cabinet de Courtage</p>
-              <p className="text-gray-500 text-sm">Arrêté n°0305/MEF/DGTCP/DA</p>
-              <p className="text-orange-500 text-sm">02 Septembre 2021</p>
+            <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">KARHON Assurances</h1>
+            <p className="text-xl max-w-2xl" style={{ color: "#a8d8d8" }}>
+              Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 py-16 max-w-6xl">
+
+        <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20">
+          <h2 className="text-3xl font-bold mb-8 flex items-center gap-3" style={{ color: "#1a2e5a" }}>
+            <Shield className="w-9 h-9" style={{ color: "#2a8a8a" }} />
+            L&apos;INTERLOCUTEUR UNIQUE
+          </h2>
+          <div className="bg-white rounded-3xl shadow-xl p-10 border" style={{ borderColor: "#e0ecec" }}>
+            <p className="text-lg leading-relaxed text-gray-700 mb-6">
+              Créé en 2020, <strong style={{ color: "#1a2e5a" }}>KARHON Assurances</strong> met son expertise, son expérience et sa compétence au service de ses clients. Nous offrons un service personnalisé dans tous les domaines d&apos;assurances avec toutes les meilleures compagnies pratiquant sur le marché ivoirien.
+            </p>
+            <p className="text-lg leading-relaxed text-gray-700">
+              Nous travaillons exclusivement dans l&apos;intérêt de nos clients : gestion du portefeuille d&apos;assurances, assistance en cas de sinistre, contact direct avec les compagnies, étude et conseils personnalisés.
+            </p>
+          </div>
+        </motion.section>
+
+        <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20">
+          <h2 className="text-3xl font-bold mb-10" style={{ color: "#1a2e5a" }}>Notre Mission</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white p-8 rounded-3xl shadow-lg border" style={{ borderColor: "#e0ecec" }}>
+              <h3 className="font-semibold text-xl mb-6" style={{ color: "#2a8a8a" }}>Ce que nous faisons :</h3>
+              <ul className="space-y-4 text-gray-700">
+                {[
+                  "Rechercher les produits adaptés à votre situation",
+                  "Établir des offres claires et comparatives",
+                  "Assurer la gestion administrative complète",
+                  "Vous accompagner activement en cas de sinistre",
+                ].map((item) => (
+                  <li key={item} className="flex gap-3 items-start">
+                    <CheckCircle className="mt-1 flex-shrink-0" style={{ color: "#2a8a8a" }} size={20} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="text-white p-8 rounded-3xl shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+              <h3 className="font-semibold text-xl mb-6">Nos Engagements</h3>
+              <ul className="space-y-4">
+                {[
+                  "Neutralité et indépendance totale",
+                  "Confidentialité absolue",
+                  "Aucun honoraire facturé au client",
+                  "Défense de vos intérêts face aux compagnies",
+                ].map((item) => (
+                  <li key={item} className="flex gap-3 items-start">
+                    <CheckCircle className="mt-1 flex-shrink-0 text-white/80" size={20} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        </div>
+        </motion.section>
 
-        {/* Notre Mission */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-gray-800 text-center mb-6">Notre Mission</h2>
-          <div className="grid md:grid-cols-5 gap-4">
-            {missions.map((mission, i) => (
-              <div key={i} className="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-orange-600 font-bold text-sm">{i + 1}</span>
-                </div>
-                <p className="text-gray-700 text-sm">{mission}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Nos Valeurs */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-gray-800 text-center mb-6">Nos Valeurs</h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {valeurs.map((v, i) => (
-              <div key={i} className="bg-white rounded-xl p-5 text-center shadow-sm">
-                <div className="text-3xl mb-2">{v.icone}</div>
-                <h3 className="font-bold text-gray-800 mb-2">{v.titre}</h3>
-                <p className="text-gray-500 text-sm">{v.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Engagement Client */}
-        <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-xl p-6 text-center text-white">
-          <h2 className="text-xl font-bold mb-3">Notre Engagement Client</h2>
-          <p className="text-blue-100 mb-4">Votre protection, notre priorité.</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">✓ Un interlocuteur unique</span>
-            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">✓ Devis sous 48h</span>
-            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">✓ Accompagnement sinistre</span>
-          </div>
-        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} className="text-white rounded-3xl p-12 text-center shadow-2xl" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+          <Phone className="w-16 h-16 mx-auto mb-6" />
+          <h3 className="text-3xl font-bold mb-4">Prêt à être bien protégé ?</h3>
+          <p className="text-xl mb-8 text-white/80">Contactez-nous pour une étude personnalisée gratuite.</p>
+          <a href="tel:+2250707108743" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 07 07 10 87 43</a>
+        </motion.div>
 
       </div>
     </div>

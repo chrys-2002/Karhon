@@ -1,0 +1,2125 @@
+﻿
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\a-propos\page.tsx
+==================================================
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+
+export default function AboutPage() {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    setIsVisible(true);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
+
+  const valeurs = [
+    { 
+      titre: "Neutralit´┐¢", 
+      description: "Ind´┐¢pendant de toute compagnie. Nous d´┐¢fendons uniquement vos int´┐¢r´┐¢ts.",
+      icone: "??",
+      couleur: "from-blue-500 to-blue-600"
+    },
+    { 
+      titre: "Confidentialit´┐¢", 
+      description: "Totale confidentialit´┐¢ de vos informations personnelles garantie.",
+      icone: "??",
+      couleur: "from-purple-500 to-purple-600"
+    },
+    { 
+      titre: "Personnalisation", 
+      description: "Solutions sur-mesure adapt´┐¢es ´┐¢ votre situation sp´┐¢cifique.",
+      icone: "??",
+      couleur: "from-orange-500 to-orange-600"
+    },
+    { 
+      titre: "R´┐¢activit´┐¢", 
+      description: "Contact direct avec toutes les compagnies pour un traitement rapide.",
+      icone: "?",
+      couleur: "from-yellow-500 to-yellow-600"
+    },
+    { 
+      titre: "Gratuit´┐¢", 
+      description: "Nos services sont enti´┐¢rement financ´┐¢s par les compagnies partenaires.",
+      icone: "??",
+      couleur: "from-emerald-500 to-emerald-600"
+    },
+    { 
+      titre: "Excellence", 
+      description: "Acc´┐¢s aux meilleures compagnies du march´┐¢ ivoirien.",
+      icone: "??",
+      couleur: "from-rose-500 to-rose-600"
+    }
+  ];
+
+  const missions = [
+    { titre: "Rechercher", description: "Les produits adapt´┐¢s ´┐¢ chaque client" },
+    { titre: "´┐¢tablir", description: "Des offres personnalis´┐¢es" },
+    { titre: "G´┐¢rer", description: "Les dossiers administratifs" },
+    { titre: "Accompagner", description: "Lors des sinistres" },
+    { titre: "Conseiller", description: "Et orienter sur les meilleurs produits" }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4">
+        
+        {/* Hero Section */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          className="text-center mb-12"
+        >
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Qui sommes-nous ?</h1>
+          <div className="w-20 h-1 bg-orange-500 mx-auto mb-6"></div>
+        </motion.div>
+
+        {/* Pr´┐¢sentation du cabinet */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-sm p-8 mb-8"
+        >
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1">
+              <div className="inline-block px-4 py-1.5 bg-orange-100 rounded-full mb-4">
+                <span className="text-sm font-medium text-orange-600">Fond´┐¢ en 2020</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Notre Cabinet</h2>
+              <p className="text-gray-600 leading-relaxed">
+                KARHON Assurances place son expertise, son exp´┐¢rience et sa comp´┐¢tence au service de ses clients. 
+                Nous proposons un service personnalis´┐¢ dans tous les domaines d'assurances avec les meilleures 
+                compagnies du march´┐¢ ivoirien.
+              </p>
+            </div>
+            <div className="flex-1 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 text-center">
+              <div className="text-5xl mb-3">??</div>
+              <p className="text-orange-800 font-semibold">Cabinet de Courtage en Assurances</p>
+              <p className="text-orange-600 text-sm mt-2">Arr´┐¢t´┐¢ n´┐¢0305/MEF/DGTCP/DA</p>
+              <p className="text-orange-500 text-sm">02 Septembre 2021</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Notre Mission */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          transition={{ delay: 0.2 }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Notre Mission</h2>
+          <div className="grid md:grid-cols-5 gap-4">
+            {missions.map((mission, index) => (
+              <div key={index} className="bg-white rounded-xl p-5 text-center shadow-sm hover:shadow-md transition-all">
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-orange-500 text-lg font-bold">{index + 1}</span>
+                </div>
+                <h3 className="font-semibold text-gray-800 mb-1">{mission.titre}</h3>
+                <p className="text-gray-500 text-sm">{mission.description}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Nos Valeurs */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          transition={{ delay: 0.3 }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Nos Valeurs & Engagements</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {valeurs.map((valeur, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                <div className={`w-14 h-14 bg-gradient-to-r ${valeur.couleur} rounded-xl flex items-center justify-center mb-4`}>
+                  <span className="text-2xl">{valeur.icone}</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">{valeur.titre}</h3>
+                <p className="text-gray-500 text-sm">{valeur.description}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Notre Engagement Client */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          transition={{ delay: 0.4 }}
+          className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-2xl p-8 text-white text-center mb-8"
+        >
+          <h2 className="text-2xl font-bold mb-4">Notre Engagement Client</h2>
+          <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
+            Nous nous engageons ´┐¢ placer vos int´┐¢r´┐¢ts au c´┐¢ur de notre action, 
+            avec transparence, r´┐¢activit´┐¢ et professionnalisme.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm">? Un interlocuteur unique</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm">? Devis gratuit sous 48h</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm">? Accompagnement sinistre</div>
+          </div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          transition={{ delay: 0.5 }}
+          className="text-center"
+        >
+          <Link href="/contact">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+              Contactez-nous
+            </button>
+          </Link>
+        </motion.div>
+
+      </div>
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\apropos\page.tsx
+==================================================
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export default function AproposPage() {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    setIsVisible(true);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const valeurs = [
+    { titre: "Neutralit├®", description: "Ind├®pendant de toute compagnie. Nous d├®fendons uniquement vos int├®r├¬ts.", icone: "ÔÜû´©Å" },
+    { titre: "Confidentialit├®", description: "Totale confidentialit├® de vos informations personnelles garantie.", icone: "­ƒöÆ" },
+    { titre: "Personnalisation", description: "Solutions sur-mesure adapt├®es ├á votre situation sp├®cifique.", icone: "­ƒÄ»" },
+    { titre: "R├®activit├®", description: "Contact direct avec toutes les compagnies pour un traitement rapide.", icone: "ÔÜí" },
+    { titre: "Gratuit├®", description: "Nos services sont enti├¿rement financ├®s par les compagnies partenaires.", icone: "­ƒÆ░" },
+    { titre: "Excellence", description: "Acc├¿s aux meilleures compagnies du march├® ivoirien.", icone: "­ƒÅå" }
+  ];
+
+  const missions = [
+    "Rechercher les produits adapt├®s ├á chaque client",
+    "├ëtablir des offres personnalis├®es",
+    "G├®rer les dossiers administratifs",
+    "Accompagner lors des sinistres",
+    "Conseiller et orienter sur les meilleurs produits"
+  ];
+
+  return (
+    <div className="py-12 bg-gray-50 min-h-screen">
+      <div className="max-w-5xl mx-auto px-4">
+        
+        {/* Titre */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Qui sommes-nous ?</h1>
+          <div className="w-16 h-1 bg-orange-500 mx-auto"></div>
+        </div>
+
+        {/* Notre Cabinet */}
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <div className="inline-block bg-orange-100 px-3 py-1 rounded-full mb-3">
+                <span className="text-sm text-orange-600 font-medium">Fond├® en 2020</span>
+              </div>
+              <h2 className="text-xl font-bold text-gray-800 mb-3">Notre Cabinet</h2>
+              <p className="text-gray-600 leading-relaxed">
+                KARHON Assurances place son expertise, son exp├®rience et sa comp├®tence au service de ses clients. 
+                Nous proposons un service personnalis├® dans tous les domaines d'assurances avec les meilleures 
+                compagnies du march├® ivoirien.
+              </p>
+            </div>
+            <div className="bg-orange-50 rounded-xl p-5 text-center min-w-[200px]">
+              <div className="text-4xl mb-2">­ƒÅó</div>
+              <p className="font-semibold text-gray-800">Cabinet de Courtage</p>
+              <p className="text-gray-500 text-sm">Arr├¬t├® n┬░0305/MEF/DGTCP/DA</p>
+              <p className="text-orange-500 text-sm">02 Septembre 2021</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Notre Mission */}
+        <div className="mb-12">
+          <h2 className="text-xl font-bold text-gray-800 text-center mb-6">Notre Mission</h2>
+          <div className="grid md:grid-cols-5 gap-4">
+            {missions.map((mission, i) => (
+              <div key={i} className="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-orange-600 font-bold text-sm">{i + 1}</span>
+                </div>
+                <p className="text-gray-700 text-sm">{mission}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Nos Valeurs */}
+        <div className="mb-12">
+          <h2 className="text-xl font-bold text-gray-800 text-center mb-6">Nos Valeurs</h2>
+          <div className="grid md:grid-cols-3 gap-5">
+            {valeurs.map((v, i) => (
+              <div key={i} className="bg-white rounded-xl p-5 text-center shadow-sm">
+                <div className="text-3xl mb-2">{v.icone}</div>
+                <h3 className="font-bold text-gray-800 mb-2">{v.titre}</h3>
+                <p className="text-gray-500 text-sm">{v.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Engagement Client */}
+        <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-xl p-6 text-center text-white">
+          <h2 className="text-xl font-bold mb-3">Notre Engagement Client</h2>
+          <p className="text-blue-100 mb-4">Votre protection, notre priorit├®.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Ô£ô Un interlocuteur unique</span>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Ô£ô Devis sous 48h</span>
+            <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Ô£ô Accompagnement sinistre</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\client\dashboard\page.tsx
+==================================================
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
+
+export default function Dashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const data = localStorage.getItem("user");
+    if (!data) {
+      router.push("/client");
+    } else {
+      try {
+        setUser(JSON.parse(data));
+      } catch {
+        router.push("/client");
+      }
+    }
+    setLoading(false);
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
+
+  const stats = [
+    { label: "Contrats actifs", value: "3", icone: "­ƒôä" },
+    { label: "Sinistres", value: "1", icone: "ÔÜá´©Å" },
+    { label: "Devis", value: "2", icone: "­ƒôï" },
+    { label: "├ëch├®ances", value: "2", icone: "­ƒôà" }
+  ];
+
+  const contrats = [
+    { id: "C001", produit: "Assurance Auto", compagnie: "SUNU", prime: "185 000 FCFA", echeance: "31/12/2024" },
+    { id: "C002", produit: "Assurance Habitation", compagnie: "NSIA", prime: "95 000 FCFA", echeance: "15/03/2025" },
+    { id: "C003", produit: "Assurance Sant├®", compagnie: "AXA", prime: "245 000 FCFA", echeance: "30/06/2024" }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          className="mb-8"
+        >
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Bonjour, <span className="text-gray-900">{user.email?.split("@")[0] || "Client"}</span>
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">Bienvenue dans votre espace personnel</p>
+        </motion.div>
+
+        {/* Stats */}
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        >
+          {stats.map((stat, index) => (
+            <div key={index} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">{stat.label}</p>
+                  <p className="text-2xl font-semibold text-gray-800 mt-1">{stat.value}</p>
+                </div>
+                <div className="text-2xl">{stat.icone}</div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Contrats */}
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-xl shadow-sm overflow-hidden mb-8"
+        >
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-800">Mes contrats</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  {["N┬░", "Produit", "Compagnie", "Prime", "├ëch├®ance"].map((h) => (
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {contrats.map((c) => (
+                  <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">{c.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{c.produit}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{c.compagnie}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">{c.prime}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{c.echeance}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        {/* Actions */}
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ delay: 0.3 }}
+          className="grid md:grid-cols-3 gap-4"
+        >
+          <Link href="/client/sinistres/nouveau">
+            <div className="bg-white rounded-xl p-5 text-center border border-gray-100 hover:shadow-md transition-all cursor-pointer">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="font-medium text-gray-800 text-sm">D├®clarer un sinistre</h3>
+            </div>
+          </Link>
+
+          <Link href="/devis">
+            <div className="bg-white rounded-xl p-5 text-center border border-gray-100 hover:shadow-md transition-all cursor-pointer">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="font-medium text-gray-800 text-sm">Nouveau devis</h3>
+            </div>
+          </Link>
+
+          <button onClick={() => { localStorage.removeItem("user"); router.push("/client"); }}>
+            <div className="bg-white rounded-xl p-5 text-center border border-gray-100 hover:shadow-md transition-all cursor-pointer">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              <h3 className="font-medium text-gray-800 text-sm">Se d├®connecter</h3>
+            </div>
+          </button>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\client\page.tsx
+==================================================
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+
+export default function ClientLoginPage() {
+  const router = useRouter();
+  const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "", nom: "", prenom: "", telephone: "", confirmPassword: "" });
+
+  const handleChange = (e: React.FormEvent) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setError("");
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setTimeout(() => {
+      if (formData.email === "client@karhon.ci" && formData.password === "password") {
+        localStorage.setItem("user", JSON.stringify({ email: formData.email }));
+        router.push("/client/dashboard");
+      } else {
+        setError("Email ou mot de passe incorrect");
+        setIsLoading(false);
+      }
+    }, 1000);
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas");
+      return;
+    }
+    setIsLoading(true);
+    setTimeout(() => {
+      localStorage.setItem("user", JSON.stringify({ email: formData.email, nom: formData.nom }));
+      router.push("/client/dashboard");
+    }, 1000);
+  };
+
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center py-20 px-4">
+      <div className="max-w-md w-full">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-lg overflow-hidden"
+        >
+          {/* Header ├®pur├® */}
+          <div className="p-8 text-center">
+            <div className="w-14 h-14 mx-auto bg-orange-500 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+              <span className="text-white font-bold text-2xl">K</span>
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-800">Espace client</h1>
+            <p className="text-gray-400 text-sm mt-1">Connectez-vous ├á votre compte</p>
+          </div>
+
+          {/* Toggle */}
+          <div className="flex border-b border-gray-100 mx-8">
+            <button
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-3 text-sm font-medium transition-all ${isLogin ? "text-orange-500 border-b-2 border-orange-500" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              Connexion
+            </button>
+            <button
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-3 text-sm font-medium transition-all ${!isLogin ? "text-orange-500 border-b-2 border-orange-500" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              Inscription
+            </button>
+          </div>
+
+          <div className="p-8">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <form onSubmit={isLogin ? handleLogin : handleRegister}>
+              {!isLogin && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-3 mb-4"
+                >
+                  <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all text-sm" />
+                  <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Pr├®nom" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all text-sm" />
+                  <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="T├®l├®phone" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all text-sm" />
+                </motion.div>
+              )}
+              
+              <div className="space-y-3 mb-6">
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all text-sm" />
+                <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Mot de passe" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all text-sm" />
+                {!isLogin && (
+                  <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirmer le mot de passe" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all text-sm" />
+                )}
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition shadow-sm disabled:opacity-50"
+              >
+                {isLoading ? "Chargement..." : (isLogin ? "Se connecter" : "Cr├®er mon compte")}
+              </motion.button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button 
+                onClick={() => { setIsLogin(!isLogin); setError(""); }}
+                className="text-gray-400 hover:text-gray-600 text-sm transition"
+              >
+                {isLogin ? "Cr├®er un compte" : "D├®j├á inscrit ? Se connecter"}
+              </button>
+            </div>
+
+            {isLogin && (
+              <div className="mt-6 p-3 bg-gray-50 rounded-xl text-center">
+                <p className="text-xs text-gray-500">­ƒöÉ D├®mo : <span className="font-medium">client@karhon.ci</span> / <span className="font-medium">password</span></p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\client\sinistres\nouveau\page.tsx
+==================================================
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function NouveauSinistre() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({ contratId: "", date: "", description: "", montant: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      router.push("/client/dashboard");
+    }, 1500);
+  };
+
+  return (
+    <div className="py-12 bg-gray-50 min-h-screen">
+      <div className="max-w-2xl mx-auto px-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <h1 className="text-2xl font-bold mb-6">Declaration de sinistre</h1>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <select onChange={(e: React.FormEvent) => setFormData({ ...formData, contratId: e.target.value })} required className="w-full p-3 border rounded-xl">
+              <option value="">Selectionnez un contrat</option>
+              <option value="C001">Assurance Auto</option>
+              <option value="C002">Assurance Habitation</option>
+            </select>
+            <input type="date" onChange={(e: React.FormEvent) => setFormData({ ...formData, date: e.target.value })} required className="w-full p-3 border rounded-xl" />
+            <textarea placeholder="Circonstances" rows={5} onChange={(e: React.FormEvent) => setFormData({ ...formData, description: e.target.value })} required className="w-full p-3 border rounded-xl"></textarea>
+            <input type="number" placeholder="Montant estime (FCFA)" onChange={(e: React.FormEvent) => setFormData({ ...formData, montant: e.target.value })} className="w-full p-3 border rounded-xl" />
+            <div className="flex gap-4">
+              <button type="submit" disabled={isSubmitting} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold">Declarer</button>
+              <button type="button" onClick={() => router.back()} className="px-6 py-3 border rounded-xl">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\contact\page.tsx
+==================================================
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import Select from "@/components/ui/Select";
+
+export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ nom: "", prenom: "", email: "", telephone: "", sujet: "info", message: "" });
+
+  const handleChange = (e: React.FormEvent) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => { setIsSubmitting(false); setIsSubmitted(true); }, 1000);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="py-20 bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="max-w-md text-center bg-white rounded-xl shadow-lg p-8">
+          <div className="text-5xl mb-4">??</div>
+          <h1 className="text-xl font-bold mb-2">Message envoy´┐¢</h1>
+          <p className="text-gray-500 text-sm mb-4">Merci, nous vous r´┐¢pondrons rapidement.</p>
+          <Link href="/" className="text-blue-800 text-sm hover:underline">Retour ´┐¢ l'accueil</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const sujetOptions = [
+    { value: "info", label: "Demande d'information" },
+    { value: "devis", label: "Demande de devis" },
+    { value: "sinistre", label: "D´┐¢claration de sinistre" }
+  ];
+
+  return (
+    <div className="py-12 bg-gray-50 min-h-screen">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Contactez-nous</h1>
+          <p className="text-gray-500 text-sm">Notre ´┐¢quipe est ´┐¢ votre ´┐¢coute</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <h3 className="font-semibold text-gray-800 mb-3">?? Adresse</h3>
+            <p className="text-gray-500 text-sm">Abidjan, C´┐¢te d'Ivoire</p>
+            <p className="text-gray-400 text-xs mt-1">Plateau - Avenue Chardy</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <h3 className="font-semibold text-gray-800 mb-3">?? T´┐¢l´┐¢phone</h3>
+            <p className="text-gray-500 text-sm">+225 07 07 10 87 43</p>
+            <p className="text-gray-400 text-xs mt-1">Lun-Ven 8h30-17h30</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-5">
+            <h3 className="font-semibold text-gray-800 mb-3">?? Email</h3>
+            <p className="text-gray-500 text-sm">contact@karhon-assurances.ci</p>
+            <p className="text-gray-400 text-xs mt-1">R´┐¢ponse sous 24h</p>
+          </div>
+        </div>
+
+        <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Envoyez-nous un message</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom" required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
+              <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Pr´┐¢nom" required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
+              <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="T´┐¢l´┐¢phone" className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 text-sm" />
+            </div>
+            <div className="mb-4">
+              <Select label="Sujet" name="sujet" value={formData.sujet} onChange={handleChange} options={sujetOptions} required />
+            </div>
+            <div className="mb-5">
+              <textarea name="message" rows={4} value={formData.message} onChange={handleChange} placeholder="Votre message..." required className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-800 resize-none text-sm"></textarea>
+            </div>
+            <button type="submit" disabled={isSubmitting} className="w-full bg-blue-800 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 transition disabled:opacity-50">
+              {isSubmitting ? "Envoi..." : "Envoyer le message"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\devis\page.tsx
+==================================================
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import Select from "@/components/ui/Select";
+
+export default function DevisPage() {
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    typeAssurance: "auto",
+    civilite: "mr",
+    nom: "", prenom: "", email: "", telephone: "", ville: "Abidjan",
+    vehiculeMarque: "", vehiculeModele: "", vehiculeAnnee: "", message: ""
+  });
+
+  const handleChange = (e: React.FormEvent) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => { setIsSubmitting(false); setIsSubmitted(true); }, 1500);
+  };
+
+  const nextStep = () => setStep(step + 1);
+  const prevStep = () => setStep(step - 1);
+
+  const fadeSlide = {
+    hidden: { opacity: 0, x: 30 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
+    exit: { opacity: 0, x: -30, transition: { duration: 0.3 } }
+  };
+
+  if (isSubmitted) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center py-20"
+      >
+        <div className="max-w-md text-center">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            className="w-20 h-20 mx-auto bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl"
+          >
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </motion.div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-2xl font-bold text-gray-900 mb-2"
+          >
+            Demande envoy´┐¢e
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-gray-500 mb-6"
+          >
+            Merci, notre ´┐¢quipe vous contactera sous 48h
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Link href="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
+              Retour ´┐¢ l'accueil
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  const insuranceTypes = [
+    { value: "auto", label: "Assurance Auto" },
+    { value: "habitation", label: "Assurance Habitation" },
+    { value: "sante", label: "Assurance Sant´┐¢" },
+    { value: "voyage", label: "Assurance Voyage" }
+  ];
+
+  const civiliteOptions = [
+    { value: "mr", label: "Monsieur" },
+    { value: "mme", label: "Madame" },
+    { value: "mlle", label: "Mademoiselle" }
+  ];
+
+  const villeOptions = [
+    { value: "Abidjan", label: "Abidjan" },
+    { value: "Bouak´┐¢", label: "Bouak´┐¢" },
+    { value: "Yamoussoukro", label: "Yamoussoukro" }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-16">
+      <div className="max-w-2xl mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 rounded-full mb-4">
+            <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+            <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Gratuit & sans engagement</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+            Demande de devis
+          </h1>
+          <p className="text-gray-500">Obtenez votre offre personnalis´┐¢e en quelques clics</p>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-xl p-6 md:p-8"
+        >
+          {/* Steps */}
+          <div className="flex justify-between mb-10">
+            {[{ num: 1, label: "Produit" }, { num: 2, label: "Profil" }, { num: 3, label: "Validation" }].map((item) => (
+              <div key={item.num} className="text-center flex-1">
+                <motion.div 
+                  className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+                    step > item.num ? "bg-blue-600 text-white shadow-lg" : step === item.num ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md" : "bg-gray-100 text-gray-400"
+                  }`}
+                  animate={{ scale: step === item.num ? [1, 1.05, 1] : 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {step > item.num ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : item.num}
+                </motion.div>
+                <p className={`text-xs mt-2 font-medium ${step === item.num ? "text-blue-600" : "text-gray-400"}`}>{item.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                variants={fadeSlide}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <Select label="Type d'assurance" name="typeAssurance" value={formData.typeAssurance} onChange={handleChange} options={insuranceTypes} required />
+                <div className="mt-4">
+                  <Select label="Civilit´┐¢" name="civilite" value={formData.civilite} onChange={handleChange} options={civiliteOptions} required />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={nextStep}
+                  className="w-full mt-8 bg-blue-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md"
+                >
+                  Continuer
+                </motion.button>
+              </motion.div>
+            )}
+
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                variants={fadeSlide}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="space-y-4"
+              >
+                <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom complet" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
+                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Pr´┐¢nom" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Adresse email" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
+                <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="T´┐¢l´┐¢phone" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
+                <Select label="Ville" name="ville" value={formData.ville} onChange={handleChange} options={villeOptions} required />
+                <textarea name="message" rows={3} value={formData.message} onChange={handleChange} placeholder="Informations compl´┐¢mentaires (optionnel)" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none"></textarea>
+                <div className="flex gap-3 pt-4">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={prevStep} className="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Retour</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={nextStep} className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md">Continuer</motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                variants={fadeSlide}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="text-center"
+              >
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-5"
+                >
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </motion.div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">V´┐¢rification</h3>
+                <p className="text-gray-500 text-sm mb-6">Veuillez v´┐¢rifier vos informations</p>
+                <div className="bg-gray-50 rounded-xl p-5 text-left text-sm mb-6 space-y-3">
+                  <div className="flex justify-between"><span className="text-gray-500">Nom complet</span><span className="font-medium text-gray-800">{formData.prenom} {formData.nom}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">Email</span><span className="font-medium text-gray-800">{formData.email}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">T´┐¢l´┐¢phone</span><span className="font-medium text-gray-800">{formData.telephone}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500">Assurance</span><span className="font-medium text-gray-800">{insuranceTypes.find(t => t.value === formData.typeAssurance)?.label}</span></div>
+                </div>
+                <div className="flex gap-3">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={prevStep} className="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Retour</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={isSubmitting} className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md disabled:opacity-50">
+                    {isSubmitting ? "Envoi..." : "Confirmer"}
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-center text-xs text-gray-400 mt-6"
+        >
+          Vos donn´┐¢es sont confidentielles et ne seront pas partag´┐¢es
+        </motion.p>
+      </div>
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\globals.css
+==================================================
+´╗┐@import "tailwindcss";
+
+/* Animations KARHON */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes particlesMove {
+  from { background-position: 0 0; }
+  to { background-position: 50px 50px; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-slideRight {
+  animation: slideRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Glassmorphism */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.98);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.15);
+}
+
+/* Effets 3D */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-3d:hover {
+  transform: perspective(1000px) rotateX(6deg) rotateY(6deg) translateY(-12px);
+}
+
+/* Boutons */
+.btn-primary {
+  background: linear-gradient(135deg, #e85d04, #ffb703);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(232, 93, 4, 0.4);
+}
+
+.btn-outline {
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px) scale(1.02);
+}
+
+/* Hero */
+.hero-gradient {
+  background: linear-gradient(135deg, #0f2b5c, #1a3a7a, #0f2b5c);
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+}
+
+.hero-particles {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: particlesMove 20s linear infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #e85d04, #ffb703);
+  border-radius: 10px;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .glass-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-3d:hover {
+    transform: perspective(1000px) rotateX(3deg) rotateY(3deg) translateY(-5px);
+  }
+}
+
+/* Forcer le header transparent sur la page accueil */
+body.home-page header {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\layout.tsx
+==================================================
+import type { Metadata } from "next";
+import "./globals.css";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+
+export const metadata: Metadata = {
+  title: "KARHON Assurances - Cabinet de Courtage ├á Abidjan",
+  description: "Courtier en assurances neutre et ind├®pendant en C├┤te d'Ivoire",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="fr">
+      <body className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\page.tsx
+==================================================
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export default function Home() {
+  const [loaded, setLoaded] = useState(false);
+  
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+  
+  const produitsIARD = [
+    { nom: "Assurance Auto", description: "Particulier, flotte et deux roues", icone: "­ƒÜù", color: "from-blue-500 to-cyan-500" },
+    { nom: "Assurance Habitation", description: "Appartement, immeuble, villa", icone: "­ƒÅá", color: "from-emerald-500 to-teal-500" },
+    { nom: "Assurance Sant├®", description: "Individuelle et famille", icone: "­ƒÅÑ", color: "from-red-500 to-pink-500" },
+    { nom: "Assurance Voyage", description: "Multirisques personnalis├®e", icone: "Ô£ê´©Å", color: "from-purple-500 to-indigo-500" },
+  ];
+  
+  const produitsVIE = [
+    { nom: "Assurance Retraite", description: "Pr├®parez votre avenir", icone: "­ƒæ┤", color: "from-orange-500 to-yellow-500" },
+    { nom: "Assurance ├ëtudes", description: "├ëpargne pour les ├®tudes", icone: "­ƒôÜ", color: "from-green-500 to-lime-500" },
+    { nom: "Assurance Emprunteur", description: "Protection de pr├¬t bancaire", icone: "­ƒÅª", color: "from-indigo-500 to-blue-500" },
+    { nom: "Assurance Obs├¿ques", description: "Pr├®voyance fun├®raire", icone: "­ƒòè´©Å", color: "from-gray-500 to-slate-500" },
+  ];
+  
+  const stats = [
+    { value: "50+", label: "Partenaires", icone: "­ƒñØ" },
+    { value: "1000+", label: "Clients", icone: "Ô¡É" },
+    { value: "48h", label: "Devis express", icone: "ÔÜí" },
+    { value: "100%", label: "Sans honoraires", icone: "­ƒÆ░" }
+  ];
+  
+  return (
+    <div className="overflow-hidden">
+      {/* Hero Section */}
+      <div className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center hero-gradient overflow-hidden pt-16 sm:pt-0">
+        <div className="absolute inset-0 hero-particles"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className={`transition-all duration-700 ${loaded ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+            <div className="animate-float">
+              <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-4 md:mb-6 px-2">
+                KARHON <span className="text-orange-400">Assurances</span>
+              </h1>
+            </div>
+            <p className="text-base xs:text-lg sm:text-xl md:text-2xl text-blue-100 mb-2 sm:mb-3 md:mb-4 px-4 animate-slideRight">
+              Votre courtier en assurances ├á Abidjan
+            </p>
+            <p className="text-xs xs:text-sm sm:text-base text-blue-200 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto px-4 animate-slideUp leading-relaxed" style={{animationDelay: "0.2s"}}>
+              Neutre et ind├®pendant, nous travaillons dans votre int├®r├¬t.
+            </p>
+            <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 justify-center px-4 animate-scaleIn" style={{animationDelay: "0.4s"}}>
+              <Link href="/devis" className="btn-primary px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-white text-center text-sm xs:text-base active:scale-95 transition-transform">Demander un devis gratuit</Link>
+              <Link href="/contact" className="btn-outline px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-white text-center text-sm xs:text-base active:scale-95 transition-transform">Nous contacter</Link>
+            </div>
+          </div>
+        </div>
+        
+        <div className="absolute bottom-5 sm:bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+      </div>
+      
+      {/* Stats Section - interactions tactiles */}
+      <div className="py-8 sm:py-10 md:py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+            {stats.map((stat, index) => (
+              <div 
+                key={index} 
+                className={`glass-card rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 text-center transition-all duration-300 hover:shadow-xl active:scale-95 cursor-pointer ${loaded ? 'animate-scaleIn' : 'opacity-0'}`} 
+                style={{animationDelay: `${index * 0.1}s`}}
+              >
+                <div className="text-3xl sm:text-4xl md:text-5xl mb-1 sm:mb-2">{stat.icone}</div>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{stat.value}</div>
+                <div className="text-xs sm:text-sm text-gray-500">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Section IARD - cartes avec interactions tactiles */}
+      <div className="py-12 sm:py-14 md:py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 animate-slideUp">Assurances IARD</h2>
+            <p className="text-sm sm:text-base text-gray-500 animate-slideUp" style={{animationDelay: "0.1s"}}>Incendie, Accidents, Risques Divers</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+            {produitsIARD.map((produit, index) => (
+              <div 
+                key={index} 
+                className={`card-3d transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${loaded ? 'animate-scaleIn' : 'opacity-0'}`} 
+                style={{animationDelay: `${index * 0.1}s`}}
+              >
+                <div className={`bg-gradient-to-br ${produit.color} p-4 sm:p-5 rounded-xl shadow-md transition-all duration-300`}>
+                  <div className="text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-3 animate-float">{produit.icone}</div>
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1">{produit.nom}</h3>
+                  <p className="text-white/80 text-xs sm:text-sm mb-2 sm:mb-3">{produit.description}</p>
+                  <Link href="/devis" className="inline-block bg-white/20 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-white text-xs hover:bg-white/30 transition-all active:scale-95">Demander un devis</Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Section VIE - cartes avec interactions tactiles */}
+      <div className="py-12 sm:py-14 md:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 animate-slideUp">Assurances Vie</h2>
+            <p className="text-sm sm:text-base text-gray-500 animate-slideUp" style={{animationDelay: "0.1s"}}>Pr├®parez et prot├®gez votre avenir</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+            {produitsVIE.map((produit, index) => (
+              <div 
+                key={index} 
+                className={`card-3d transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${loaded ? 'animate-scaleIn' : 'opacity-0'}`} 
+                style={{animationDelay: `${index * 0.1}s`}}
+              >
+                <div className={`bg-gradient-to-br ${produit.color} p-4 sm:p-5 rounded-xl shadow-md transition-all duration-300`}>
+                  <div className="text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-3 animate-float">{produit.icone}</div>
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1">{produit.nom}</h3>
+                  <p className="text-white/80 text-xs sm:text-sm mb-2 sm:mb-3">{produit.description}</p>
+                  <Link href="/devis" className="inline-block bg-white/20 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-white text-xs hover:bg-white/30 transition-all active:scale-95">Demander un devis</Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Section Pourquoi choisir KARHON - cartes interactives */}
+      <div className="py-12 sm:py-14 md:py-16 bg-gradient-to-r from-blue-900 to-blue-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-white mb-6 sm:mb-8 md:mb-10 animate-slideUp">Pourquoi choisir KARHON ?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+            {[
+              { icone: "­ƒÄ»", title: "Un interlocuteur unique", desc: "Gestion personnalis├®e de vos dossiers" },
+              { icone: "­ƒñØ", title: "Neutre et ind├®pendant", desc: "Nous travaillons dans votre int├®r├¬t" },
+              { icone: "­ƒÆ░", title: "Sans honoraires", desc: "Services pris en charge par les compagnies" }
+            ].map((item, i) => (
+              <div 
+                key={i} 
+                className={`bg-white/10 backdrop-blur-md rounded-xl p-4 sm:p-5 md:p-6 text-center border border-white/20 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${loaded ? 'animate-scaleIn' : 'opacity-0'}`} 
+                style={{animationDelay: `${0.3 + i * 0.1}s`}}
+              >
+                <div className="text-4xl sm:text-5xl md:text-6xl mb-2 sm:mb-3 animate-float">{item.icone}</div>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1 sm:mb-2">{item.title}</h3>
+                <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* CTA Section - bouton avec feedback tactile */}
+      <div className="py-10 sm:py-12 md:py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 sm:mb-3 animate-slideUp">Pr├¬t ├á prot├®ger ce qui compte pour vous ?</h2>
+          <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-5 md:mb-6 animate-slideUp" style={{animationDelay: "0.1s"}}>Obtenez votre devis gratuit en quelques minutes</p>
+          <Link 
+            href="/devis" 
+            className="inline-block btn-primary px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-white text-sm sm:text-base transition-all duration-300 hover:scale-105 active:scale-95 animate-scaleIn" 
+            style={{animationDelay: "0.2s"}}
+          >
+            Commencer maintenant
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\app\produits\page.tsx
+==================================================
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+
+export default function ProduitsPage() {
+  const [activeCategorie, setActiveCategorie] = useState("particuliers");
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    setIsVisible(true);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const produits = {
+    particuliers: [
+      { id: "auto", nom: "Assurance Auto", icone: "??", description: "Protection compl´┐¢te pour votre v´┐¢hicule", details: ["Responsabilit´┐¢ Civile", "Dommages tous accidents", "Vol et incendie", "Bris de glace", "Assistance 24h/24"], options: ["Particulier", "Flotte", "Deux roues"] },
+      { id: "habitation", nom: "Assurance Habitation", icone: "??", description: "Protection de votre logement", details: ["Incendie", "D´┐¢g´┐¢ts des eaux", "Vol", "Bris de glace", "Responsabilit´┐¢ Civile"], options: ["Appartement", "Villa", "Immeuble"] },
+      { id: "sante", nom: "Assurance Sant´┐¢", icone: "??", description: "Couverture m´┐¢dicale compl´┐¢te", details: ["Consultations", "Hospitalisation", "M´┐¢dicaments", "Analyses", "Soins dentaires"], options: ["Individuelle", "Famille"] },
+      { id: "voyage", nom: "Assurance Voyage", icone: "??", description: "Voyagez en toute s´┐¢r´┐¢nit´┐¢", details: ["Annulation", "Rapatriement", "Perte bagages", "Assistance m´┐¢dicale"], options: ["Individuel", "Famille", "Affaires"] }
+    ],
+    professionnels: [
+      { id: "autoflotte", nom: "Auto Flotte", icone: "??", description: "Gestion de flotte d'entreprise", details: ["RC Flotte", "Dommages tous accidents", "Vol", "Assistance"], options: ["TPE", "PME", "Grandes entreprises"] },
+      { id: "mrpro", nom: "Multirisque Pro", icone: "??", description: "Protection compl´┐¢te de l'entreprise", details: ["Incendie", "Vol", "D´┐¢g´┐¢ts des eaux", "Bris de glaces", "RC exploitation"], options: ["TPE", "PME", "Grandes entreprises"] },
+      { id: "santegroupe", nom: "Sant´┐¢ Groupe", icone: "??", description: "Couverture collective", details: ["Consultations", "Hospitalisation", "M´┐¢dicaments", "Soins dentaires"], options: ["Entreprise", "Association"] }
+    ],
+    vie: [
+      { id: "retraite", nom: "Assurance Retraite", icone: "??", description: "Pr´┐¢parez votre avenir", details: ["´┐¢pargne flexible", "Rente viag´┐¢re", "Avantage fiscal"], options: ["Individuelle", "Groupe"] },
+      { id: "etudes", nom: "´┐¢tude Plus", icone: "??", description: "´┐¢pargne pour les ´┐¢tudes", details: ["´┐¢pargne programm´┐¢e", "Capital garanti"], options: ["´┐¢tudes sup´┐¢rieures", "Internationales"] },
+      { id: "emprunteur", nom: "Pr´┐¢t bancaire", icone: "??", description: "Protection de votre cr´┐¢dit", details: ["D´┐¢c´┐¢s", "Invalidit´┐¢", "Incapacit´┐¢"], options: ["Pr´┐¢t immobilier", "Pr´┐¢t personnel"] }
+    ]
+  };
+
+  const categories = [
+    { id: "particuliers", nom: "Particuliers", icone: "??" },
+    { id: "professionnels", nom: "Professionnels", icone: "??" },
+    { id: "vie", nom: "Assurances Vie", icone: "??" }
+  ];
+
+  const getProduits = () => {
+    if (activeCategorie === "particuliers") return produits.particuliers;
+    if (activeCategorie === "professionnels") return produits.professionnels;
+    return produits.vie;
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div 
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          variants={fadeUp}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 rounded-full mb-6">
+            <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+            <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Notre expertise</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            Des solutions d'assurance
+            <span className="text-blue-600"> sur mesure</span>
+          </h1>
+          <p className="text-gray-500 max-w-2xl mx-auto">
+            D´┐¢couvrez notre gamme compl´┐¢te de produits con´┐¢us pour prot´┐¢ger ce qui compte le plus pour vous
+          </p>
+        </motion.div>
+
+        {/* Categories */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="flex justify-center gap-4 mb-12"
+        >
+          {categories.map((cat, idx) => (
+            <motion.button
+              key={cat.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveCategorie(cat.id)}
+              className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                activeCategorie === cat.id
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
+                  : "bg-white text-gray-600 hover:shadow-md border border-gray-200"
+              }`}
+            >
+              <span className="text-lg">{cat.icone}</span>
+              <span>{cat.nom}</span>
+            </motion.button>
+          ))}
+        </motion.div>
+
+        {/* Products Grid */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isVisible ? "visible" : "hidden"}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {getProduits().map((produit, index) => (
+            <motion.div
+              key={produit.id}
+              variants={fadeUp}
+              whileHover={{ y: -8 }}
+              onHoverStart={() => setHoveredCard(produit.id)}
+              onHoverEnd={() => setHoveredCard(null)}
+              className="group"
+            >
+              <div className={`relative bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden ${
+                hoveredCard === produit.id ? "shadow-2xl" : ""
+              }`}>
+                <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-blue-50 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="p-6">
+                  <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{produit.icone}</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{produit.nom}</h3>
+                  <p className="text-gray-500 text-sm mb-5">{produit.description}</p>
+                  <div className="border-t border-gray-100 pt-4 mb-5">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Garanties principales</p>
+                    <div className="space-y-2">
+                      {produit.details.slice(0, 3).map((detail, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-sm text-gray-600">{detail}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Link href="/devis">
+                      <button className="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors">
+                        Demander un devis
+                      </button>
+                    </Link>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\components\layout\Footer.tsx
+==================================================
+import Link from "next/link";
+
+export default function Footer() {
+  return (
+    <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div>
+            <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-3 sm:mb-4">
+              KARHON Assurances
+            </h3>
+            <p className="text-gray-300 text-sm">
+              Cabinet de courtage en assurances ├á Abidjan
+            </p>
+            <p className="text-gray-400 mt-2 text-xs sm:text-sm">
+              Agr├®ment n┬░0305/MEF/DGTCP/DA du 02 SEPT 2021
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-3 text-base sm:text-lg">Nos produits</h4>
+            <ul className="space-y-2 text-gray-400 text-sm">
+              <li><Link href="/devis" className="hover:text-orange-400 transition-colors">Assurance Auto</Link></li>
+              <li><Link href="/devis" className="hover:text-orange-400 transition-colors">Assurance Habitation</Link></li>
+              <li><Link href="/devis" className="hover:text-orange-400 transition-colors">Assurance Sant├®</Link></li>
+              <li><Link href="/devis" className="hover:text-orange-400 transition-colors">Assurance Vie</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-3 text-base sm:text-lg">Liens rapides</h4>
+            <ul className="space-y-2 text-gray-400 text-sm">
+              <li><Link href="/" className="hover:text-orange-400 transition-colors">Accueil</Link></li>
+              <li><Link href="/produits" className="hover:text-orange-400 transition-colors">Produits</Link></li>
+              <li><Link href="/devis" className="hover:text-orange-400 transition-colors">Devis</Link></li>
+              <li><Link href="/contact" className="hover:text-orange-400 transition-colors">Contact</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-3 text-base sm:text-lg">Contact</h4>
+            <ul className="space-y-2 text-gray-400 text-sm">
+              <li className="flex items-center space-x-2">­ƒô× <span>+225 07 07 10 87 43</span></li>
+              <li className="flex items-center space-x-2 break-all">Ô£ë´©Å <span>contact@karhon-assurances.ci</span></li>
+              <li className="flex items-center space-x-2">­ƒôì <span>Abidjan, C├┤te d'Ivoire</span></li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-gray-700 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-gray-400 text-xs sm:text-sm">
+          <p>&copy; {new Date().getFullYear()} KARHON Assurances - Tous droits r├®serv├®s</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\components\layout\Header.tsx
+==================================================
+"use client";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
+  const isHomePage = pathname === "/";
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }  const bgStyle = (isHomePage && !scrolled)
+    ? { backgroundColor: "transparent" }
+    : { backgroundColor: "rgba(30,58,138,0.92)", backdropFilter: "blur(12px)" };
+
+
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.body.style.overflow = "unset";
+    };
+  }, [isMenuOpen]);
+  
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
+  
+  const goToHome = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    router.push("/");
+    setIsMenuOpen(false);
+  };
+  
+  let headerClass = "bg-blue-900/90 backdrop-blur-md shadow-lg";
+  if (isHomePage && !scrolled) {
+    headerClass = "bg-transparent";
+  }
+  
+  let linkClass = "text-white/90 hover:text-white drop-shadow-md";  const bgStyle = (isHomePage && !scrolled)
+    ? { backgroundColor: "transparent" }
+    : { backgroundColor: "rgba(30,58,138,0.92)", backdropFilter: "blur(12px)" };
+
+
+  
+  return (
+    <>
+      <header style={{ ...bgStyle, position: "fixed", top: 0, width: "100%", zIndex: 50, transition: "background-color 0.5s ease" }}>
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <button onClick={goToHome} className="group relative z-20 flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                <span className="text-white font-bold text-lg">K</span>
+              </div>
+              <div>
+                <span className="text-white font-bold text-xl tracking-tight">ARHON</span>
+                <span className="text-orange-400 text-sm ml-1 font-medium">Assurances</span>
+              </div>
+            </button>
+            
+            {/* Menu desktop - 4 pages */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link href="/produits" className={`relative transition-all duration-300 text-sm font-medium group ${linkClass}`}>
+                Produits
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/devis" className={`relative transition-all duration-300 text-sm font-medium group ${linkClass}`}>
+                Devis
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/contact" className={`relative transition-all duration-300 text-sm font-medium group ${linkClass}`}>
+                Contact
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/apropos" className={`relative transition-all duration-300 text-sm font-medium group ${linkClass}`}>
+                ├Ç propos
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/client" className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                Espace Client
+              </Link>
+            </div>
+            
+            {/* Bouton menu mobile */}
+            <button className="md:hidden relative w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg z-20 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Menu">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+        </nav>
+      </header>
+      
+      {/* Menu mobile */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsMenuOpen(false)} />
+          <div className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <div><div className="text-blue-900 font-bold text-xl">KARHON</div><div className="text-orange-500 text-sm">Assurances</div></div>
+              <button onClick={() => setIsMenuOpen(false)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">Ô£ò</button>
+            </div>
+            <div className="flex flex-col p-4">
+              <Link href="/produits" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>Produits</Link>
+              <Link href="/devis" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>Devis</Link>
+              <Link href="/contact" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>Contact</Link>
+              <Link href="/apropos" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>├Ç propos</Link>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
+              <Link href="/client" className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-3 rounded-xl" onClick={handleLinkClick}>Espace Client</Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+
+
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\components\layout\Header_old.tsx
+==================================================
+"use client";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
+  const isHomePage = pathname === "/";
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.body.style.overflow = "unset";
+    };
+  }, [isMenuOpen]);
+  
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
+  
+  const goToHome = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    router.push("/");
+    setIsMenuOpen(false);
+  };
+  
+  // Sur la page d'accueil sans scroll : transparent
+  // Sinon : bleu
+  const isTransparent = isHomePage && !scrolled;
+  
+  return (
+    <>
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${isTransparent ? "bg-transparent" : "bg-blue-900/90 backdrop-blur-md shadow-lg"}`}>
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex justify-between items-center">
+            <button onClick={goToHome} className="group relative z-20 flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                <span className="text-white font-bold text-lg">K</span>
+              </div>
+              <div>
+                <span className="text-white font-bold text-xl tracking-tight">ARHON</span>
+                <span className="text-orange-400 text-sm ml-1 font-medium">Assurances</span>
+              </div>
+            </button>
+            
+            <div className="hidden md:flex items-center gap-8">
+              <Link href="/produits" className="relative text-white/90 hover:text-white transition-all duration-300 text-sm font-medium group">
+                Produits
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/devis" className="relative text-white/90 hover:text-white transition-all duration-300 text-sm font-medium group">
+                Devis
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/contact" className="relative text-white/90 hover:text-white transition-all duration-300 text-sm font-medium group">
+                Contact
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/apropos" className="relative text-white/90 hover:text-white transition-all duration-300 text-sm font-medium group">
+                ├Ç propos
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/client" className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                Espace Client
+              </Link>
+            </div>
+            
+            <button className="md:hidden relative w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg z-20 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Menu">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+        </nav>
+      </header>
+      
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsMenuOpen(false)} />
+          <div className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <div><div className="text-blue-900 font-bold text-xl">KARHON</div><div className="text-orange-500 text-sm">Assurances</div></div>
+              <button onClick={() => setIsMenuOpen(false)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">Ô£ò</button>
+            </div>
+            <div className="flex flex-col p-4">
+              <Link href="/produits" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>Produits</Link>
+              <Link href="/devis" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>Devis</Link>
+              <Link href="/contact" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>Contact</Link>
+              <Link href="/apropos" className="py-3 px-4 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-xl" onClick={handleLinkClick}>├Ç propos</Link>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
+              <Link href="/client" className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-3 rounded-xl" onClick={handleLinkClick}>Espace Client</Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\components\ui\Button.tsx
+==================================================
+"use client";
+import React from "react";
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: "primary" | "secondary" | "outline";
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  className?: string;
+}
+
+export default function Button({ 
+  children, 
+  variant = "primary", 
+  onClick, 
+  type = "button",
+  disabled = false,
+  className = ""
+}: ButtonProps) {
+  let variantClasses = "";
+  
+  if (variant === "primary") {
+    variantClasses = "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white";
+  } else if (variant === "secondary") {
+    variantClasses = "bg-gray-600 hover:bg-gray-700 text-white";
+  } else if (variant === "outline") {
+    variantClasses = "border-2 border-orange-500 text-orange-500 hover:bg-orange-50";
+  }
+  
+  const disabledClasses = disabled ? "opacity-50 cursor-not-allowed" : "";
+  
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={"px-6 py-2 rounded-lg font-semibold transition-all duration-300 " + variantClasses + " " + disabledClasses + " " + className}
+    >
+      {children}
+    </button>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\components\ui\Select.tsx
+==================================================
+"use client";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface Option {
+  value: string;
+  label: string;
+  icon?: string;
+}
+
+interface SelectProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: any) => void;
+  options: Option[];
+  required?: boolean;
+}
+
+export default function Select({ label, name, value, onChange, options, required = false }: SelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  const selectedOption = options.find(opt => opt.value === value);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label} {required && <span className="text-blue-600">*</span>}
+      </label>
+      
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.99 }}
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 text-left bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all flex justify-between items-center hover:border-blue-300"
+      >
+        <span className={`text-sm ${!selectedOption ? "text-gray-400" : "text-gray-700"}`}>
+          {selectedOption ? selectedOption.label : "S├®lectionnez une option"}
+        </span>
+        <motion.svg 
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="w-4 h-4 text-gray-400" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </motion.svg>
+      </motion.button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scaleY: 0.95 }}
+            animate={{ opacity: 1, y: 0, scaleY: 1 }}
+            exit={{ opacity: 0, y: -10, scaleY: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+          >
+            {options.map((option) => (
+              <motion.button
+                key={option.value}
+                whileHover={{ x: 4, backgroundColor: "#f8fafc" }}
+                onClick={() => {
+                  onChange({ target: { name, value: option.value } });
+                  setIsOpen(false);
+                }}
+                className={`w-full px-4 py-3 text-left text-sm transition-all flex items-center gap-2 ${
+                  value === option.value ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700"
+                }`}
+              >
+                {option.icon && <span className="text-lg">{option.icon}</span>}
+                <span>{option.label}</span>
+                {value === option.value && (
+                  <svg className="w-4 h-4 ml-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\hooks\useTouchFeedback.ts
+==================================================
+import { useState, useCallback } from "react";
+
+export const useTouchFeedback = () => {
+  const [isTouched, setIsTouched] = useState(false);
+  
+  const handleTouchStart = useCallback(() => {
+    setIsTouched(true);
+  }, []);
+  
+  const handleTouchEnd = useCallback(() => {
+    setIsTouched(false);
+  }, []);
+  
+  return {
+    isTouched,
+    touchProps: {
+      onTouchStart: handleTouchStart,
+      onTouchEnd: handleTouchEnd,
+      onMouseEnter: () => setIsTouched(true),
+      onMouseLeave: () => setIsTouched(false),
+    }
+  };
+};
+
+
+==================================================
+FILE: C:\Users\Boli Chyst\mykarhon-assurance\src\types\index.ts
+==================================================
+// Types pour KARHON Assurances
+
+export type Role = 'client' | 'admin';
+
+export interface User {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  adresse?: string;
+  role: Role;
+  dateInscription: Date;
+}
+
+export interface Devis {
+  id: string;
+  userId: string;
+  produitId: string;
+  dateCreation: Date;
+  statut: 'en_attente' | 'en_cours' | 'envoye' | 'accepte' | 'refuse';
+  montantEstime?: number;
+  description: string;
+  documents?: string[];
+}
+
+export interface Contrat {
+  id: string;
+  numeroContrat: string;
+  userId: string;
+  produitId: string;
+  dateDebut: Date;
+  dateFin: Date;
+  primeAnnuelle: number;
+  statut: 'actif' | 'suspendu' | 'resilie';
+  options: string[];
+}
+
+export interface Sinistre {
+  id: string;
+  contratId: string;
+  dateSurvenance: Date;
+  dateDeclaration: Date;
+  description: string;
+  montantIndemnise?: number;
+  statut: 'declare' | 'en_cours' | 'indemnise' | 'refuse';
+  documents: string[];
+}
+
+export interface RendezVous {
+  id: string;
+  userId: string;
+  dateHeure: Date;
+  statut: 'en_attente' | 'confirme' | 'annule' | 'termine';
+  motif: string;
+  notes?: string;
+}
+
+export interface Produit {
+  id: string;
+  nom: string;
+  type: 'IARD' | 'VIE';
+  categorie: string;
+  description: string;
+  garanties: string[];
+  imageUrl?: string;
+}
+

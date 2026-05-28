@@ -1,246 +1,343 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import Select from "@/components/ui/Select";
+'use client';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Check, ArrowRight, ArrowLeft, Send, Phone, Mail } from 'lucide-react';
+
+const categories = [
+  { id: 'particuliers', label: 'Particuliers', icon: '👤', desc: 'Auto, Habitation, Santé...' },
+  { id: 'professionnelles', label: 'Professionnelles', icon: '🏢', desc: 'Entreprises, Sociétés' },
+  { id: 'vie', label: 'Assurance Vie', icon: '❤️', desc: 'Retraite, Épargne, Prévoyance' },
+];
+
+const produitsParCategorie: Record<string, { id: string; nom: string; icon: string }[]> = {
+  particuliers: [
+    { id: 'automobile', nom: 'Assurance Automobile', icon: '🚗' },
+    { id: 'habitation', nom: 'Assurance Habitation', icon: '🏠' },
+    { id: 'sante', nom: 'Santé Individuelle', icon: '🩺' },
+    { id: 'accident', nom: 'Individuelle Accident', icon: '🛡️' },
+    { id: 'voyage', nom: 'Assurance Voyage', icon: '✈️' },
+    { id: 'rc', nom: 'Responsabilité Civile', icon: '⚖️' },
+  ],
+  professionnelles: [
+    { id: 'flotte', nom: 'Automobile Flotte', icon: '🚛' },
+    { id: 'multirisque', nom: 'Multirisque Pro', icon: '🏪' },
+    { id: 'sante-groupe', nom: 'Santé Groupe', icon: '👥' },
+    { id: 'rc-pro', nom: 'RC Professionnelle', icon: '⚖️' },
+    { id: 'maritime', nom: 'Assurance Maritime', icon: '⚓' },
+  ],
+  vie: [
+    { id: 'retraite', nom: 'Assurance Retraite', icon: '📈' },
+    { id: 'etude', nom: 'Étude Plus', icon: '🎓' },
+    { id: 'emprunteur', nom: 'Vie Emprunteur', icon: '🏦' },
+    { id: 'funeraire', nom: 'Assistance Funéraire', icon: '🕊️' },
+  ],
+};
 
 export default function DevisPage() {
   const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    typeAssurance: "auto",
-    civilite: "mr",
-    nom: "", prenom: "", email: "", telephone: "", ville: "Abidjan",
-    vehiculeMarque: "", vehiculeModele: "", vehiculeAnnee: "", message: ""
+    categorie: '',
+    produit: '',
+    nom: '',
+    prenom: '',
+    telephone: '',
+    email: '',
+    entreprise: '',
+    message: '',
   });
 
-  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => { setIsSubmitting(false); setIsSubmitted(true); }, 1500);
+  const updateField = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
-
-  const fadeSlide = {
-    hidden: { opacity: 0, x: 30 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } },
-    exit: { opacity: 0, x: -30, transition: { duration: 0.3 } }
-  };
-
-  if (isSubmitted) {
-    return (
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center py-20"
-      >
-        <div className="max-w-md text-center">
-          <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-            className="w-20 h-20 mx-auto bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mb-6 shadow-xl"
-          >
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </motion.div>
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-bold text-gray-900 mb-2"
-          >
-            Demande envoy�e
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-500 mb-6"
-          >
-            Merci, notre �quipe vous contactera sous 48h
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Link href="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
-              Retour � l'accueil
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </motion.div>
-        </div>
-      </motion.div>
-    );
-  }
-
-  const insuranceTypes = [
-    { value: "auto", label: "Assurance Auto" },
-    { value: "habitation", label: "Assurance Habitation" },
-    { value: "sante", label: "Assurance Sant�" },
-    { value: "voyage", label: "Assurance Voyage" }
-  ];
-
-  const civiliteOptions = [
-    { value: "mr", label: "Monsieur" },
-    { value: "mme", label: "Madame" },
-    { value: "mlle", label: "Mademoiselle" }
-  ];
-
-  const villeOptions = [
-    { value: "Abidjan", label: "Abidjan" },
-    { value: "Bouak�", label: "Bouak�" },
-    { value: "Yamoussoukro", label: "Yamoussoukro" }
-  ];
+  const canGoToStep2 = formData.categorie !== '';
+  const canGoToStep3 = formData.produit !== '' && formData.nom !== '' && formData.telephone !== '';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-16">
-      <div className="max-w-2xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-28 pb-20">
+      <div className="container mx-auto px-6 max-w-5xl">
+        {/* Header */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 rounded-full mb-4">
-            <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-            <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Gratuit & sans engagement</span>
+          <div className="inline-block bg-orange-100 text-orange-700 px-6 py-2 rounded-full text-sm font-medium mb-4">
+            ⚡ Réponse sous 48h maximum
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            Demande de devis
-          </h1>
-          <p className="text-gray-500">Obtenez votre offre personnalis�e en quelques clics</p>
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">Obtenez votre Devis Gratuit</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Remplissez ce formulaire en 3 étapes. Un conseiller KARHON vous contactera rapidement.
+          </p>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-xl p-6 md:p-8"
-        >
-          {/* Steps */}
-          <div className="flex justify-between mb-10">
-            {[{ num: 1, label: "Produit" }, { num: 2, label: "Profil" }, { num: 3, label: "Validation" }].map((item) => (
-              <div key={item.num} className="text-center flex-1">
-                <motion.div 
-                  className={`w-12 h-12 mx-auto rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-                    step > item.num ? "bg-blue-600 text-white shadow-lg" : step === item.num ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md" : "bg-gray-100 text-gray-400"
-                  }`}
-                  animate={{ scale: step === item.num ? [1, 1.05, 1] : 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {step > item.num ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : item.num}
-                </motion.div>
-                <p className={`text-xs mt-2 font-medium ${step === item.num ? "text-blue-600" : "text-gray-400"}`}>{item.label}</p>
+        {/* Progress Bar */}
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8">
+          <div className="flex justify-between items-center">
+            {[
+              { num: 1, label: 'Catégorie' },
+              { num: 2, label: 'Produit & Infos' },
+              { num: 3, label: 'Confirmation' },
+            ].map((s, index) => (
+              <div key={s.num} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div 
+                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${
+                      step >= s.num 
+                        ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg' 
+                        : 'bg-gray-200 text-gray-400'
+                    }`}
+                  >
+                    {step > s.num ? <Check size={24} /> : s.num}
+                  </div>
+                  <span className={`mt-2 text-sm font-medium ${step >= s.num ? 'text-blue-900' : 'text-gray-400'}`}>
+                    {s.label}
+                  </span>
+                </div>
+                {index < 2 && (
+                  <div className={`flex-1 h-1 mx-4 rounded ${step > s.num ? 'bg-blue-600' : 'bg-gray-200'}`} />
+                )}
               </div>
             ))}
           </div>
+        </div>
 
-          <AnimatePresence mode="wait">
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                variants={fadeSlide}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                <Select label="Type d'assurance" name="typeAssurance" value={formData.typeAssurance} onChange={handleChange} options={insuranceTypes} required />
-                <div className="mt-4">
-                  <Select label="Civilit�" name="civilite" value={formData.civilite} onChange={handleChange} options={civiliteOptions} required />
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={nextStep}
-                  className="w-full mt-8 bg-blue-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md"
+        {/* Formulaire */}
+        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+          {/* ÉTAPE 1 : Catégorie */}
+          {step === 1 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
+                Quel type d&apos;assurance recherchez-vous ?
+              </h2>
+              <p className="text-center text-gray-500 mb-10">Sélectionnez la catégorie qui correspond à votre besoin</p>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {categories.map((cat) => (
+                  <motion.div
+                    key={cat.id}
+                    whileHover={{ scale: 1.03, y: -5 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => updateField('categorie', cat.id)}
+                    className={`border-2 rounded-3xl p-8 text-center cursor-pointer transition-all ${
+                      formData.categorie === cat.id
+                        ? 'border-blue-600 bg-blue-50 shadow-lg'
+                        : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="text-6xl mb-4">{cat.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2">{cat.label}</h3>
+                    <p className="text-gray-500 text-sm">{cat.desc}</p>
+                    {formData.categorie === cat.id && (
+                      <div className="mt-4 inline-block bg-blue-600 text-white px-4 py-1 rounded-full text-sm">
+                        Sélectionné ✓
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="flex justify-end mt-10">
+                <button
+                  onClick={() => setStep(2)}
+                  disabled={!canGoToStep2}
+                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all ${
+                    canGoToStep2
+                      ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-white hover:shadow-lg'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
                 >
-                  Continuer
-                </motion.button>
-              </motion.div>
-            )}
+                  Continuer <ArrowRight size={20} />
+                </button>
+              </div>
+            </motion.div>
+          )}
 
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                variants={fadeSlide}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-4"
-              >
-                <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom complet" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
-                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Pr�nom" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
-                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Adresse email" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
-                <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="T�l�phone" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" />
-                <Select label="Ville" name="ville" value={formData.ville} onChange={handleChange} options={villeOptions} required />
-                <textarea name="message" rows={3} value={formData.message} onChange={handleChange} placeholder="Informations compl�mentaires (optionnel)" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none"></textarea>
-                <div className="flex gap-3 pt-4">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={prevStep} className="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Retour</motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={nextStep} className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md">Continuer</motion.button>
+          {/* ÉTAPE 2 : Produit + Infos */}
+          {step === 2 && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
+                Précisez votre besoin
+              </h2>
+              <p className="text-center text-gray-500 mb-10">Choisissez un produit et renseignez vos coordonnées</p>
+
+              {/* Sélection Produit */}
+              <div className="mb-10">
+                <label className="block text-lg font-semibold mb-4 text-gray-800">Produit souhaité</label>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {produitsParCategorie[formData.categorie]?.map((prod) => (
+                    <motion.div
+                      key={prod.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => updateField('produit', prod.id)}
+                      className={`border-2 rounded-2xl p-4 cursor-pointer transition-all flex items-center gap-3 ${
+                        formData.produit === prod.id
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      <span className="text-3xl">{prod.icon}</span>
+                      <span className="font-medium">{prod.nom}</span>
+                      {formData.produit === prod.id && (
+                        <Check className="ml-auto text-blue-600" size={20} />
+                      )}
+                    </motion.div>
+                  ))}
                 </div>
-              </motion.div>
-            )}
+              </div>
 
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                variants={fadeSlide}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="text-center"
-              >
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-5"
+              {/* Coordonnées */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
+                  <input
+                    type="text"
+                    value={formData.nom}
+                    onChange={(e) => updateField('nom', e.target.value)}
+                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                    placeholder="Votre nom"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                  <input
+                    type="text"
+                    value={formData.prenom}
+                    onChange={(e) => updateField('prenom', e.target.value)}
+                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                    placeholder="Votre prénom"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone *</label>
+                  <input
+                    type="tel"
+                    value={formData.telephone}
+                    onChange={(e) => updateField('telephone', e.target.value)}
+                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                    placeholder="+225 XX XX XX XX XX"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateField('email', e.target.value)}
+                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+              </div>
+
+              {formData.categorie === 'professionnelles' && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom de l&apos;entreprise</label>
+                  <input
+                    type="text"
+                    value={formData.entreprise}
+                    onChange={(e) => updateField('entreprise', e.target.value)}
+                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                    placeholder="Nom de votre société"
+                  />
+                </div>
+              )}
+
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
+                <textarea
+                  value={formData.message}
+                  onChange={(e) => updateField('message', e.target.value)}
+                  rows={4}
+                  className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none"
+                  placeholder="Décrivez votre besoin..."
+                />
+              </div>
+
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setStep(1)}
+                  className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-gray-600 hover:bg-gray-100 transition"
                 >
-                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">V�rification</h3>
-                <p className="text-gray-500 text-sm mb-6">Veuillez v�rifier vos informations</p>
-                <div className="bg-gray-50 rounded-xl p-5 text-left text-sm mb-6 space-y-3">
-                  <div className="flex justify-between"><span className="text-gray-500">Nom complet</span><span className="font-medium text-gray-800">{formData.prenom} {formData.nom}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">Email</span><span className="font-medium text-gray-800">{formData.email}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">T�l�phone</span><span className="font-medium text-gray-800">{formData.telephone}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">Assurance</span><span className="font-medium text-gray-800">{insuranceTypes.find(t => t.value === formData.typeAssurance)?.label}</span></div>
-                </div>
-                <div className="flex gap-3">
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={prevStep} className="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Retour</motion.button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSubmit} disabled={isSubmitting} className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-md disabled:opacity-50">
-                    {isSubmitting ? "Envoi..." : "Confirmer"}
-                  </motion.button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+                  <ArrowLeft size={20} /> Retour
+                </button>
+                <button
+                  onClick={() => setStep(3)}
+                  disabled={!canGoToStep3}
+                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all ${
+                    canGoToStep3
+                      ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-white hover:shadow-lg'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Continuer <ArrowRight size={20} />
+                </button>
+              </div>
+            </motion.div>
+          )}
 
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-center text-xs text-gray-400 mt-6"
+          {/* ÉTAPE 3 : Confirmation */}
+          {step === 3 && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-8"
+            >
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="text-green-600" size={48} />
+              </div>
+              
+              <h2 className="text-4xl font-bold text-green-600 mb-4">Demande envoyée !</h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Merci <strong>{formData.nom}</strong>. Un conseiller KARHON vous contactera sous 48h au 
+                <strong> {formData.telephone}</strong>.
+              </p>
+
+              <div className="bg-blue-50 rounded-2xl p-8 mb-8 max-w-lg mx-auto">
+                <h3 className="font-bold text-lg mb-4 text-blue-900">Récapitulatif de votre demande</h3>
+                <div className="text-left space-y-3 text-gray-700">
+                  <p><strong>Catégorie :</strong> {categories.find(c => c.id === formData.categorie)?.label}</p>
+                  <p><strong>Produit :</strong> {produitsParCategorie[formData.categorie]?.find(p => p.id === formData.produit)?.nom}</p>
+                  {formData.entreprise && <p><strong>Entreprise :</strong> {formData.entreprise}</p>}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="tel:+2250707108743"
+                  className="flex items-center justify-center gap-3 bg-green-600 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-green-700 transition"
+                >
+                  <Phone size={20} /> Appeler maintenant
+                </a>
+                <a 
+                  href="/produits"
+                  className="flex items-center justify-center gap-3 border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-2xl font-semibold hover:bg-blue-50 transition"
+                >
+                  Voir d&apos;autres produits
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Contact Rapide */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-12 text-center"
         >
-          Vos donn�es sont confidentielles et ne seront pas partag�es
-        </motion.p>
+          <p className="text-gray-600 mb-4">Une question urgente ?</p>
+          <a href="tel:+2250707108743" className="text-3xl font-bold text-blue-900 hover:text-orange-600 transition">
+            📞 +225 07 07 10 87 43
+          </a>
+          <p className="text-gray-500 mt-2">Ou écrivez-nous à contact@karhon-assurances.ci</p>
+        </motion.div>
       </div>
     </div>
   );
 }
-

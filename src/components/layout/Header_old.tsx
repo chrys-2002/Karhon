@@ -39,11 +39,8 @@ export default function Header() {
   return (
     <>
       <header
-        className="fixed top-0 w-full z-[100] transition-all duration-500"
-        style={{
-          backgroundColor: transparent ? "transparent" : "#ffffff",
-          boxShadow: transparent ? "none" : "0 2px 20px rgba(26,46,90,0.12)",
-        }}
+        className={`fixed top-0 w-full z-[100] transition-all duration-500 ${transparent ? "" : "backdrop-blur-md shadow-lg"}`}
+        style={{ backgroundColor: transparent ? "transparent" : "#1a2e5a" }}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
@@ -52,23 +49,13 @@ export default function Header() {
             <button onClick={goToHome} className="group relative z-20 flex items-center gap-2">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}
               >
                 <span className="text-white font-bold text-lg">K</span>
               </div>
               <div>
-                <span
-                  className="font-bold text-xl tracking-tight"
-                  style={{ color: transparent ? "#ffffff" : "#1a2e5a" }}
-                >
-                  ARHON
-                </span>
-                <span
-                  className="text-sm ml-1 font-medium"
-                  style={{ color: "#2a8a8a" }}
-                >
-                  Assurances
-                </span>
+                <span className="text-white font-bold text-xl tracking-tight">ARHON</span>
+                <span className="text-sm ml-1 font-medium" style={{ color: "#2a8a8a" }}>Assurances</span>
               </div>
             </button>
             
@@ -83,8 +70,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative transition-all duration-300 text-sm font-medium group"
-                  style={{ color: transparent ? "rgba(255,255,255,0.9)" : "#1a2e5a" }}
+                  className="relative transition-all duration-300 text-sm font-medium group text-white/90 hover:text-white"
                 >
                   {item.label}
                   <span
@@ -96,7 +82,7 @@ export default function Header() {
               <Link
                 href="/client"
                 className="px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}
               >
                 Espace Client
               </Link>
@@ -105,7 +91,7 @@ export default function Header() {
             {/* Bouton menu mobile */}
             <button
               className="md:hidden relative w-10 h-10 rounded-xl shadow-lg z-20 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+              style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Menu"
             >
@@ -117,6 +103,7 @@ export default function Header() {
                 )}
               </svg>
             </button>
+
           </div>
         </nav>
       </header>
@@ -148,7 +135,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="py-3 px-4 rounded-xl transition-colors hover:bg-gray-50"
+                  className="py-3 px-4 rounded-xl transition-colors text-gray-700 hover:bg-gray-50"
                   style={{ color: "#1a2e5a" }}
                   onClick={handleLinkClick}
                 >
@@ -160,7 +147,7 @@ export default function Header() {
               <Link
                 href="/client"
                 className="block w-full text-white text-center py-3 rounded-xl font-semibold"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}
                 onClick={handleLinkClick}
               >
                 Espace Client
