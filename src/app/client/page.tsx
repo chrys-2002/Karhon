@@ -97,8 +97,7 @@ export default function ClientLoginPage() {
                   className="space-y-3 mb-4"
                 >
                   <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm"
-                    style={{ focusBorderColor: "#2a8a8a" }} />
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
                   <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Prénom"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
                   <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="Téléphone"
