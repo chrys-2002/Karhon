@@ -333,9 +333,9 @@ export default function DevisPage() {
         >
           <p className="text-gray-600 mb-4">Une question urgente ?</p>
           <a href="tel:+2250707108743" className="text-3xl font-bold text-blue-900 hover:text-orange-600 transition">
-            📞 +225 07 07 10 87 43
+            📞 +225 07 87 10 39 39
           </a>
-          <p className="text-gray-500 mt-2">Ou écrivez-nous à contact@karhon-assurances.ci</p>
+          <p className="text-gray-500 mt-2">Ou écrivez-nous à infos@karhonassurance.com</p>
         </motion.div>
       </div>
     </div>
