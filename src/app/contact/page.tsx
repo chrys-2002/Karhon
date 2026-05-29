@@ -49,10 +49,10 @@ export default function ContactPage() {
                   <Phone className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
                   <div>
                     <p className="font-semibold" style={{ color: "#1a2e5a" }}>Téléphone</p>
-                    <a href="tel:+2250787103939" className="text-2xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
+                    <a href="tel:+2250787103939" className="text-1xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
                       +225 07 87 10 39 39
                     </a><br />
-                    <a href="tel:+2250576367272" className="text-2xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
+                    <a href="tel:+2250576367272" className="text-1xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
                       +225 05 76 36 72 72
                     </a>
                   </div>
