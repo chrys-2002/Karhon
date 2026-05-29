@@ -32,7 +32,7 @@ const produits = [
     options: ["Locataire", "Propriétaire Occupant", "Propriétaire Non Occupant"]
   },
   {
-    id: "sante-individuelle", categorie: "particuliers", nom: "Santé Individuelle",
+    id: "sante-individuelle", categorie: "particuliers", nom: "Assurance Santé Individuelle",
     icone: "🩺", image: "/images/produits/sante-individuelle.jpg",
     description: "Remboursement des frais médicaux, maternité et invalidité via ticket modérateur.",
     longDescription: "Assurance santé qui prend en charge vos dépenses médicales selon le système du ticket modérateur. Idéale pour les particuliers et les familles.",
@@ -41,7 +41,7 @@ const produits = [
     options: ["Niveau 1", "Niveau 2", "Niveau 3", "Formule Famille"]
   },
   {
-    id: "accident-individuel", categorie: "particuliers", nom: "Individuelle Accident",
+    id: "accident-individuel", categorie: "particuliers", nom: "Assurance Accident",
     icone: "🛡️", image: "/images/produits/accident-individuel.jpg",
     description: "Indemnise les dommages corporels suite à un événement accidentel.",
     longDescription: "Contrat qui indemnise le dommage corporel subi par l'assuré à la suite d'un événement accidentel (décès, invalidité permanente ou temporaire, frais médicaux).",
@@ -59,7 +59,7 @@ const produits = [
     options: ["Court Séjour", "Long Séjour", "Expatriation", "Scolaire"]
   },
   {
-    id: "rc-civile", categorie: "particuliers", nom: "Responsabilité Civile",
+    id: "rc-civile", categorie: "particuliers", nom: "Assurance Responsabilité Civile",
     icone: "⚖️", image: "/images/produits/rc-civile.jpg",
     description: "Couvre la responsabilité de l'assuré envers les tiers.",
     longDescription: "La Responsabilité Civile couvre les dommages que vous pourriez causer à autrui dans votre vie quotidienne.",
@@ -68,7 +68,7 @@ const produits = [
     options: ["Familiale", "Scolaire", "Sportive"]
   },
   {
-    id: "auto-flotte", categorie: "professionnelles", nom: "Automobile Flotte",
+    id: "auto-flotte", categorie: "professionnelles", nom: "Assurance Automobile Flotte",
     icone: "🚛", image: "/images/produits/auto-flotte.jpg",
     description: "Couverture véhicules pour sociétés et entreprises.",
     longDescription: "Assurance automobile dédiée aux flottes de véhicules d'entreprise. Gestion simplifiée de tous vos véhicules avec des conditions avantageuses.",
@@ -77,8 +77,8 @@ const produits = [
     options: ["2-5 véhicules", "6-20 véhicules", "+20 véhicules"]
   },
   {
-    id: "multirisque-pro", categorie: "professionnelles", nom: "Multirisque Professionnelle",
-    icone: "🏪", image: "/images/produits/multirisque-pro.jpg",
+    id: "multirisque-pro", categorie: "professionnelles", nom: "Assurance Multirisque Professionnelle",
+    icone: "🏪", image: "/images/produits/multi.jpg",
     description: "Couverture complète biens + responsabilités. 5 garanties disponibles.",
     longDescription: "Assurance multirisques professionnelle offre une couverture complète des biens et des responsabilités. L'assuré peut choisir 5 grandes types de garanties.",
     garanties: ["Incendie", "Vol", "Dégâts des Eaux", "Bris de Glaces", "RC Exploitation/Professionnelle", "Perte d'Exploitation"],
@@ -86,7 +86,7 @@ const produits = [
     options: ["Commerce", "Industrie", "Services", "Bureaux"]
   },
   {
-    id: "sante-groupe", categorie: "professionnelles", nom: "Santé Groupe",
+    id: "sante-groupe", categorie: "professionnelles", nom: "Assurance Santé Groupe",
     icone: "👥", image: "/images/produits/sante-groupe.jpg",
     description: "Couverture santé collective pour les employés d'une société.",
     longDescription: "Couverture santé collective pour les employés d'une société. Avantage social majeur pour attirer et fidéliser les talents.",
@@ -95,7 +95,7 @@ const produits = [
     options: ["Standard", "Premium", "Sur-mesure"]
   },
   {
-    id: "accident-groupe", categorie: "professionnelles", nom: "Individuelle Accident Groupe",
+    id: "accident-groupe", categorie: "professionnelles", nom: "Assurance Individuelle Accident Groupe",
     icone: "🛡️", image: "/images/produits/accident-groupe.jpg",
     description: "Version collective de l'assurance accident pour les salariés.",
     longDescription: "Version collective de l'assurance accident, pour les salariés. Couvre tous les employés contre les accidents de la vie privée et professionnelle.",
@@ -104,7 +104,7 @@ const produits = [
     options: ["Tous Salariés", "Cadres Dirigeants", "Personnel de Terrain"]
   },
   {
-    id: "rc-pro", categorie: "professionnelles", nom: "RC Civile et Professionnelle",
+    id: "rc-pro", categorie: "professionnelles", nom: "assurance Civile et Professionnelle",
     icone: "⚖️", image: "/images/produits/rc-pro.jpg",
     description: "Couvre la responsabilité de l'entreprise envers les tiers.",
     longDescription: "Couvre la responsabilité de l'entreprise envers les tiers et dans le cadre de son activité professionnelle.",
@@ -131,7 +131,7 @@ const produits = [
     options: ["Épargne Libre", "Épargne Programmée", "Versement Unique"]
   },
   {
-    id: "etude-plus", categorie: "vie", nom: "Étude Plus",
+    id: "etude-plus", categorie: "vie", nom: "assurance Étude Plus",
     icone: "🎓", image: "/images/produits/etude-plus.jpg",
     description: "Épargne dédiée au financement des études des enfants.",
     longDescription: "Épargne dédiée au financement des études supérieures de vos enfants. Capital garanti à l'échéance avec possibilité de versements flexibles.",
@@ -149,7 +149,7 @@ const produits = [
     options: ["Prêt Immobilier", "Prêt Automobile", "Prêt Professionnel"]
   },
   {
-    id: "retraite-groupe", categorie: "vie", nom: "Retraite Complémentaire Groupe",
+    id: "retraite-groupe", categorie: "vie", nom: "assurance Retraite Complémentaire Groupe",
     icone: "👔", image: "/images/produits/retraite-groupe.jpg",
     description: "Version collective de la retraite, souscrite par l'employeur.",
     longDescription: "Version collective de la retraite, souscrite par l'employeur. Avantage social majeur pour fidéliser les collaborateurs.",
@@ -158,7 +158,7 @@ const produits = [
     options: ["Tous Salariés", "Cadres", "Dirigeants"]
   },
   {
-    id: "funeraire", categorie: "vie", nom: "Assistance Funéraire",
+    id: "funeraire", categorie: "vie", nom: "assurance Assistance Funéraire",
     icone: "🕊️", image: "/images/produits/funeraire.jpg",
     description: "Prise en charge des frais funéraires.",
     longDescription: "Prise en charge des frais funéraires pour protéger vos proches. Capital versé rapidement aux bénéficiaires.",

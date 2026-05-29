@@ -47,8 +47,9 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-3 text-base sm:text-lg" style={{ color: "#2a8a8a" }}>Contact</h4>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li className="flex items-center gap-2">📞 <span>+225 07 07 10 87 43</span></li>
-              <li className="flex items-center gap-2 break-all">✉️ <span>contact@karhon-assurances.ci</span></li>
+              <li className="flex items-center gap-2">📞 <span>+225 07 87 10 39 39</span></li>
+              <li className="flex items-center gap-2">📞 <span>+225 05 76 36 72 72</span></li>
+              <li className="flex items-center gap-2 break-all">✉️ <span>infos@karhonassurance.com</span></li>
               <li className="flex items-center gap-2">📍 <span>Abidjan, Côte d&apos;Ivoire</span></li>
             </ul>
           </div>

@@ -49,8 +49,11 @@ export default function ContactPage() {
                   <Phone className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
                   <div>
                     <p className="font-semibold" style={{ color: "#1a2e5a" }}>Téléphone</p>
-                    <a href="tel:+2250707108743" className="text-2xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
-                      +225 07 07 10 87 43
+                    <a href="tel:+2250787103939" className="text-2xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
+                      +225 07 87 10 39 39
+                    </a><br />
+                    <a href="tel:+2250576367272" className="text-2xl font-bold text-gray-800 hover:underline transition" style={{ color: "#1a2e5a" }}>
+                      +225 05 76 36 72 72
                     </a>
                   </div>
                 </div>
@@ -58,7 +61,7 @@ export default function ContactPage() {
                   <Mail className="mt-1 flex-shrink-0" size={28} style={{ color: "#2a8a8a" }} />
                   <div>
                     <p className="font-semibold" style={{ color: "#1a2e5a" }}>Email</p>
-                    <p className="text-gray-700">contact@karhon-assurances.ci</p>
+                    <p className="text-gray-700">infos@karhonassurance.com</p>
                   </div>
                 </div>
                 <div className="flex gap-4">

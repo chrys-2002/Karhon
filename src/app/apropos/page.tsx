@@ -81,7 +81,7 @@ export default function AproposPage() {
           <Phone className="w-16 h-16 mx-auto mb-6" />
           <h3 className="text-3xl font-bold mb-4">Prêt à être bien protégé ?</h3>
           <p className="text-xl mb-8 text-white/80">Contactez-nous pour une étude personnalisée gratuite.</p>
-          <a href="tel:+2250707108743" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 07 07 10 87 43</a>
+          <a href="tel:+2250707108743" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 07 87 10 39 39</a>
         </motion.div>
 
       </div>
