@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { X, CheckCircle, ChevronLeft, ChevronRight, ArrowRight, ChevronDown } from "lucide-react";
+import { X, CheckCircle, ChevronLeft, ChevronRight, ArrowRight, ChevronDown, Handshake, Users, Zap, ShieldCheck, Target, Scale, BadgeDollarSign } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 const heroImages = [
@@ -95,10 +95,16 @@ const produitsVIE = [
 ];
 
 const stats = [
-  { value: "50+", label: "Partenaires", icone: "🤝" },
-  { value: "1000+", label: "Clients", icone: "⭐" },
-  { value: "48h", label: "Devis express", icone: "⚡" },
-  { value: "100%", label: "Sans honoraires", icone: "💰" },
+  { value: "50+", label: "Partenaires", Icon: Handshake },
+  { value: "1000+", label: "Clients", Icon: Users },
+  { value: "48h", label: "Devis express", Icon: Zap },
+  { value: "100%", label: "Sans honoraires", Icon: ShieldCheck },
+];
+
+const pourquoi = [
+  { Icon: Target, title: "Un interlocuteur unique", desc: "Un seul point de contact pour toutes vos assurances. Gestion personnalisée et simplifiée." },
+  { Icon: Scale, title: "Neutre et indépendant", desc: "Nous travaillons exclusivement dans votre intérêt. Aucun lien avec une seule compagnie." },
+  { Icon: BadgeDollarSign, title: "Sans honoraires", desc: "Nos services sont entièrement pris en charge par les compagnies d'assurance partenaires." },
 ];
 
 function Carousel({ produits, title, subtitle }: { produits: any[]; title: string; subtitle: string }) {
@@ -138,13 +144,7 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
     <>
       <section className="py-16 sm:py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-10 sm:mb-14"
-          >
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-10 sm:mb-14">
             <p className="text-xs font-bold tracking-[0.3em] uppercase mb-2" style={{ color: "#2a8a8a" }}>{subtitle}</p>
             <h2 className="text-3xl sm:text-5xl font-bold" style={{ color: "#1a2e5a" }}>{title}</h2>
           </motion.div>
@@ -152,22 +152,11 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div className="relative h-64 sm:h-80 lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl">
               <AnimatePresence custom={direction} mode="wait">
-                <motion.div
-                  key={current}
-                  custom={direction}
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="absolute inset-0"
-                >
+                <motion.div key={current} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }} className="absolute inset-0">
                   <Image src={p.image} alt={p.nom} fill className="object-cover" />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(26,46,90,0.4) 0%, rgba(42,138,138,0.2) 100%)" }} />
                   <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.8)" }}>
-                      {p.tag}
-                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.8)" }}>{p.tag}</span>
                   </div>
                   <div className="absolute bottom-4 right-4">
                     <span className="text-white/60 text-sm font-mono">{String(current + 1).padStart(2, "0")} / {String(produits.length).padStart(2, "0")}</span>
@@ -178,16 +167,7 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
 
             <div className="flex flex-col justify-between h-full">
               <AnimatePresence custom={direction} mode="wait">
-                <motion.div
-                  key={current + "text"}
-                  custom={direction}
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.05 }}
-                  className="space-y-5"
-                >
+                <motion.div key={current + "text"} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.05 }} className="space-y-5">
                   <div>
                     <h3 className="text-2xl sm:text-4xl font-bold mb-2" style={{ color: "#1a2e5a" }}>{p.nom}</h3>
                     <p className="text-base text-gray-500 font-medium">{p.description}</p>
@@ -196,17 +176,14 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
                   <div className="grid grid-cols-1 gap-2">
                     {p.garanties.slice(0, 3).map((g: string, i: number) => (
                       <motion.div key={g} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }} className="flex items-center gap-3 text-sm text-gray-700">
-                        <CheckCircle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
-                        {g}
+                        <CheckCircle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />{g}
                       </motion.div>
                     ))}
                     {p.garanties.length > 3 && <p className="text-xs text-gray-400 pl-7">+{p.garanties.length - 3} garanties supplémentaires</p>}
                   </div>
                   <div className="flex flex-wrap gap-2 pt-1">
                     {p.options.map((o: string, i: number) => (
-                      <motion.span key={o} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 + i * 0.06 }} className="px-3 py-1 rounded-full text-xs font-semibold border" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
-                        {o}
-                      </motion.span>
+                      <motion.span key={o} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 + i * 0.06 }} className="px-3 py-1 rounded-full text-xs font-semibold border" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>{o}</motion.span>
                     ))}
                   </div>
                   <div className="flex gap-3 pt-2">
@@ -322,39 +299,15 @@ export default function Home() {
 
       {/* ═══════════ HERO ═══════════ */}
       <div ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-
-        {/* Fond carrousel */}
         <AnimatePresence mode="sync">
-          <motion.div
-            key={heroCurrent}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.4, ease: "easeInOut" }}
-            className="absolute inset-0"
-          >
-            <Image
-              src={heroImages[heroCurrent].image}
-              alt={heroImages[heroCurrent].nom}
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* Overlay sombre */}
+          <motion.div key={heroCurrent} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.4, ease: "easeInOut" }} className="absolute inset-0">
+            <Image src={heroImages[heroCurrent].image} alt={heroImages[heroCurrent].nom} fill className="object-cover" priority />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,20,50,0.65) 0%, rgba(10,20,50,0.50) 50%, rgba(10,20,50,0.75) 100%)" }} />
           </motion.div>
         </AnimatePresence>
 
-        {/* Badge produit actif — bas gauche */}
         <AnimatePresence mode="wait">
-          <motion.div
-            key={`badge-${heroCurrent}`}
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.45 }}
-            className="absolute bottom-20 left-8 sm:left-14 flex items-center gap-3 z-10"
-          >
+          <motion.div key={`badge-${heroCurrent}`} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.45 }} className="absolute bottom-20 left-8 sm:left-14 flex items-center gap-3 z-10">
             <div className="w-1 h-10 rounded-full" style={{ background: "#2a8a8a" }} />
             <div>
               <p className="text-white font-semibold text-sm sm:text-base leading-tight">{heroImages[heroCurrent].nom}</p>
@@ -363,57 +316,24 @@ export default function Home() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Dots verticaux — bas droite */}
         <div className="absolute bottom-16 right-8 sm:right-14 flex flex-col gap-2 z-10">
           {heroImages.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setHeroCurrent(i);
-                if (heroTimerRef.current) clearInterval(heroTimerRef.current);
-                heroTimerRef.current = setInterval(() => setHeroCurrent(prev => (prev + 1) % heroImages.length), 4500);
-              }}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width: "5px",
-                height: i === heroCurrent ? "22px" : "5px",
-                backgroundColor: i === heroCurrent ? "#2a8a8a" : "rgba(255,255,255,0.35)",
-              }}
-            />
+            <button key={i} onClick={() => { setHeroCurrent(i); if (heroTimerRef.current) clearInterval(heroTimerRef.current); heroTimerRef.current = setInterval(() => setHeroCurrent(prev => (prev + 1) % heroImages.length), 4500); }} className="rounded-full transition-all duration-300" style={{ width: "5px", height: i === heroCurrent ? "22px" : "5px", backgroundColor: i === heroCurrent ? "#2a8a8a" : "rgba(255,255,255,0.35)" }} />
           ))}
         </div>
 
-        {/* Contenu principal */}
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 50 }}
-            transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
+          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 50 }} transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}>
             <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-none tracking-tight">
-              KARHON
-              <br />
+              KARHON<br />
               <span className="text-4xl sm:text-6xl lg:text-7xl font-light" style={{ color: "#a8d8d8" }}>Assurances</span>
             </h1>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed"
-            >
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
               Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
             </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/devis" className="group px-8 py-4 rounded-full font-bold text-white text-base transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
-                Demander un devis gratuit
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                Demander un devis gratuit <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="/produits" className="px-8 py-4 rounded-full font-bold text-white text-base border-2 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md">
                 Voir nos produits
@@ -422,31 +342,26 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Flèche scroll */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        >
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-          >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}>
             <ChevronDown size={28} className="text-white/50" />
           </motion.div>
         </motion.div>
       </div>
 
       {/* ═══════════ STATS ═══════════ */}
-      <section className="py-12 bg-white border-b" style={{ borderColor: "#e0ecec" }}>
+      <section className="py-14 bg-white border-b" style={{ borderColor: "#e0ecec" }}>
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.5 }} className="text-center">
-                <div className="text-3xl mb-2">{stat.icone}</div>
-                <div className="text-3xl font-bold mb-1" style={{ color: "#1a2e5a" }}>{stat.value}</div>
-                <div className="text-sm text-gray-500">{stat.label}</div>
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.5 }} className="text-center flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <stat.Icon size={22} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
+                </div>
+                <div>
+                  <div className="text-3xl font-bold mb-0.5" style={{ color: "#1a2e5a" }}>{stat.value}</div>
+                  <div className="text-sm text-gray-400 font-medium">{stat.label}</div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -478,15 +393,13 @@ export default function Home() {
             <h2 className="text-3xl sm:text-5xl font-bold text-white">Pourquoi choisir KARHON ?</h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icone: "🎯", title: "Un interlocuteur unique", desc: "Un seul point de contact pour toutes vos assurances. Gestion personnalisée et simplifiée." },
-              { icone: "🤝", title: "Neutre et indépendant", desc: "Nous travaillons exclusivement dans votre intérêt. Aucun lien avec une seule compagnie." },
-              { icone: "💰", title: "Sans honoraires", desc: "Nos services sont entièrement pris en charge par les compagnies d'assurance partenaires." },
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.6 }} whileHover={{ y: -6, scale: 1.02 }} className="bg-white/8 backdrop-blur-md rounded-3xl p-8 border border-white/10 transition-all duration-300 cursor-default">
-                <div className="text-5xl mb-5">{item.icone}</div>
+            {pourquoi.map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.6 }} whileHover={{ y: -6, scale: 1.02 }} className="rounded-3xl p-8 border border-white/10 transition-all duration-300 cursor-default" style={{ backgroundColor: "rgba(255,255,255,0.07)", backdropFilter: "blur(12px)" }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6" style={{ background: "rgba(42,138,138,0.25)", border: "1px solid rgba(42,138,138,0.4)" }}>
+                  <item.Icon size={26} color="#a8d8d8" strokeWidth={1.5} />
+                </div>
                 <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
+                <p className="text-white/55 text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -497,9 +410,17 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <h2 className="text-3xl sm:text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Prêt à être bien protégé ?</h2>
-            <p className="text-gray-500 mb-10 text-lg">Obtenez votre devis personnalisé gratuit en quelques minutes.</p>
-            <Link href="/devis" className="group inline-flex items-center gap-3 px-10 py-5 rounded-full font-bold text-white text-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+            <h2 className="text-3xl sm:text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>
+              Prêt à être bien protégé ?
+            </h2>
+            <p className="text-gray-500 mb-10 text-lg">
+              Obtenez votre devis personnalisé gratuit en quelques minutes.
+            </p>
+            <Link
+              href="/devis"
+              className="group inline-flex items-center gap-3 px-10 py-5 rounded-full font-bold text-white text-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl"
+              style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+            >
               Commencer maintenant
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>

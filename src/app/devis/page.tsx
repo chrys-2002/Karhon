@@ -1,35 +1,35 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, ArrowLeft, Send, Phone, Mail } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2 } from 'lucide-react';
 
 const categories = [
-  { id: 'particuliers', label: 'Particuliers', icon: '👤', desc: 'Auto, Habitation, Santé...' },
-  { id: 'professionnelles', label: 'Professionnelles', icon: '🏢', desc: 'Entreprises, Sociétés' },
-  { id: 'vie', label: 'Assurance Vie', icon: '❤️', desc: 'Retraite, Épargne, Prévoyance' },
+  { id: 'particuliers', label: 'Particuliers', Icon: User, desc: 'Auto, Habitation, Santé...' },
+  { id: 'professionnelles', label: 'Professionnelles', Icon: Building2, desc: 'Entreprises, Sociétés' },
+  { id: 'vie', label: 'Assurance Vie', Icon: TrendingUp, desc: 'Retraite, Épargne, Prévoyance' },
 ];
 
-const produitsParCategorie: Record<string, { id: string; nom: string; icon: string }[]> = {
+const produitsParCategorie: Record<string, { id: string; nom: string; Icon: any }[]> = {
   particuliers: [
-    { id: 'automobile', nom: 'Assurance Automobile', icon: '🚗' },
-    { id: 'habitation', nom: 'Assurance Habitation', icon: '🏠' },
-    { id: 'sante', nom: 'Santé Individuelle', icon: '🩺' },
-    { id: 'accident', nom: 'Individuelle Accident', icon: '🛡️' },
-    { id: 'voyage', nom: 'Assurance Voyage', icon: '✈️' },
-    { id: 'rc', nom: 'Responsabilité Civile', icon: '⚖️' },
+    { id: 'automobile', nom: 'Assurance Automobile', Icon: Car },
+    { id: 'habitation', nom: 'Assurance Habitation', Icon: Home },
+    { id: 'sante', nom: 'Santé Individuelle', Icon: HeartPulse },
+    { id: 'accident', nom: 'Individuelle Accident', Icon: ShieldAlert },
+    { id: 'voyage', nom: 'Assurance Voyage', Icon: Plane },
+    { id: 'rc', nom: 'Responsabilité Civile', Icon: Scale },
   ],
   professionnelles: [
-    { id: 'flotte', nom: 'Automobile Flotte', icon: '🚛' },
-    { id: 'multirisque', nom: 'Multirisque Pro', icon: '🏪' },
-    { id: 'sante-groupe', nom: 'Santé Groupe', icon: '👥' },
-    { id: 'rc-pro', nom: 'RC Professionnelle', icon: '⚖️' },
-    { id: 'maritime', nom: 'Assurance Maritime', icon: '⚓' },
+    { id: 'flotte', nom: 'Automobile Flotte', Icon: Truck },
+    { id: 'multirisque', nom: 'Multirisque Pro', Icon: Store },
+    { id: 'sante-groupe', nom: 'Santé Groupe', Icon: Users },
+    { id: 'rc-pro', nom: 'RC Professionnelle', Icon: Scale },
+    { id: 'maritime', nom: 'Assurance Maritime', Icon: Anchor },
   ],
   vie: [
-    { id: 'retraite', nom: 'Assurance Retraite', icon: '📈' },
-    { id: 'etude', nom: 'Étude Plus', icon: '🎓' },
-    { id: 'emprunteur', nom: 'Vie Emprunteur', icon: '🏦' },
-    { id: 'funeraire', nom: 'Assistance Funéraire', icon: '🕊️' },
+    { id: 'retraite', nom: 'Assurance Retraite', Icon: TrendingUp },
+    { id: 'etude', nom: 'Étude Plus', Icon: GraduationCap },
+    { id: 'emprunteur', nom: 'Vie Emprunteur', Icon: Landmark },
+    { id: 'funeraire', nom: 'Assistance Funéraire', Icon: Flower2 },
   ],
 };
 
@@ -56,17 +56,15 @@ export default function DevisPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-28 pb-20">
       <div className="container mx-auto px-6 max-w-5xl">
+
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-block bg-orange-100 text-orange-700 px-6 py-2 rounded-full text-sm font-medium mb-4">
-            ⚡ Réponse sous 48h maximum
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold mb-4" style={{ backgroundColor: "rgba(42,138,138,0.1)", color: "#2a8a8a", border: "1px solid rgba(42,138,138,0.25)" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+            Réponse sous 48h maximum
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">Obtenez votre Devis Gratuit</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Obtenez votre Devis Gratuit</h1>
+          <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             Remplissez ce formulaire en 3 étapes. Un conseiller KARHON vous contactera rapidement.
           </p>
         </motion.div>
@@ -81,21 +79,22 @@ export default function DevisPage() {
             ].map((s, index) => (
               <div key={s.num} className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
-                  <div 
-                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all ${
-                      step >= s.num 
-                        ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg' 
-                        : 'bg-gray-200 text-gray-400'
-                    }`}
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all"
+                    style={{
+                      background: step >= s.num ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#f1f5f9",
+                      color: step >= s.num ? "#fff" : "#94a3b8",
+                      boxShadow: step >= s.num ? "0 4px 15px rgba(26,46,90,0.25)" : "none",
+                    }}
                   >
-                    {step > s.num ? <Check size={24} /> : s.num}
+                    {step > s.num ? <Check size={22} /> : s.num}
                   </div>
-                  <span className={`mt-2 text-sm font-medium ${step >= s.num ? 'text-blue-900' : 'text-gray-400'}`}>
+                  <span className="mt-2 text-sm font-medium" style={{ color: step >= s.num ? "#1a2e5a" : "#94a3b8" }}>
                     {s.label}
                   </span>
                 </div>
                 {index < 2 && (
-                  <div className={`flex-1 h-1 mx-4 rounded ${step > s.num ? 'bg-blue-600' : 'bg-gray-200'}`} />
+                  <div className="flex-1 h-1 mx-4 rounded transition-all" style={{ background: step > s.num ? "linear-gradient(90deg, #1a2e5a, #2a8a8a)" : "#e2e8f0" }} />
                 )}
               </div>
             ))}
@@ -104,48 +103,62 @@ export default function DevisPage() {
 
         {/* Formulaire */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-          {/* ÉTAPE 1 : Catégorie */}
+
+          {/* ÉTAPE 1 */}
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
+              <h2 className="text-3xl font-bold text-center mb-3" style={{ color: "#1a2e5a" }}>
                 Quel type d&apos;assurance recherchez-vous ?
               </h2>
-              <p className="text-center text-gray-500 mb-10">Sélectionnez la catégorie qui correspond à votre besoin</p>
-              
+              <p className="text-center text-gray-400 mb-10">Sélectionnez la catégorie qui correspond à votre besoin</p>
+
               <div className="grid md:grid-cols-3 gap-6">
-                {categories.map((cat) => (
-                  <motion.div
-                    key={cat.id}
-                    whileHover={{ scale: 1.03, y: -5 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => updateField('categorie', cat.id)}
-                    className={`border-2 rounded-3xl p-8 text-center cursor-pointer transition-all ${
-                      formData.categorie === cat.id
-                        ? 'border-blue-600 bg-blue-50 shadow-lg'
-                        : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
-                    }`}
-                  >
-                    <div className="text-6xl mb-4">{cat.icon}</div>
-                    <h3 className="text-xl font-semibold mb-2">{cat.label}</h3>
-                    <p className="text-gray-500 text-sm">{cat.desc}</p>
-                    {formData.categorie === cat.id && (
-                      <div className="mt-4 inline-block bg-blue-600 text-white px-4 py-1 rounded-full text-sm">
-                        Sélectionné ✓
+                {categories.map((cat) => {
+                  const isSelected = formData.categorie === cat.id;
+                  return (
+                    <motion.div
+                      key={cat.id}
+                      whileHover={{ scale: 1.03, y: -4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => updateField('categorie', cat.id)}
+                      className="rounded-3xl p-8 text-center cursor-pointer transition-all"
+                      style={{
+                        border: isSelected ? "2px solid #2a8a8a" : "2px solid #e2e8f0",
+                        background: isSelected ? "linear-gradient(135deg, rgba(26,46,90,0.04), rgba(42,138,138,0.06))" : "#fff",
+                        boxShadow: isSelected ? "0 8px 30px rgba(42,138,138,0.15)" : "none",
+                      }}
+                    >
+                      <div
+                        className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                        style={{
+                          background: isSelected ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "linear-gradient(135deg, #eaf4f4, #d0ecec)",
+                        }}
+                      >
+                        <cat.Icon size={28} color={isSelected ? "#fff" : "#2a8a8a"} strokeWidth={1.6} />
                       </div>
-                    )}
-                  </motion.div>
-                ))}
+                      <h3 className="text-xl font-semibold mb-2" style={{ color: "#1a2e5a" }}>{cat.label}</h3>
+                      <p className="text-gray-400 text-sm">{cat.desc}</p>
+                      {isSelected && (
+                        <div className="mt-4 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold text-white" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                          <Check size={12} /> Sélectionné
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
 
               <div className="flex justify-end mt-10">
                 <button
                   onClick={() => setStep(2)}
                   disabled={!canGoToStep2}
-                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all ${
-                    canGoToStep2
-                      ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-white hover:shadow-lg'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
+                  className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
+                  style={{
+                    background: canGoToStep2 ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#e2e8f0",
+                    color: canGoToStep2 ? "#fff" : "#94a3b8",
+                    cursor: canGoToStep2 ? "pointer" : "not-allowed",
+                    boxShadow: canGoToStep2 ? "0 8px 25px rgba(26,46,90,0.25)" : "none",
+                  }}
                 >
                   Continuer <ArrowRight size={20} />
                 </button>
@@ -153,126 +166,93 @@ export default function DevisPage() {
             </motion.div>
           )}
 
-          {/* ÉTAPE 2 : Produit + Infos */}
+          {/* ÉTAPE 2 */}
           {step === 2 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
+              <h2 className="text-3xl font-bold text-center mb-3" style={{ color: "#1a2e5a" }}>
                 Précisez votre besoin
               </h2>
-              <p className="text-center text-gray-500 mb-10">Choisissez un produit et renseignez vos coordonnées</p>
+              <p className="text-center text-gray-400 mb-10">Choisissez un produit et renseignez vos coordonnées</p>
 
-              {/* Sélection Produit */}
               <div className="mb-10">
-                <label className="block text-lg font-semibold mb-4 text-gray-800">Produit souhaité</label>
+                <label className="block text-sm font-semibold mb-4 tracking-wide uppercase" style={{ color: "#1a2e5a" }}>Produit souhaité</label>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {produitsParCategorie[formData.categorie]?.map((prod) => (
-                    <motion.div
-                      key={prod.id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => updateField('produit', prod.id)}
-                      className={`border-2 rounded-2xl p-4 cursor-pointer transition-all flex items-center gap-3 ${
-                        formData.produit === prod.id
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
-                    >
-                      <span className="text-3xl">{prod.icon}</span>
-                      <span className="font-medium">{prod.nom}</span>
-                      {formData.produit === prod.id && (
-                        <Check className="ml-auto text-blue-600" size={20} />
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Coordonnées */}
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom *</label>
-                  <input
-                    type="text"
-                    value={formData.nom}
-                    onChange={(e) => updateField('nom', e.target.value)}
-                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                    placeholder="Votre nom"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
-                  <input
-                    type="text"
-                    value={formData.prenom}
-                    onChange={(e) => updateField('prenom', e.target.value)}
-                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                    placeholder="Votre prénom"
-                  />
+                  {produitsParCategorie[formData.categorie]?.map((prod) => {
+                    const isSelected = formData.produit === prod.id;
+                    return (
+                      <motion.div
+                        key={prod.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => updateField('produit', prod.id)}
+                        className="rounded-2xl p-4 cursor-pointer transition-all flex items-center gap-3"
+                        style={{
+                          border: isSelected ? "2px solid #2a8a8a" : "2px solid #e2e8f0",
+                          background: isSelected ? "rgba(42,138,138,0.05)" : "#fff",
+                        }}
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{ background: isSelected ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#f1f5f9" }}
+                        >
+                          <prod.Icon size={18} color={isSelected ? "#fff" : "#2a8a8a"} strokeWidth={1.6} />
+                        </div>
+                        <span className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{prod.nom}</span>
+                        {isSelected && <Check className="ml-auto flex-shrink-0" size={18} style={{ color: "#2a8a8a" }} />}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone *</label>
-                  <input
-                    type="tel"
-                    value={formData.telephone}
-                    onChange={(e) => updateField('telephone', e.target.value)}
-                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                    placeholder="+225 XX XX XX XX XX"
-                  />
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Nom *</label>
+                  <input type="text" value={formData.nom} onChange={(e) => updateField('nom', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" style={{ borderColor: formData.nom ? "#2a8a8a" : undefined }} onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = formData.nom ? "#2a8a8a" : "#e2e8f0"} placeholder="Votre nom" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => updateField('email', e.target.value)}
-                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                    placeholder="votre@email.com"
-                  />
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Prénom</label>
+                  <input type="text" value={formData.prenom} onChange={(e) => updateField('prenom', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="Votre prénom" />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Téléphone *</label>
+                  <input type="tel" value={formData.telephone} onChange={(e) => updateField('telephone', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" style={{ borderColor: formData.telephone ? "#2a8a8a" : undefined }} onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = formData.telephone ? "#2a8a8a" : "#e2e8f0"} placeholder="+225 XX XX XX XX XX" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Email</label>
+                  <input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="votre@email.com" />
                 </div>
               </div>
 
               {formData.categorie === 'professionnelles' && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nom de l&apos;entreprise</label>
-                  <input
-                    type="text"
-                    value={formData.entreprise}
-                    onChange={(e) => updateField('entreprise', e.target.value)}
-                    className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                    placeholder="Nom de votre société"
-                  />
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Nom de l&apos;entreprise</label>
+                  <input type="text" value={formData.entreprise} onChange={(e) => updateField('entreprise', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="Nom de votre société" />
                 </div>
               )}
 
               <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
-                <textarea
-                  value={formData.message}
-                  onChange={(e) => updateField('message', e.target.value)}
-                  rows={4}
-                  className="w-full border border-gray-300 rounded-2xl px-5 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none"
-                  placeholder="Décrivez votre besoin..."
-                />
+                <label className="block text-sm font-medium text-gray-600 mb-2">Message (optionnel)</label>
+                <textarea value={formData.message} onChange={(e) => updateField('message', e.target.value)} rows={4} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition resize-none text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="Décrivez votre besoin..." />
               </div>
 
               <div className="flex justify-between">
-                <button
-                  onClick={() => setStep(1)}
-                  className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-gray-600 hover:bg-gray-100 transition"
-                >
-                  <ArrowLeft size={20} /> Retour
+                <button onClick={() => setStep(1)} className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-gray-500 hover:bg-gray-50 transition text-sm">
+                  <ArrowLeft size={18} /> Retour
                 </button>
                 <button
                   onClick={() => setStep(3)}
                   disabled={!canGoToStep3}
-                  className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all ${
-                    canGoToStep3
-                      ? 'bg-gradient-to-r from-blue-900 to-blue-700 text-white hover:shadow-lg'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
+                  className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
+                  style={{
+                    background: canGoToStep3 ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#e2e8f0",
+                    color: canGoToStep3 ? "#fff" : "#94a3b8",
+                    cursor: canGoToStep3 ? "pointer" : "not-allowed",
+                    boxShadow: canGoToStep3 ? "0 8px 25px rgba(26,46,90,0.25)" : "none",
+                  }}
                 >
                   Continuer <ArrowRight size={20} />
                 </button>
@@ -280,43 +260,48 @@ export default function DevisPage() {
             </motion.div>
           )}
 
-          {/* ÉTAPE 3 : Confirmation */}
+          {/* ÉTAPE 3 */}
           {step === 3 && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-8"
-            >
-              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="text-green-600" size={48} />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: "linear-gradient(135deg, rgba(42,138,138,0.15), rgba(26,46,90,0.1))", border: "2px solid rgba(42,138,138,0.3)" }}>
+                <Check size={44} style={{ color: "#2a8a8a" }} strokeWidth={2.5} />
               </div>
-              
-              <h2 className="text-4xl font-bold text-green-600 mb-4">Demande envoyée !</h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Merci <strong>{formData.nom}</strong>. Un conseiller KARHON vous contactera sous 48h au 
-                <strong> {formData.telephone}</strong>.
+
+              <h2 className="text-4xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Demande envoyée !</h2>
+              <p className="text-xl text-gray-500 mb-8">
+                Merci <strong style={{ color: "#1a2e5a" }}>{formData.nom}</strong>. Un conseiller KARHON vous contactera sous 48h au{" "}
+                <strong style={{ color: "#2a8a8a" }}>{formData.telephone}</strong>.
               </p>
 
-              <div className="bg-blue-50 rounded-2xl p-8 mb-8 max-w-lg mx-auto">
-                <h3 className="font-bold text-lg mb-4 text-blue-900">Récapitulatif de votre demande</h3>
-                <div className="text-left space-y-3 text-gray-700">
-                  <p><strong>Catégorie :</strong> {categories.find(c => c.id === formData.categorie)?.label}</p>
-                  <p><strong>Produit :</strong> {produitsParCategorie[formData.categorie]?.find(p => p.id === formData.produit)?.nom}</p>
-                  {formData.entreprise && <p><strong>Entreprise :</strong> {formData.entreprise}</p>}
+              <div className="rounded-2xl p-8 mb-8 max-w-lg mx-auto text-left" style={{ background: "linear-gradient(135deg, rgba(26,46,90,0.04), rgba(42,138,138,0.06))", border: "1px solid rgba(42,138,138,0.2)" }}>
+                <h3 className="font-bold text-lg mb-4" style={{ color: "#1a2e5a" }}>Récapitulatif de votre demande</h3>
+                <div className="space-y-3 text-sm text-gray-600">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Catégorie</span>
+                    <span style={{ color: "#1a2e5a" }}>{categories.find(c => c.id === formData.categorie)?.label}</span>
+                  </div>
+                  <div className="h-px bg-gray-100" />
+                  <div className="flex justify-between">
+                    <span className="font-medium">Produit</span>
+                    <span style={{ color: "#1a2e5a" }}>{produitsParCategorie[formData.categorie]?.find(p => p.id === formData.produit)?.nom}</span>
+                  </div>
+                  {formData.entreprise && (
+                    <>
+                      <div className="h-px bg-gray-100" />
+                      <div className="flex justify-between">
+                        <span className="font-medium">Entreprise</span>
+                        <span style={{ color: "#1a2e5a" }}>{formData.entreprise}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a 
-                  href="tel:+2250707108743"
-                  className="flex items-center justify-center gap-3 bg-green-600 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-green-700 transition"
-                >
-                  <Phone size={20} /> Appeler maintenant
+                <a href="tel:+2250707108743" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", boxShadow: "0 8px 25px rgba(26,46,90,0.25)" }}>
+                  <Phone size={18} /> Appeler maintenant
                 </a>
-                <a 
-                  href="/produits"
-                  className="flex items-center justify-center gap-3 border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-2xl font-semibold hover:bg-blue-50 transition"
-                >
+                <a href="/produits" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105" style={{ border: "2px solid #2a8a8a", color: "#2a8a8a" }}>
                   Voir d&apos;autres produits
                 </a>
               </div>
@@ -325,17 +310,15 @@ export default function DevisPage() {
         </div>
 
         {/* Contact Rapide */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-gray-600 mb-4">Une question urgente ?</p>
-          <a href="tel:+2250707108743" className="text-3xl font-bold text-blue-900 hover:text-orange-600 transition">
-            📞 +225 07 87 10 39 39
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-12 text-center">
+          <p className="text-gray-400 mb-3 text-sm font-medium tracking-wide uppercase">Une question urgente ?</p>
+          <a href="tel:+2250707108743" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+              <Phone size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
+            </div>
+            +225 07 87 10 39 39
           </a>
-          <p className="text-gray-500 mt-2">Ou écrivez-nous à infos@karhonassurance.com</p>
+          <p className="text-gray-400 mt-2 text-sm">Ou écrivez-nous à infos@karhonassurance.com</p>
         </motion.div>
       </div>
     </div>

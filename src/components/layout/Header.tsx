@@ -9,9 +9,9 @@ export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
+
   const isHomePage = pathname === "/";
-  
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
@@ -25,9 +25,9 @@ export default function Header() {
       document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
-  
+
   const handleLinkClick = () => setIsMenuOpen(false);
-  
+
   const goToHome = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     router.push("/");
@@ -35,7 +35,14 @@ export default function Header() {
   };
 
   const transparent = isHomePage && !scrolled;
-  
+
+  const navLinks = [
+    { href: "/produits", label: "Produits" },
+    { href: "/devis", label: "Devis" },
+    { href: "/contact", label: "Contact" },
+    { href: "/apropos", label: "À propos" },
+  ];
+
   return (
     <>
       <header
@@ -63,45 +70,63 @@ export default function Header() {
                 >
                   ARHON
                 </span>
-                <span
-                  className="text-sm ml-1 font-medium"
-                  style={{ color: "#2a8a8a" }}
-                >
+                <span className="text-sm ml-1 font-medium" style={{ color: "#2a8a8a" }}>
                   Assurances
                 </span>
               </div>
             </button>
-            
+
             {/* Menu desktop */}
             <div className="hidden md:flex items-center gap-8">
-              {[
-                { href: "/produits", label: "Produits" },
-                { href: "/devis", label: "Devis" },
-                { href: "/contact", label: "Contact" },
-                { href: "/apropos", label: "À propos" },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="relative transition-all duration-300 text-sm font-medium group"
-                  style={{ color: transparent ? "rgba(255,255,255,0.9)" : "#1a2e5a" }}
-                >
-                  {item.label}
-                  <span
-                    className="absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full"
-                    style={{ backgroundColor: "#2a8a8a" }}
-                  />
-                </Link>
-              ))}
+              {navLinks.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="relative transition-all duration-300 text-sm font-medium group flex flex-col items-center gap-0.5"
+                    style={{
+                      color: isActive
+                        ? "#2a8a8a"
+                        : transparent
+                        ? "rgba(255,255,255,0.9)"
+                        : "#1a2e5a",
+                    }}
+                  >
+                    {item.label}
+                    {/* Indicateur page active */}
+                    <span
+                      className="absolute -bottom-1 left-0 h-0.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: isActive ? "100%" : "0%",
+                        backgroundColor: "#2a8a8a",
+                        opacity: isActive ? 1 : 0,
+                      }}
+                    />
+                    {/* Hover underline pour les non-actifs */}
+                    {!isActive && (
+                      <span
+                        className="absolute -bottom-1 left-0 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-full"
+                        style={{ backgroundColor: "#2a8a8a", opacity: 0.5 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
               <Link
                 href="/client"
                 className="px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                style={{
+                  background: pathname === "/client"
+                    ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)"
+                    : "linear-gradient(135deg, #2a8a8a, #1a2e5a)",
+                  boxShadow: pathname === "/client" ? "0 0 0 3px rgba(42,138,138,0.3)" : "none",
+                }}
               >
                 Espace Client
               </Link>
             </div>
-            
+
             {/* Bouton menu mobile */}
             <button
               className="md:hidden relative w-10 h-10 rounded-xl shadow-lg z-20 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center"
@@ -120,7 +145,7 @@ export default function Header() {
           </div>
         </nav>
       </header>
-      
+
       {/* Menu mobile */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-[105] md:hidden">
@@ -138,29 +163,42 @@ export default function Header() {
                 ✕
               </button>
             </div>
-            <div className="flex flex-col p-4">
-              {[
-                { href: "/produits", label: "Produits" },
-                { href: "/devis", label: "Devis" },
-                { href: "/contact", label: "Contact" },
-                { href: "/apropos", label: "À propos" },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="py-3 px-4 rounded-xl transition-colors hover:bg-gray-50"
-                  style={{ color: "#1a2e5a" }}
-                  onClick={handleLinkClick}
-                >
-                  {item.label}
-                </Link>
-              ))}
+
+            <div className="flex flex-col p-4 gap-1">
+              {navLinks.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={handleLinkClick}
+                    className="py-3 px-4 rounded-xl transition-all flex items-center justify-between"
+                    style={{
+                      backgroundColor: isActive ? "rgba(42,138,138,0.08)" : "transparent",
+                      color: isActive ? "#2a8a8a" : "#1a2e5a",
+                      fontWeight: isActive ? 600 : 400,
+                    }}
+                  >
+                    {item.label}
+                    {isActive && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: "#2a8a8a" }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
+
             <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
               <Link
                 href="/client"
-                className="block w-full text-white text-center py-3 rounded-xl font-semibold"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                className="block w-full text-white text-center py-3 rounded-xl font-semibold transition-all"
+                style={{
+                  background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)",
+                  boxShadow: pathname === "/client" ? "0 0 0 3px rgba(42,138,138,0.3)" : "none",
+                }}
                 onClick={handleLinkClick}
               >
                 Espace Client
