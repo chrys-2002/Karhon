@@ -204,7 +204,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
             <div className="relative h-64 sm:h-80 lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl">
               <AnimatePresence custom={direction} mode="wait">
                 <motion.div key={current} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }} className="absolute inset-0">
-                  <Image src={p.image} alt={p.nom} fill className="object-cover" />
+                  <Image src={p.image} alt={p.nom} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(26,46,90,0.4) 0%, rgba(42,138,138,0.2) 100%)" }} />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.8)" }}>{p.tag}</span>
@@ -280,7 +280,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
           <div className="mt-10 grid grid-cols-4 gap-3">
             {produits.map((prod, i) => (
               <motion.button key={i} onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); startTimer(); }} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="relative h-16 sm:h-20 rounded-xl overflow-hidden transition-all" style={{ outline: i === current ? "3px solid #2a8a8a" : "3px solid transparent", outlineOffset: "2px", opacity: i === current ? 1 : 0.6 }}>
-                <Image src={prod.image} alt={prod.nom} fill className="object-cover" />
+                <Image src={prod.image} alt={prod.nom} fill sizes="(max-width: 768px) 25vw, 150px" className="object-cover" />
                 <div className="absolute inset-0 flex items-end p-1.5" style={{ background: "linear-gradient(to top, rgba(26,46,90,0.7) 0%, transparent 60%)" }}>
                   <span className="text-white text-[10px] font-semibold leading-tight">{prod.nom}</span>
                 </div>
@@ -301,7 +301,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
               className="bg-white max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl my-8"
             >
               <div className="relative h-52 w-full">
-                <Image src={selectedProduit.image} alt={selectedProduit.nom} fill className="object-cover" />
+                <Image src={selectedProduit.image} alt={selectedProduit.nom} fill sizes="(max-width: 768px) 100vw, 672px" className="object-cover" />
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26,46,90,0.3) 0%, rgba(26,46,90,0.85) 100%)" }} />
                 <div className="absolute inset-0 p-6 flex justify-between items-end">
                   <div>
@@ -327,11 +327,10 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                   </ul>
                 </div>
 
-                {/* NOUVELLE SECTION AVEC ACCORDEON POUR LES FORMULES */}
                 <div>
                   <h3 className="font-bold text-lg mb-3" style={{ color: "#1a2e5a" }}>Formules disponibles</h3>
                   <div className="space-y-2">
-                    {selectedProduit.options.map((option: ProductOption, i: number) => (
+                    {selectedProduit.options.map((option: ProductOption) => (
                       <motion.div
                         key={option.label}
                         initial={false}
@@ -407,7 +406,7 @@ export default function Home() {
       <div ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <AnimatePresence mode="sync">
           <motion.div key={heroCurrent} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.4, ease: "easeInOut" }} className="absolute inset-0">
-            <Image src={heroImages[heroCurrent].image} alt={heroImages[heroCurrent].nom} fill className="object-cover" priority />
+            <Image src={heroImages[heroCurrent].image} alt={heroImages[heroCurrent].nom} fill sizes="100vw" className="object-cover" priority />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,20,50,0.65) 0%, rgba(10,20,50,0.50) 50%, rgba(10,20,50,0.75) 100%)" }} />
           </motion.div>
         </AnimatePresence>

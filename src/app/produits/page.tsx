@@ -129,13 +129,12 @@ const produits = [
     exclusions: ["Usure du navire", "Vice propre"],
     options: ["Import/Export", "Transport National", "Pêche", "Plaisance"]
   },
-  // NOUVEAUX PRODUITS PROFESSIONNELS
   {
     id: "tout-risque-chantier",
     categorie: "professionnelles",
     nom: "Assurance Tout Risque Chantier",
     Icon: Hammer,
-    image: "/images/produits/tout risque chantier.jpg",
+    image: "/images/produits/tout-risque-chantier.jpg",
     description: "Protection complète des chantiers, équipements et risques liés aux travaux.",
     longDescription: "Cette assurance couvre les biens liés aux chantiers, les dommages matériels, la responsabilité civile et les risques de mise en cause de l'entreprise sur le site d'intervention.",
     garanties: ["Incendie et Explosion", "Vol et Détérioration", "Dégâts des Eaux", "Responsabilité Civile Chantier", "Bris de Matériel", "Assistance et Dépannage"],
@@ -315,12 +314,12 @@ export default function ProduitsPage() {
                 className="bg-white rounded-3xl overflow-hidden cursor-pointer transition-all duration-300 group border"
                 style={{ borderColor: "#e8f0f0", boxShadow: "0 4px 16px rgba(26,46,90,0.07)" }}
               >
-                {/* Image + badge icône premium */}
                 <div className="relative h-52 w-full overflow-hidden">
                   <Image
                     src={produit.image}
                     alt={produit.nom}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-600"
                   />
                   <div
@@ -360,7 +359,6 @@ export default function ProduitsPage() {
                   </div>
                 </div>
 
-                {/* Contenu carte */}
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-3">
                     <div
@@ -449,7 +447,7 @@ export default function ProduitsPage() {
               className="bg-white max-w-4xl w-full rounded-3xl overflow-hidden shadow-2xl my-8"
             >
               <div className="relative h-56 w-full">
-                <Image src={selectedProduit.image} alt={selectedProduit.nom} fill className="object-cover" />
+                <Image src={selectedProduit.image} alt={selectedProduit.nom} fill sizes="(max-width: 768px) 100vw, 896px" className="object-cover" />
                 <div
                   className="absolute inset-0"
                   style={{ background: "linear-gradient(to bottom, rgba(26,46,90,0.35) 0%, rgba(26,46,90,0.88) 100%)" }}
