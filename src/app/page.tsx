@@ -1,9 +1,25 @@
-"use client";
+'use client';
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { X, CheckCircle, ChevronLeft, ChevronRight, ArrowRight, ChevronDown, Handshake, Users, Zap, ShieldCheck, Target, Scale, BadgeDollarSign } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+
+// Interfaces pour typer les données
+interface ProductOption {
+  label: string;
+  description: string;
+}
+
+interface Product {
+  nom: string;
+  description: string;
+  image: string;
+  tag: string;
+  longDescription: string;
+  garanties: string[];
+  options: ProductOption[];
+}
 
 const heroImages = [
   { image: "/images/accueil/auto.jpg", nom: "Assurance Auto", description: "Particulier, flotte et deux roues" },
@@ -16,7 +32,7 @@ const heroImages = [
   { image: "/images/accueil/obseques.jpg", nom: "Assurance Obsèques", description: "Prévoyance funéraire" },
 ];
 
-const produitsIARD = [
+const produitsIARD: Product[] = [
   {
     nom: "Assurance Auto",
     description: "Particulier, flotte et deux roues",
@@ -24,7 +40,11 @@ const produitsIARD = [
     tag: "IARD",
     longDescription: "L'assurance automobile est obligatoire en Côte d'Ivoire. Elle couvre les dommages causés avec ou à un véhicule automobile. KARHON vous propose les meilleures formules adaptées à votre budget.",
     garanties: ["Responsabilité Civile obligatoire", "Vol et Incendie", "Bris de Glace", "Dommages Corporels", "Assistance Dépannage 24/7", "Protection du conducteur"],
-    options: ["Tiers Simple", "Tiers Étendu", "Tous Risques"],
+    options: [
+      { label: "Tiers Simple", description: "Couverture minimale obligatoire. Prend en charge uniquement la responsabilité civile (dommages causés à autrui). Idéal pour les budgets serrés et les véhicules anciens." },
+      { label: "Tiers Étendu", description: "Inclut la responsabilité civile + vol, incendie et bris de glace. Offre une meilleure protection que le tiers simple tout en restant abordable. Parfait pour les véhicules de valeur moyenne." },
+      { label: "Tous Risques", description: "Couverture complète incluant tous les dommages au véhicule (accident, vol, incendie, bris de glace, catastrophes naturelles) ainsi que la responsabilité civile. La formule la plus complète pour une protection optimale." }
+    ],
   },
   {
     nom: "Assurance Habitation",
@@ -33,7 +53,11 @@ const produitsIARD = [
     tag: "IARD",
     longDescription: "Protège votre résidence principale ou secondaire contre tous les risques du quotidien. Idéale pour les locataires et les propriétaires.",
     garanties: ["Incendie & Explosion", "Dégâts des Eaux", "Vol & Cambriolage", "Responsabilité Civile", "Catastrophes Naturelles", "Assistance Dépannage"],
-    options: ["Locataire", "Propriétaire Occupant", "Propriétaire Non Occupant"],
+    options: [
+      { label: "Locataire", description: "Couvre vos biens personnels et votre responsabilité civile locative (dégâts causés à l'appartement). Obligatoire pour la plupart des locations." },
+      { label: "Propriétaire Occupant", description: "Couvre à la fois le bâtiment et vos biens personnels. Protège contre tous les risques (incendie, dégâts des eaux, vol, etc.) pour les propriétaires qui habitent leur logement." },
+      { label: "Propriétaire Non Occupant", description: "Couvre uniquement le bâtiment contre les risques locatifs. Essentielle si vous louez votre bien, elle protège votre investissement contre les dégâts causés par les locataires." }
+    ],
   },
   {
     nom: "Assurance Santé",
@@ -42,7 +66,12 @@ const produitsIARD = [
     tag: "IARD",
     longDescription: "Dispositif permettant aux assurés confrontés à des risques de maladies, maternité ou invalidité de bénéficier de prestations au ticket modérateur et de remboursement des frais médicaux.",
     garanties: ["Consultations Médicales", "Hospitalisation", "Maternité", "Pharmacie", "Soins Dentaires & Optiques", "Analyses Médicales"],
-    options: ["Niveau 1", "Niveau 2", "Niveau 3", "Formule Famille"],
+    options: [
+      { label: "Niveau 1", description: "Remboursement de base (70-80%) des frais médicaux. Couvre l'essentiel des soins courants à un coût modéré." },
+      { label: "Niveau 2", description: "Remboursement moyen (80-90%) avec couverture hospitalisation complète. Idéal pour les familles avec des besoins médicaux réguliers." },
+      { label: "Niveau 3", description: "Remboursement élevé (90-100%) avec couverture complète incluant les médicaments coûteux et les soins spécialisés." },
+      { label: "Formule Famille", description: "Couverture étendue à tous les membres de la famille (conjoint et enfants) avec des tarifs avantageux. Inclut souvent la prévention et les vaccins." }
+    ],
   },
   {
     nom: "Assurance Voyage",
@@ -51,11 +80,16 @@ const produitsIARD = [
     tag: "IARD",
     longDescription: "Assurance Assistance Voyage multirisques personnalisée pour les voyageurs en toute sérénité. Couvre l'annulation, le rapatriement, les frais médicaux à l'étranger et la perte de bagages.",
     garanties: ["Rapatriement Sanitaire", "Frais Médicaux Étranger", "Annulation de Voyage", "Perte de Bagages", "Assistance 24/7"],
-    options: ["Court Séjour", "Long Séjour", "Expatriation", "Scolaire"],
+    options: [
+      { label: "Court Séjour", description: "Pour les voyages de moins de 30 jours. Couvre les urgences médicales, l'annulation et la perte de bagages pour les séjours touristiques." },
+      { label: "Long Séjour", description: "Pour les voyages de 30 à 90 jours. Inclut une couverture médicale renforcée et une assistance étendue pour les séjours prolongés." },
+      { label: "Expatriation", description: "Couverture complète pour les expatriés. Inclut la responsabilité civile à l'étranger, le rapatriement, et la couverture des frais médicaux sur le long terme." },
+      { label: "Scolaire", description: "Assurance spécialement conçue pour les voyages scolaires. Couvre les accidents, la responsabilité civile et l'assistance spécifique aux mineurs." }
+    ],
   },
 ];
 
-const produitsVIE = [
+const produitsVIE: Product[] = [
   {
     nom: "Assurance Retraite",
     description: "Préparez votre avenir",
@@ -63,7 +97,11 @@ const produitsVIE = [
     tag: "VIE",
     longDescription: "Permet de constituer un capital ou une rente pour maintenir votre niveau de vie après la retraite. Avantages fiscaux intéressants et transmission sécurisée aux héritiers.",
     garanties: ["Capital Garanti", "Rente Viagère", "Transmission aux Héritiers", "Rachat Partiel"],
-    options: ["Épargne Libre", "Épargne Programmée", "Versement Unique"],
+    options: [
+      { label: "Épargne Libre", description: "Versements libres à tout moment, sans engagement. Idéal pour ceux qui veulent épargner selon leurs possibilités financières." },
+      { label: "Épargne Programmée", description: "Versements réguliers (mensuels, trimestriels) avec un montant fixe. Permet de constituer un capital progressif avec des avantages fiscaux." },
+      { label: "Versement Unique", description: "Investissement unique avec capital garanti. Solution optimale pour placer un capital disponible avec un rendement attractif." }
+    ],
   },
   {
     nom: "Assurance Études",
@@ -72,7 +110,11 @@ const produitsVIE = [
     tag: "VIE",
     longDescription: "Épargne dédiée au financement des études supérieures de vos enfants. Capital garanti à l'échéance avec possibilité de versements flexibles.",
     garanties: ["Capital Garanti", "Versement Flexible", "Transmission Sécurisée", "Exonération en cas de décès"],
-    options: ["10 ans", "15 ans", "20 ans"],
+    options: [
+      { label: "10 ans", description: "Épargne sur 10 ans avec capital garanti à l'échéance. Solution pour les études proches (lycée, premier cycle universitaire)." },
+      { label: "15 ans", description: "Épargne sur 15 ans avec un meilleur rendement. Idéal pour préparer les études supérieures complètes (licence, master)." },
+      { label: "20 ans", description: "Épargne long terme avec capital garanti et rendement optimisé. Parfait pour les parents d'enfants en bas âge qui veulent anticiper les études futures." }
+    ],
   },
   {
     nom: "Assurance Emprunteur",
@@ -81,7 +123,11 @@ const produitsVIE = [
     tag: "VIE",
     longDescription: "Couvre le remboursement d'un prêt en cas de décès ou d'invalidité. Obligatoire pour la plupart des prêts immobiliers.",
     garanties: ["Décès", "Invalidité Totale", "Incapacité Temporaire", "Perte d'Emploi (option)"],
-    options: ["Prêt Immobilier", "Prêt Automobile", "Prêt Professionnel"],
+    options: [
+      { label: "Prêt Immobilier", description: "Couverture spécifique pour les prêts immobiliers. Garantit le remboursement du capital restant dû en cas de décès ou d'invalidité de l'emprunteur." },
+      { label: "Prêt Automobile", description: "Protection pour les prêts automobiles. Prend en charge le solde du crédit en cas d'incapacité de remboursement due à un accident ou un décès." },
+      { label: "Prêt Professionnel", description: "Assurance pour les prêts professionnels. Sécurise les emprunts liés à l'activité professionnelle contre les aléas de la vie." }
+    ],
   },
   {
     nom: "Assurance Obsèques",
@@ -90,7 +136,11 @@ const produitsVIE = [
     tag: "VIE",
     longDescription: "Prise en charge des frais funéraires pour protéger vos proches d'une charge financière difficile. Capital versé rapidement aux bénéficiaires.",
     garanties: ["Capital Décès versé rapidement", "Organisation des Obsèques", "Assistance Famille", "Rapatriement du Corps"],
-    options: ["Individuelle", "Famille", "Groupe Entreprise"],
+    options: [
+      { label: "Individuelle", description: "Couverture pour une seule personne. Capital versé aux bénéficiaires désignés pour prendre en charge les frais funéraires." },
+      { label: "Famille", description: "Couverture étendue à tous les membres de la famille (conjoint et enfants). Solution économique pour protéger toute la famille." },
+      { label: "Groupe Entreprise", description: "Couverture collective pour les employés d'une entreprise. Avantage social majeur qui protège les familles des salariés." }
+    ],
   },
 ];
 
@@ -107,11 +157,12 @@ const pourquoi = [
   { Icon: BadgeDollarSign, title: "Sans honoraires", desc: "Nos services sont entièrement pris en charge par les compagnies d'assurance partenaires." },
 ];
 
-function Carousel({ produits, title, subtitle }: { produits: any[]; title: string; subtitle: string }) {
+function Carousel({ produits, title, subtitle }: { produits: Product[]; title: string; subtitle: string }) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [selectedProduit, setSelectedProduit] = useState<Product | null>(null);
+  const [expandedOption, setExpandedOption] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [selectedProduit, setSelectedProduit] = useState<any>(null);
 
   const startTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -182,8 +233,21 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
                     {p.garanties.length > 3 && <p className="text-xs text-gray-400 pl-7">+{p.garanties.length - 3} garanties supplémentaires</p>}
                   </div>
                   <div className="flex flex-wrap gap-2 pt-1">
-                    {p.options.map((o: string, i: number) => (
-                      <motion.span key={o} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 + i * 0.06 }} className="px-3 py-1 rounded-full text-xs font-semibold border" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>{o}</motion.span>
+                    {p.options.map((o: ProductOption, i: number) => (
+                      <motion.span
+                        key={o.label}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 + i * 0.06 }}
+                        className="px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer hover:bg-blue-50 transition-all"
+                        style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}
+                        onClick={() => {
+                          setSelectedProduit(p);
+                          setExpandedOption(o.label);
+                        }}
+                      >
+                        {o.label}
+                      </motion.span>
                     ))}
                   </div>
                   <div className="flex gap-3 pt-2">
@@ -229,7 +293,13 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
       <AnimatePresence>
         {selectedProduit && (
           <div className="fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4 overflow-y-auto">
-            <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: 20 }} transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }} className="bg-white max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl my-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="bg-white max-w-2xl w-full rounded-3xl overflow-hidden shadow-2xl my-8"
+            >
               <div className="relative h-52 w-full">
                 <Image src={selectedProduit.image} alt={selectedProduit.nom} fill className="object-cover" />
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26,46,90,0.3) 0%, rgba(26,46,90,0.85) 100%)" }} />
@@ -238,7 +308,7 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
                     <h2 className="text-2xl font-bold text-white">{selectedProduit.nom}</h2>
                     <p className="text-white/70 text-sm mt-1">{selectedProduit.description}</p>
                   </div>
-                  <button onClick={() => setSelectedProduit(null)} className="p-2 hover:bg-white/20 rounded-full transition text-white"><X size={24} /></button>
+                  <button onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="p-2 hover:bg-white/20 rounded-full transition text-white"><X size={24} /></button>
                 </div>
               </div>
               <div className="p-6 space-y-5">
@@ -256,18 +326,55 @@ function Carousel({ produits, title, subtitle }: { produits: any[]; title: strin
                     ))}
                   </ul>
                 </div>
+
+                {/* NOUVELLE SECTION AVEC ACCORDEON POUR LES FORMULES */}
                 <div>
                   <h3 className="font-bold text-lg mb-3" style={{ color: "#1a2e5a" }}>Formules disponibles</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProduit.options.map((o: string, i: number) => (
-                      <span key={i} className="px-4 py-2 rounded-full text-sm font-medium text-white" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{o}</span>
+                  <div className="space-y-2">
+                    {selectedProduit.options.map((option: ProductOption, i: number) => (
+                      <motion.div
+                        key={option.label}
+                        initial={false}
+                        className="rounded-xl overflow-hidden"
+                        style={{
+                          backgroundColor: expandedOption === option.label ? "#f0f7ff" : "#f8fafc",
+                          border: expandedOption === option.label ? "1px solid #2a8a8a" : "1px solid #e2e8f0"
+                        }}
+                      >
+                        <motion.button
+                          onClick={() => setExpandedOption(expandedOption === option.label ? null : option.label)}
+                          className="w-full flex justify-between items-center p-4 text-left"
+                          whileHover={{ backgroundColor: "#eff6ff" }}
+                        >
+                          <span className="font-medium text-gray-800">{option.label}</span>
+                          <motion.div
+                            animate={{ rotate: expandedOption === option.label ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <ChevronDown size={18} style={{ color: "#2a8a8a" }} />
+                          </motion.div>
+                        </motion.button>
+                        <AnimatePresence>
+                          {expandedOption === option.label && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="px-4 pb-4"
+                            >
+                              <p className="text-gray-600 text-sm leading-relaxed">{option.description}</p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
               </div>
               <div className="p-6 border-t flex gap-4" style={{ borderColor: "#e0ecec" }}>
-                <button onClick={() => setSelectedProduit(null)} className="flex-1 py-3 border-2 rounded-2xl font-semibold hover:bg-gray-50 transition text-sm" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>Fermer</button>
-                <Link href="/devis" onClick={() => setSelectedProduit(null)} className="flex-1 text-white py-3 rounded-2xl font-semibold transition shadow-lg hover:scale-105 text-center text-sm" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>Demander un devis gratuit</Link>
+                <button onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 py-3 border-2 rounded-2xl font-semibold hover:bg-gray-50 transition text-sm" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>Fermer</button>
+                <Link href="/devis" onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 text-white py-3 rounded-2xl font-semibold transition shadow-lg hover:scale-105 text-center text-sm" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>Demander un devis gratuit</Link>
               </div>
             </motion.div>
           </div>
@@ -296,7 +403,6 @@ export default function Home() {
 
   return (
     <div className="overflow-hidden bg-white">
-
       {/* ═══════════ HERO ═══════════ */}
       <div ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <AnimatePresence mode="sync">
@@ -427,7 +533,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
     </div>
   );
 }
