@@ -56,14 +56,14 @@ export default function Header() {
           <div className="flex justify-between items-center">
 
             {/* Logo */}
-            <button onClick={goToHome} className="group relative z-20 flex items-center gap-2">
+            <button onClick={goToHome} className="group relative z-20 flex items-center gap-1">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
                 style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
               >
                 <span className="text-white font-bold text-lg">K</span>
               </div>
-              <div>
+              <div className="flex items-baseline">
                 <span
                   className="font-bold text-xl tracking-tight"
                   style={{ color: transparent ? "#ffffff" : "#1a2e5a" }}
@@ -152,15 +152,25 @@ export default function Header() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsMenuOpen(false)} />
           <div className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-              <div>
-                <div className="font-bold text-xl" style={{ color: "#1a2e5a" }}>KARHON</div>
-                <div className="text-sm" style={{ color: "#2a8a8a" }}>Assurances</div>
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md"
+                  style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                >
+                  <span className="text-white font-bold text-base">K</span>
+                </div>
+                <div>
+                  <div className="font-bold text-lg leading-none" style={{ color: "#1a2e5a" }}>ARHON</div>
+                  <div className="text-xs font-medium" style={{ color: "#2a8a8a" }}>Assurances</div>
+                </div>
               </div>
               <button
                 onClick={() => setIsMenuOpen(false)}
                 className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
               >
-                ✕
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 

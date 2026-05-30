@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown } from 'lucide-react';
 
 const categories = [
   { id: 'particuliers', label: 'Particuliers', Icon: User, desc: 'Auto, Habitation, Santé...' },
@@ -32,6 +32,125 @@ const produitsParCategorie: Record<string, { id: string; nom: string; Icon: any 
     { id: 'funeraire', nom: 'Assistance Funéraire', Icon: Flower2 },
   ],
 };
+
+const pays = [
+  { code: 'CI', label: "Côte d'Ivoire", indicatif: '+225', flag: '🇨🇮' },
+  { code: 'SN', label: 'Sénégal', indicatif: '+221', flag: '🇸🇳' },
+  { code: 'ML', label: 'Mali', indicatif: '+223', flag: '🇲🇱' },
+  { code: 'BF', label: 'Burkina Faso', indicatif: '+226', flag: '🇧🇫' },
+  { code: 'GN', label: 'Guinée', indicatif: '+224', flag: '🇬🇳' },
+  { code: 'TG', label: 'Togo', indicatif: '+228', flag: '🇹🇬' },
+  { code: 'BJ', label: 'Bénin', indicatif: '+229', flag: '🇧🇯' },
+  { code: 'NE', label: 'Niger', indicatif: '+227', flag: '🇳🇪' },
+  { code: 'CM', label: 'Cameroun', indicatif: '+237', flag: '🇨🇲' },
+  { code: 'GA', label: 'Gabon', indicatif: '+241', flag: '🇬🇦' },
+  { code: 'FR', label: 'France', indicatif: '+33', flag: '🇫🇷' },
+  { code: 'US', label: 'États-Unis', indicatif: '+1', flag: '🇺🇸' },
+];
+
+function PhoneInput({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [selectedPays, setSelectedPays] = useState(pays[0]);
+  const [numero, setNumero] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleNumeroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setNumero(val);
+    onChange(selectedPays.indicatif + ' ' + val);
+  };
+
+  const handleSelectPays = (p: typeof pays[0]) => {
+    setSelectedPays(p);
+    setOpen(false);
+    onChange(p.indicatif + ' ' + numero);
+  };
+
+  const isFilled = numero.length > 0;
+
+  return (
+    <div
+      ref={ref}
+      className="flex rounded-2xl overflow-visible relative"
+      style={{ border: isFilled ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0", transition: "border-color 0.2s" }}
+    >
+      {/* Sélecteur pays */}
+      <button
+        type="button"
+        onClick={() => setOpen(prev => !prev)}
+        className="flex items-center gap-2 px-4 py-4 border-r flex-shrink-0 transition-all"
+        style={{
+          borderColor: "#e2e8f0",
+          background: open ? "rgba(42,138,138,0.06)" : "#f8fbfb",
+          borderRadius: "1rem 0 0 1rem",
+          minWidth: "100px",
+        }}
+      >
+        <span className="text-xl leading-none">{selectedPays.flag}</span>
+        <span className="text-sm font-semibold" style={{ color: "#1a2e5a" }}>{selectedPays.indicatif}</span>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={14} style={{ color: "#2a8a8a" }} strokeWidth={2.2} />
+        </motion.div>
+      </button>
+
+      {/* Input numéro */}
+      <input
+        type="tel"
+        value={numero}
+        onChange={handleNumeroChange}
+        placeholder="XX XX XX XX XX"
+        className="flex-1 px-4 py-4 text-sm focus:outline-none bg-white"
+        style={{ borderRadius: "0 1rem 1rem 0", color: "#1a2e5a" }}
+      />
+
+      {/* Dropdown pays */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute left-0 top-full mt-2 w-72 rounded-2xl overflow-hidden z-50"
+            style={{ background: "#fff", border: "1.5px solid #e2e8f0", boxShadow: "0 16px 40px rgba(26,46,90,0.14)" }}
+          >
+            <div className="p-2 max-h-64 overflow-y-auto">
+              {pays.map((p, i) => {
+                const isSelected = p.code === selectedPays.code;
+                return (
+                  <button
+                    key={p.code}
+                    type="button"
+                    onClick={() => handleSelectPays(p)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left transition-all"
+                    style={{
+                      background: isSelected ? "rgba(42,138,138,0.08)" : "transparent",
+                      color: isSelected ? "#2a8a8a" : "#1a2e5a",
+                      fontWeight: isSelected ? 600 : 400,
+                    }}
+                  >
+                    <span className="text-xl leading-none">{p.flag}</span>
+                    <span className="flex-1">{p.label}</span>
+                    <span className="font-semibold text-xs" style={{ color: "#2a8a8a" }}>{p.indicatif}</span>
+                    {isSelected && <Check size={14} style={{ color: "#2a8a8a" }} strokeWidth={2.5} />}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function DevisPage() {
   const [step, setStep] = useState(1);
@@ -130,9 +249,7 @@ export default function DevisPage() {
                     >
                       <div
                         className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                        style={{
-                          background: isSelected ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "linear-gradient(135deg, #eaf4f4, #d0ecec)",
-                        }}
+                        style={{ background: isSelected ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}
                       >
                         <cat.Icon size={28} color={isSelected ? "#fff" : "#2a8a8a"} strokeWidth={1.6} />
                       </div>
@@ -205,38 +322,85 @@ export default function DevisPage() {
                 </div>
               </div>
 
+              {/* Nom + Prénom */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Nom *</label>
-                  <input type="text" value={formData.nom} onChange={(e) => updateField('nom', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" style={{ borderColor: formData.nom ? "#2a8a8a" : undefined }} onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = formData.nom ? "#2a8a8a" : "#e2e8f0"} placeholder="Votre nom" />
+                  <input
+                    type="text"
+                    value={formData.nom}
+                    onChange={(e) => updateField('nom', e.target.value)}
+                    className="w-full rounded-2xl px-5 py-4 focus:outline-none text-sm transition-all"
+                    style={{ border: formData.nom ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0" }}
+                    onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                    onBlur={e => { e.target.style.border = formData.nom ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0"; }}
+                    placeholder="Votre nom"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Prénom</label>
-                  <input type="text" value={formData.prenom} onChange={(e) => updateField('prenom', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="Votre prénom" />
+                  <input
+                    type="text"
+                    value={formData.prenom}
+                    onChange={(e) => updateField('prenom', e.target.value)}
+                    className="w-full rounded-2xl px-5 py-4 focus:outline-none text-sm transition-all"
+                    style={{ border: "1.5px solid #e2e8f0" }}
+                    onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                    onBlur={e => { e.target.style.border = "1.5px solid #e2e8f0"; }}
+                    placeholder="Votre prénom"
+                  />
                 </div>
               </div>
 
+              {/* Téléphone avec indicatif pays + Email */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Téléphone *</label>
-                  <input type="tel" value={formData.telephone} onChange={(e) => updateField('telephone', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" style={{ borderColor: formData.telephone ? "#2a8a8a" : undefined }} onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = formData.telephone ? "#2a8a8a" : "#e2e8f0"} placeholder="+225 XX XX XX XX XX" />
+                  <PhoneInput value={formData.telephone} onChange={(val) => updateField('telephone', val)} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Email</label>
-                  <input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="votre@email.com" />
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateField('email', e.target.value)}
+                    className="w-full rounded-2xl px-5 py-4 focus:outline-none text-sm transition-all"
+                    style={{ border: "1.5px solid #e2e8f0" }}
+                    onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                    onBlur={e => { e.target.style.border = "1.5px solid #e2e8f0"; }}
+                    placeholder="votre@email.com"
+                  />
                 </div>
               </div>
 
               {formData.categorie === 'professionnelles' && (
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-600 mb-2">Nom de l&apos;entreprise</label>
-                  <input type="text" value={formData.entreprise} onChange={(e) => updateField('entreprise', e.target.value)} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="Nom de votre société" />
+                  <input
+                    type="text"
+                    value={formData.entreprise}
+                    onChange={(e) => updateField('entreprise', e.target.value)}
+                    className="w-full rounded-2xl px-5 py-4 focus:outline-none text-sm transition-all"
+                    style={{ border: "1.5px solid #e2e8f0" }}
+                    onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                    onBlur={e => { e.target.style.border = "1.5px solid #e2e8f0"; }}
+                    placeholder="Nom de votre société"
+                  />
                 </div>
               )}
 
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-600 mb-2">Message (optionnel)</label>
-                <textarea value={formData.message} onChange={(e) => updateField('message', e.target.value)} rows={4} className="w-full border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none transition resize-none text-sm" onFocus={e => e.target.style.borderColor = "#2a8a8a"} onBlur={e => e.target.style.borderColor = "#e2e8f0"} placeholder="Décrivez votre besoin..." />
+                <textarea
+                  value={formData.message}
+                  onChange={(e) => updateField('message', e.target.value)}
+                  rows={4}
+                  className="w-full rounded-2xl px-5 py-4 focus:outline-none resize-none text-sm transition-all"
+                  style={{ border: "1.5px solid #e2e8f0" }}
+                  onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                  onBlur={e => { e.target.style.border = "1.5px solid #e2e8f0"; }}
+                  placeholder="Décrivez votre besoin..."
+                />
               </div>
 
               <div className="flex justify-between">
@@ -266,7 +430,6 @@ export default function DevisPage() {
               <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: "linear-gradient(135deg, rgba(42,138,138,0.15), rgba(26,46,90,0.1))", border: "2px solid rgba(42,138,138,0.3)" }}>
                 <Check size={44} style={{ color: "#2a8a8a" }} strokeWidth={2.5} />
               </div>
-
               <h2 className="text-4xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Demande envoyée !</h2>
               <p className="text-xl text-gray-500 mb-8">
                 Merci <strong style={{ color: "#1a2e5a" }}>{formData.nom}</strong>. Un conseiller KARHON vous contactera sous 48h au{" "}
@@ -298,7 +461,7 @@ export default function DevisPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="tel:+2250707108743" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", boxShadow: "0 8px 25px rgba(26,46,90,0.25)" }}>
+                <a href="tel:+2250787103939" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", boxShadow: "0 8px 25px rgba(26,46,90,0.25)" }}>
                   <Phone size={18} /> Appeler maintenant
                 </a>
                 <a href="/produits" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105" style={{ border: "2px solid #2a8a8a", color: "#2a8a8a" }}>
@@ -312,7 +475,7 @@ export default function DevisPage() {
         {/* Contact Rapide */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-12 text-center">
           <p className="text-gray-400 mb-3 text-sm font-medium tracking-wide uppercase">Une question urgente ?</p>
-          <a href="tel:+2250707108743" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
+          <a href="tel:+2250787103939" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
               <Phone size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
             </div>

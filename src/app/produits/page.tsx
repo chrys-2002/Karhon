@@ -1,4 +1,5 @@
 'use client';
+import Link from "next/link";
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,7 +8,8 @@ import {
   Globe, User, Building2, TrendingUp,
   Car, Home, HeartPulse, ShieldAlert, Plane, Scale,
   Truck, Store, Users, Anchor, GraduationCap, Landmark,
-  Briefcase, Flower2, Target, BadgeDollarSign, Zap
+  Briefcase, Flower2, Target, BadgeDollarSign, Zap,
+  Hammer, ShieldCheck
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -127,6 +129,43 @@ const produits = [
     exclusions: ["Usure du navire", "Vice propre"],
     options: ["Import/Export", "Transport National", "Pêche", "Plaisance"]
   },
+  // NOUVEAUX PRODUITS PROFESSIONNELS
+  {
+    id: "tout-risque-chantier",
+    categorie: "professionnelles",
+    nom: "Assurance Tout Risque Chantier",
+    Icon: Hammer,
+    image: "/images/produits/tout risque chantier.jpg",
+    description: "Protection complète des chantiers, équipements et risques liés aux travaux.",
+    longDescription: "Cette assurance couvre les biens liés aux chantiers, les dommages matériels, la responsabilité civile et les risques de mise en cause de l'entreprise sur le site d'intervention.",
+    garanties: ["Incendie et Explosion", "Vol et Détérioration", "Dégâts des Eaux", "Responsabilité Civile Chantier", "Bris de Matériel", "Assistance et Dépannage"],
+    exclusions: ["Travaux non conformes", "Faute intentionnelle", "Usure normale"],
+    options: ["Petit Chantier", "Grand Chantier", "Travaux Publics", "Bâtiment & Génie Civil"]
+  },
+  {
+    id: "caution",
+    categorie: "professionnelles",
+    nom: "Assurance Caution",
+    Icon: ShieldCheck,
+    image: "/images/produits/caution.jpg",
+    description: "Garantie de bonne exécution pour les cautions et engagements commerciaux.",
+    longDescription: "L'assurance caution protège l'entreprise en cas de non-exécution d'un engagement, d'un contrat ou d'un cautionnement administratif ou commercial.",
+    garanties: ["Caution de bonne fin", "Caution de soumission", "Caution de retenue", "Remboursement en cas de défaillance", "Protection de la trésorerie"],
+    exclusions: ["Faute intentionnelle", "Engagement non déclaré", "Dommages liés à une mauvaise gestion"],
+    options: ["Caution Fournisseur", "Caution Marché Public", "Caution de bonne exécution"]
+  },
+  {
+    id: "credit",
+    categorie: "professionnelles",
+    nom: "Assurance Crédit",
+    Icon: BadgeDollarSign,
+    image: "/images/produits/credit.jpg",
+    description: "Protection des créances et du risque d'impayé pour les entreprises.",
+    longDescription: "L'assurance crédit aide les entreprises à sécuriser leurs ventes en couvrant les pertes liées au non-paiement de leurs clients, tout en préservant leur trésorerie.",
+    garanties: ["Risque d'impayé client", "Protection de la trésorerie", "Recouvrement des créances", "Analyse de solvabilité", "Assistance commerciale"],
+    exclusions: ["Clients non déclarés", "Crédits non conformes", "Faute de gestion"],
+    options: ["Petites entreprises", "Entreprises de distribution", "B2B / B2G"]
+  },
   {
     id: "retraite", categorie: "vie", nom: "Assurance Retraite", Icon: TrendingUp,
     image: "/images/produits/retraite.jpg",
@@ -193,7 +232,6 @@ export default function ProduitsPage() {
   return (
     <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
       <div className="container mx-auto px-6">
-
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
           <div
@@ -236,7 +274,6 @@ export default function ProduitsPage() {
                       }
                 }
               >
-                {/* Icône filtre avec fond */}
                 <div
                   className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{
@@ -286,13 +323,10 @@ export default function ProduitsPage() {
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-600"
                   />
-                  {/* Overlay dégradé */}
                   <div
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(160deg, rgba(26,46,90,0.15) 0%, rgba(26,46,90,0.65) 100%)" }}
                   />
-
-                  {/* Badge icône — centre haut de l'image, style premium */}
                   <div className="absolute top-4 left-4">
                     <div
                       className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl"
@@ -310,12 +344,10 @@ export default function ProduitsPage() {
                         <produit.Icon size={15} color="#fff" strokeWidth={1.8} />
                       </div>
                       <span className="text-white text-xs font-semibold tracking-wide leading-tight">
-                        {produit.nom.split(" ").slice(1, 3).join(" ")}
+                        {produit.nom.split(" ").slice(0, 2).join(" ")}
                       </span>
                     </div>
                   </div>
-
-                  {/* Catégorie badge bas droite */}
                   <div className="absolute bottom-3 right-4">
                     <span
                       className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white"
@@ -330,7 +362,6 @@ export default function ProduitsPage() {
 
                 {/* Contenu carte */}
                 <div className="p-6">
-                  {/* Icône + titre alignés */}
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -345,7 +376,6 @@ export default function ProduitsPage() {
                     {produit.description}
                   </p>
 
-                  {/* CTA */}
                   <div
                     className="flex items-center justify-between pt-4"
                     style={{ borderTop: "1px solid #f0f7f7" }}
@@ -418,7 +448,6 @@ export default function ProduitsPage() {
               transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="bg-white max-w-4xl w-full rounded-3xl overflow-hidden shadow-2xl my-8"
             >
-              {/* Header Modal */}
               <div className="relative h-56 w-full">
                 <Image src={selectedProduit.image} alt={selectedProduit.nom} fill className="object-cover" />
                 <div
@@ -427,7 +456,6 @@ export default function ProduitsPage() {
                 />
                 <div className="absolute inset-0 p-8 flex justify-between items-end">
                   <div className="flex items-center gap-4">
-                    {/* Icône modal — style premium avec anneau */}
                     <div
                       className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
                       style={{
@@ -452,7 +480,6 @@ export default function ProduitsPage() {
                 </div>
               </div>
 
-              {/* Contenu Modal */}
               <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto custom-scroll">
                 <div>
                   <h3 className="font-bold text-xl mb-3" style={{ color: "#1a2e5a" }}>Description Complète</h3>
@@ -542,7 +569,6 @@ export default function ProduitsPage() {
                 </div>
               </div>
 
-              {/* Footer Modal */}
               <div className="p-6 border-t flex flex-col sm:flex-row gap-4" style={{ borderColor: "#e0ecec" }}>
                 <button
                   onClick={() => setSelectedProduit(null)}
