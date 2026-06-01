@@ -169,7 +169,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
     timerRef.current = setInterval(() => {
       setDirection(1);
       setCurrent(prev => (prev + 1) % produits.length);
-    }, 4000);
+    }, 7000);
   };
 
   useEffect(() => {

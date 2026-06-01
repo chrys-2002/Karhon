@@ -158,7 +158,7 @@ export default function Header() {
               <div className="flex items-center gap-2">
                 <div className="relative w-9 h-9 rounded-lg overflow-hidden shadow-md">
                   <Image
-                    src="/images/logo/karhon-logo.png"
+                    src="/images/logo/LOGO-KARHON-Assurances.png"
                     alt="KARHON Assurances"
                     fill
                     sizes="36px"

@@ -1,12 +1,17 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link"; 
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function ClientLoginPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({ email: "", password: "", nom: "", prenom: "", telephone: "", confirmPassword: "" });
 
@@ -42,109 +47,185 @@ export default function ClientLoginPage() {
     }, 1000);
   };
 
+  const handleGoogleLogin = () => {
+    setIsGoogleLoading(true);
+    setTimeout(() => {
+      localStorage.setItem("user", JSON.stringify({ email: "google-user@gmail.com", nom: "Utilisateur Google" }));
+      router.push("/client/dashboard");
+    }, 1200);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 px-4" style={{ background: "linear-gradient(135deg, #f0f7f7 0%, #ffffff 60%, #e8f0f8 100%)" }}>
-      <div className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center py-24 px-4 relative overflow-hidden" style={{ backgroundColor: "#f8fbfb" }}>
+      
+      {/* Background blobs decoratifs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px]" style={{ background: "rgba(42,138,138,0.15)" }}></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px]" style={{ background: "rgba(26,46,90,0.1)" }}></div>
+
+      <div className="max-w-[420px] w-full relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-xl overflow-hidden border"
-          style={{ borderColor: "#e0ecec" }}
+          className="bg-white rounded-[2rem] shadow-2xl overflow-hidden border"
+          style={{ borderColor: "rgba(226, 232, 240, 0.8)", boxShadow: "0 25px 50px -12px rgba(26,46,90,0.15)" }}
         >
-          {/* Header */}
-          <div className="p-8 text-center" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
-            <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 shadow-lg bg-white/20">
-              <span className="text-white font-bold text-3xl">K</span>
+          {/* Header avec ton LOGO */}
+          <div className="px-8 pt-10 pb-6 text-center">
+            <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-5 shadow-lg border relative overflow-hidden bg-white" style={{ borderColor: "#f1f5f9" }}>
+              <Image 
+                src="/images/logo/LOGO-KARHON-Assurances.png" 
+                alt="Logo KARHON Assurances" 
+                fill 
+                sizes="80px"
+                className="object-contain p-2"
+                priority
+              />
             </div>
-            <h1 className="text-2xl font-bold text-white">Espace Client</h1>
-            <p className="text-white/70 text-sm mt-1">Connectez-vous à votre compte</p>
+            <h1 className="text-2xl font-bold" style={{ color: "#1a2e5a" }}>Espace Client</h1>
+            <p className="text-gray-500 text-sm mt-1.5">
+              {isLogin ? "Heureux de vous revoir" : "Créez votre compte en quelques secondes"}
+            </p>
           </div>
 
-          {/* Toggle */}
-          <div className="flex border-b border-gray-100 mx-8 mt-6">
+          {/* Toggle Connexion / Inscription */}
+          <div className="flex border-b border-gray-100 mx-8">
             <button
-              onClick={() => setIsLogin(true)}
-              className="flex-1 py-3 text-sm font-medium transition-all"
-              style={{ color: isLogin ? "#2a8a8a" : "#9ca3af", borderBottom: isLogin ? "2px solid #2a8a8a" : "2px solid transparent" }}
+              onClick={() => { setIsLogin(true); setError(""); }}
+              className="flex-1 pb-3 text-sm font-bold transition-all relative"
+              style={{ color: isLogin ? "#2a8a8a" : "#9ca3af" }}
             >
               Connexion
+              {isLogin && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full" style={{ backgroundColor: "#2a8a8a" }} />}
             </button>
             <button
-              onClick={() => setIsLogin(false)}
-              className="flex-1 py-3 text-sm font-medium transition-all"
-              style={{ color: !isLogin ? "#2a8a8a" : "#9ca3af", borderBottom: !isLogin ? "2px solid #2a8a8a" : "2px solid transparent" }}
+              onClick={() => { setIsLogin(false); setError(""); }}
+              className="flex-1 pb-3 text-sm font-bold transition-all relative"
+              style={{ color: !isLogin ? "#2a8a8a" : "#9ca3af" }}
             >
               Inscription
+              {!isLogin && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full" style={{ backgroundColor: "#2a8a8a" }} />}
             </button>
           </div>
 
-          <div className="p-8">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-sm"
-              >
-                {error}
-              </motion.div>
-            )}
+          <div className="px-8 py-6">
+            
+            {/* Bouton Google Premium */}
+            <button 
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading || isLoading}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 font-semibold py-3.5 rounded-2xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm mb-6 disabled:opacity-50"
+            >
+              {isGoogleLoading ? (
+                <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                  </svg>
+                  Continuer avec Google
+                </>
+              )}
+            </button>
 
-            <form onSubmit={isLogin ? handleLogin : handleRegister}>
-              {!isLogin && (
+            {/* Séparateur */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-white text-gray-400 font-medium">Ou avec votre email</span>
+              </div>
+            </div>
+
+            {/* Message d'erreur */}
+            <AnimatePresence>
+              {error && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="space-y-3 mb-4"
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-5 p-3 bg-red-50 text-red-600 rounded-xl text-xs font-medium border border-red-100"
                 >
-                  <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
-                  <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Prénom"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
-                  <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="Téléphone"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
+                  {error}
                 </motion.div>
               )}
+            </AnimatePresence>
 
-              <div className="space-y-3 mb-6">
-                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
-                <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Mot de passe"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
-                {!isLogin && (
-                  <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirmer le mot de passe"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm" />
-                )}
+            {/* Formulaire */}
+            <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-3">
+              {!isLogin && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <User className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                    <input type="text" name="nom" value={formData.nom} onChange={handleChange} placeholder="Nom" required={!isLogin}
+                      className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
+                  </div>
+                  <div className="relative">
+                    <User className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                    <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} placeholder="Prénom" required={!isLogin}
+                      className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
+                  </div>
+                </div>
+              )}
+
+              <div className="relative">
+                <Mail className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Adresse email" required
+                  className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
+              </div>
+              
+              <div className="relative">
+                <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="Mot de passe" required
+                  className="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
 
+              {isLogin && (
+                <div className="flex justify-end">
+                  <Link href="#" className="text-xs font-semibold hover:underline" style={{ color: "#2a8a8a" }}>
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
+              )}
+
               <motion.button
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={isLoading}
-                className="w-full text-white py-3 rounded-xl text-sm font-semibold transition shadow-md disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                disabled={isLoading || isGoogleLoading}
+                className="w-full text-white py-4 rounded-2xl text-sm font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-70 flex items-center justify-center gap-2 mt-4"
+                style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
               >
-                {isLoading ? "Chargement..." : (isLogin ? "Se connecter" : "Créer mon compte")}
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    {isLogin ? "Se connecter" : "Créer mon compte"}
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </motion.button>
             </form>
 
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => { setIsLogin(!isLogin); setError(""); }}
-                className="text-sm transition hover:underline"
-                style={{ color: "#2a8a8a" }}
-              >
-                {isLogin ? "Créer un compte" : "Déjà inscrit ? Se connecter"}
-              </button>
-            </div>
-
+            {/* Démo Access */}
             {isLogin && (
-              <div className="mt-6 p-3 rounded-xl text-center" style={{ backgroundColor: "#f0f7f7" }}>
-                <p className="text-xs text-gray-500">🔐 Démo : <span className="font-medium">client@karhon.ci</span> / <span className="font-medium">password</span></p>
+              <div className="mt-6 p-4 rounded-2xl text-center border border-dashed" style={{ backgroundColor: "#f8fbfb", borderColor: "#c0e0e0" }}>
+                <p className="text-[11px] text-gray-500">
+                  Accès Démo : <span className="font-bold">client@karhon.ci</span> / <span className="font-bold">password</span>
+                </p>
               </div>
             )}
           </div>
         </motion.div>
+        
+        <p className="text-center text-[11px] text-gray-400 mt-6 px-4">
+          En vous connectant, vous acceptez nos <Link href="#" className="underline">Conditions d&apos;utilisation</Link> et notre <Link href="#" className="underline">Politique de confidentialité</Link>.
+        </p>
       </div>
     </div>
   );
