@@ -11,13 +11,13 @@ export default function AproposPage() {
         <div className="absolute inset-0 bg-[radial-gradient(at_top_right,#2a8a8a_0%,transparent_50%)]"></div>
         <div className="container mx-auto px-6 relative">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl">
-            <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-full text-sm mb-6 border border-white/20">
-              Agrément n°0305/MEF/DGTCP/DA du 02 Septembre 2021
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">KARHON Assurances</h1>
-            <p className="text-xl max-w-2xl" style={{ color: "#a8d8d8" }}>
-              Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
-            </p>
+            <h1 className="text-5xl md:text-6xl font-bold leading-tight" style={{ marginBottom: "20px" }}>KARHON Assurances</h1>
+<div className="inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-full text-sm border border-white/20" style={{ marginBottom: "90px" }}>
+  Agrément n°0305/MEF/DGTCP/DA du 02 Septembre 2021
+</div>
+<p className="text-xl max-w-2xl" style={{ color: "#a8d8d8" }}>
+  Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
+</p>
           </motion.div>
         </div>
       </div>

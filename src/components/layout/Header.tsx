@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
@@ -55,20 +56,24 @@ export default function Header() {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
 
-            {/* Logo */}
-            <button onClick={goToHome} className="group relative z-20 flex items-center gap-1">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
-                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
-              >
-                <span className="text-white font-bold text-lg">K</span>
+            {/* Logo + Nom de l'entreprise */}
+            <button onClick={goToHome} className="group relative z-20 flex items-center gap-3">
+              <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                <Image
+                  src="/images/logo/LOGO-KARHON-Assurances.png"
+                  alt="KARHON Assurances"
+                  fill
+                  sizes="44px"
+                  className="object-cover"
+                  priority
+                />
               </div>
               <div className="flex items-baseline">
                 <span
                   className="font-bold text-xl tracking-tight"
                   style={{ color: transparent ? "#ffffff" : "#1a2e5a" }}
                 >
-                  ARHON
+                  KARHON
                 </span>
                 <span className="text-sm ml-1 font-medium" style={{ color: "#2a8a8a" }}>
                   Assurances
@@ -94,7 +99,6 @@ export default function Header() {
                     }}
                   >
                     {item.label}
-                    {/* Indicateur page active */}
                     <span
                       className="absolute -bottom-1 left-0 h-0.5 rounded-full transition-all duration-300"
                       style={{
@@ -103,7 +107,6 @@ export default function Header() {
                         opacity: isActive ? 1 : 0,
                       }}
                     />
-                    {/* Hover underline pour les non-actifs */}
                     {!isActive && (
                       <span
                         className="absolute -bottom-1 left-0 w-0 h-0.5 rounded-full transition-all duration-300 group-hover:w-full"
@@ -152,16 +155,19 @@ export default function Header() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsMenuOpen(false)} />
           <div className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md"
-                  style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
-                >
-                  <span className="text-white font-bold text-base">K</span>
+              <div className="flex items-center gap-2">
+                <div className="relative w-9 h-9 rounded-lg overflow-hidden shadow-md">
+                  <Image
+                    src="/images/logo/karhon-logo.png"
+                    alt="KARHON Assurances"
+                    fill
+                    sizes="36px"
+                    className="object-cover"
+                  />
                 </div>
-                <div>
-                  <div className="font-bold text-lg leading-none" style={{ color: "#1a2e5a" }}>ARHON</div>
-                  <div className="text-xs font-medium" style={{ color: "#2a8a8a" }}>Assurances</div>
+                <div className="flex items-baseline">
+                  <div className="font-bold text-lg leading-none" style={{ color: "#1a2e5a" }}>KARHON</div>
+                  <div className="text-xs ml-1 font-medium" style={{ color: "#2a8a8a" }}>Assurances</div>
                 </div>
               </div>
               <button

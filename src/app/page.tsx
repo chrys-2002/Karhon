@@ -429,10 +429,11 @@ export default function Home() {
 
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 50 }} transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}>
-            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 leading-none tracking-tight">
-              KARHON<br />
-              <span className="text-4xl sm:text-6xl lg:text-7xl font-light" style={{ color: "#a8d8d8" }}>Assurances</span>
-            </h1>
+           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-tight" style={{ lineHeight: "1" }}>
+  KARHON
+  <div style={{ height: "10px" }}></div>
+  <span className="text-6xl sm:text-10xl lg:text-9xl font-light" style={{ color: "#a8d8d8" }}>Assurances</span>
+</h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
               Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
             </motion.p>
