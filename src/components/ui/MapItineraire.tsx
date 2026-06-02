@@ -4,8 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { MapPin, Navigation, LocateFixed, Loader2, AlertTriangle, ExternalLink } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
-// Emplacement du bureau KARHON Assurances
-// Cocody – Angré 8ème Tranche, Abidjan (BP V 236).
+// Carte KARHON Assurances — OpenStreetMap + Leaflet (100% gratuit)
+//
+// Aucune clé API, aucune carte bancaire requise.
+//  • Fond de carte : OpenStreetMap (tuiles gratuites)
+//  • Librairie     : Leaflet (chargée via CDN unpkg)
+//  • Itinéraire    : OSRM (service de routage public gratuit)
+//
+// Emplacement du bureau — Cocody, Angré 8ème Tranche, Abidjan.
 // ⚠️ Coordonnées APPROXIMATIVES : ajuste lat/lng ci-dessous avec
 // les coordonnées exactes (clic droit sur Google Maps → copier).
 // ─────────────────────────────────────────────────────────────
@@ -16,39 +22,52 @@ const OFFICE = {
   adresse: "Cocody, Angré 8ème Tranche — BP V 236 Abidjan",
 };
 
-const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
+const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+const LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 
-// Charge le script Google Maps une seule fois (avec la librairie routes).
-let mapsPromise: Promise<void> | null = null;
-function loadGoogleMaps(): Promise<void> {
+// Charge Leaflet (CSS + JS) une seule fois.
+let leafletPromise: Promise<void> | null = null;
+function loadLeaflet(): Promise<void> {
   if (typeof window === "undefined") return Promise.reject(new Error("no window"));
-  if ((window as any).google?.maps) return Promise.resolve();
-  if (mapsPromise) return mapsPromise;
+  if ((window as any).L) return Promise.resolve();
+  if (leafletPromise) return leafletPromise;
 
-  mapsPromise = new Promise<void>((resolve, reject) => {
-    if (!GOOGLE_MAPS_KEY) {
-      reject(new Error("missing-key"));
-      return;
+  leafletPromise = new Promise<void>((resolve, reject) => {
+    // CSS
+    if (!document.querySelector(`link[href="${LEAFLET_CSS}"]`)) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = LEAFLET_CSS;
+      document.head.appendChild(link);
     }
+    // JS
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places`;
+    script.src = LEAFLET_JS;
     script.async = true;
-    script.defer = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("script-error"));
     document.head.appendChild(script);
   });
-  return mapsPromise;
+  return leafletPromise;
 }
 
-type Statut = "init" | "ok" | "no-key" | "error" | "denied";
+// Icône colorée simple (pastille) sans dépendre des images Leaflet par défaut.
+function pastille(L: any, couleur: string) {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:${couleur};border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.2)"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
+}
+
+type Statut = "init" | "ok" | "error" | "denied";
 
 export default function MapItineraire() {
   const mapDivRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const userMarkerRef = useRef<any>(null);
-  const officeMarkerRef = useRef<any>(null);
-  const directionsRendererRef = useRef<any>(null);
+  const routeLayerRef = useRef<any>(null);
   const watchIdRef = useRef<number | null>(null);
   const userPosRef = useRef<{ lat: number; lng: number } | null>(null);
 
@@ -61,46 +80,33 @@ export default function MapItineraire() {
   useEffect(() => {
     let annule = false;
 
-    loadGoogleMaps()
+    loadLeaflet()
       .then(() => {
         if (annule || !mapDivRef.current) return;
-        const g = (window as any).google;
+        const L = (window as any).L;
 
-        const map = new g.maps.Map(mapDivRef.current, {
-          center: OFFICE,
+        const map = L.map(mapDivRef.current, {
+          center: [OFFICE.lat, OFFICE.lng],
           zoom: 14,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
+          scrollWheelZoom: false,
         });
         mapRef.current = map;
 
-        officeMarkerRef.current = new g.maps.Marker({
-          position: OFFICE,
-          map,
-          title: OFFICE.label,
-          icon: {
-            path: g.maps.SymbolPath.CIRCLE,
-            scale: 9,
-            fillColor: "#1a2e5a",
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 3,
-          },
-        });
-        const info = new g.maps.InfoWindow({
-          content: `<div style="font-weight:600;color:#1a2e5a">${OFFICE.label}</div><div style="font-size:12px;color:#555">${OFFICE.adresse}</div>`,
-        });
-        officeMarkerRef.current.addListener("click", () => info.open(map, officeMarkerRef.current));
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap",
+          maxZoom: 19,
+        }).addTo(map);
 
-        directionsRendererRef.current = new g.maps.DirectionsRenderer({
-          map,
-          suppressMarkers: false,
-          polylineOptions: { strokeColor: "#2a8a8a", strokeWeight: 5 },
-        });
+        L.marker([OFFICE.lat, OFFICE.lng], { icon: pastille(L, "#1a2e5a") })
+          .addTo(map)
+          .bindPopup(
+            `<div style="font-weight:600;color:#1a2e5a">${OFFICE.label}</div><div style="font-size:12px;color:#555">${OFFICE.adresse}</div>`
+          );
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setStatut("ok");
+        // Leaflet a parfois besoin d'un recalcul de taille après le rendu.
+        setTimeout(() => map.invalidateSize(), 200);
 
         // Suivi de la position en temps réel.
         if ("geolocation" in navigator) {
@@ -111,21 +117,11 @@ export default function MapItineraire() {
               setHasPosition(true);
 
               if (!userMarkerRef.current) {
-                userMarkerRef.current = new g.maps.Marker({
-                  position: p,
-                  map,
-                  title: "Ma position",
-                  icon: {
-                    path: g.maps.SymbolPath.CIRCLE,
-                    scale: 8,
-                    fillColor: "#2a8a8a",
-                    fillOpacity: 1,
-                    strokeColor: "#ffffff",
-                    strokeWeight: 3,
-                  },
-                });
+                userMarkerRef.current = L.marker([p.lat, p.lng], { icon: pastille(L, "#2a8a8a") })
+                  .addTo(map)
+                  .bindPopup("Ma position");
               } else {
-                userMarkerRef.current.setPosition(p);
+                userMarkerRef.current.setLatLng([p.lat, p.lng]);
               }
             },
             (err) => {
@@ -135,9 +131,8 @@ export default function MapItineraire() {
           );
         }
       })
-      .catch((e: Error) => {
-        if (annule) return;
-        setStatut(e.message === "missing-key" ? "no-key" : "error");
+      .catch(() => {
+        if (!annule) setStatut("error");
       });
 
     return () => {
@@ -145,39 +140,49 @@ export default function MapItineraire() {
       if (watchIdRef.current !== null && "geolocation" in navigator) {
         navigator.geolocation.clearWatch(watchIdRef.current);
       }
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
   }, []);
 
-  // Calcule et trace l'itinéraire depuis la position actuelle jusqu'au bureau.
-  const calculerItineraire = () => {
-    const g = (window as any).google;
+  // Calcule l'itinéraire (OSRM, gratuit) et le trace sur la carte.
+  const calculerItineraire = async () => {
+    const L = (window as any).L;
     const origin = userPosRef.current;
-    if (!g || !origin) return;
+    const map = mapRef.current;
+    if (!L || !origin || !map) return;
 
     setLoadingRoute(true);
-    const service = new g.maps.DirectionsService();
-    service.route(
-      {
-        origin,
-        destination: OFFICE,
-        travelMode: g.maps.TravelMode.DRIVING,
-      },
-      (result: any, status: string) => {
-        setLoadingRoute(false);
-        if (status === "OK" && result) {
-          directionsRendererRef.current?.setDirections(result);
-          const leg = result.routes?.[0]?.legs?.[0];
-          if (leg) {
-            setRoute({ distance: leg.distance?.text ?? "", duree: leg.duration?.text ?? "" });
-          }
-        } else {
-          setRoute(null);
-        }
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${OFFICE.lng},${OFFICE.lat}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const itin = data?.routes?.[0];
+
+      if (itin) {
+        // Supprime l'ancien tracé.
+        if (routeLayerRef.current) map.removeLayer(routeLayerRef.current);
+
+        const coords = itin.geometry.coordinates.map((c: number[]) => [c[1], c[0]]);
+        routeLayerRef.current = L.polyline(coords, { color: "#2a8a8a", weight: 5 }).addTo(map);
+        map.fitBounds(routeLayerRef.current.getBounds(), { padding: [40, 40] });
+
+        const km = (itin.distance / 1000).toFixed(1);
+        const min = Math.round(itin.duration / 60);
+        setRoute({ distance: `${km} km`, duree: `${min} min` });
+      } else {
+        setRoute(null);
       }
-    );
+    } catch {
+      setRoute(null);
+    } finally {
+      setLoadingRoute(false);
+    }
   };
 
-  // Ouvre l'itinéraire dans l'application Google Maps (nouvel onglet / app mobile).
+  // Ouvre l'itinéraire dans Google Maps (nouvel onglet / app mobile).
   const ouvrirDansGoogleMaps = () => {
     const dest = `${OFFICE.lat},${OFFICE.lng}`;
     const origin = userPosRef.current;
@@ -198,29 +203,21 @@ export default function MapItineraire() {
 
       {/* Carte */}
       <div className="relative">
-        <div ref={mapDivRef} className="w-full h-[360px] sm:h-[420px] bg-gray-100" />
+        <div ref={mapDivRef} className="w-full h-[360px] sm:h-[420px] bg-gray-100 z-0" />
 
         {/* Surcouches d'état */}
         {statut !== "ok" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-gray-50">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-gray-50 z-[400]">
             {statut === "init" && (
               <>
                 <Loader2 className="animate-spin mb-3" size={28} style={{ color: "#2a8a8a" }} />
                 <p className="text-gray-500 text-sm">Chargement de la carte…</p>
               </>
             )}
-            {statut === "no-key" && (
-              <>
-                <AlertTriangle className="mb-3" size={28} style={{ color: "#d97706" }} />
-                <p className="text-gray-600 text-sm max-w-sm">
-                  Clé Google Maps manquante. Ajoute <code className="px-1 rounded bg-gray-200">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> dans <code className="px-1 rounded bg-gray-200">.env.local</code> puis redémarre le serveur.
-                </p>
-              </>
-            )}
             {statut === "error" && (
               <>
                 <AlertTriangle className="mb-3" size={28} style={{ color: "#dc2626" }} />
-                <p className="text-gray-600 text-sm">Impossible de charger Google Maps. Vérifie la clé API et les API activées.</p>
+                <p className="text-gray-600 text-sm">Impossible de charger la carte. Vérifie ta connexion Internet.</p>
               </>
             )}
           </div>

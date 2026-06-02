@@ -591,11 +591,11 @@ export default function ContactPage() {
               </form>
             </div>
           </div>
+        </div>
 
-          {/* Carte interactive + itinéraire temps réel */}
-          <div className="mt-12">
-            <MapItineraire />
-          </div>
+        {/* Carte interactive + itinéraire temps réel (pleine largeur) */}
+        <div className="mt-12">
+          <MapItineraire />
         </div>
       </div>
     </div>
