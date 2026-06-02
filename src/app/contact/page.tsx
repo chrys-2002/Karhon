@@ -14,6 +14,7 @@ import {
   CalendarDays,
   CircleHelp,
 } from 'lucide-react';
+import MapItineraire from '@/components/ui/MapItineraire';
 import {
   useState,
   useRef,
@@ -439,7 +440,7 @@ export default function ContactPage() {
                   {
                     Icon: MapPin,
                     title: 'Adresse',
-                    content: <p className="text-gray-600 text-sm">Abidjan, Côte d&apos;Ivoire</p>,
+                    content: <p className="text-gray-600 text-sm">Cocody, Angré 8ème Tranche — BP V 236 Abidjan</p>,
                   },
                   {
                     Icon: Clock,
@@ -589,6 +590,11 @@ export default function ContactPage() {
                 </button>
               </form>
             </div>
+          </div>
+
+          {/* Carte interactive + itinéraire temps réel */}
+          <div className="mt-12">
+            <MapItineraire />
           </div>
         </div>
       </div>
