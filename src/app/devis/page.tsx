@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown } from 'lucide-react';
 
@@ -9,7 +10,7 @@ const categories = [
   { id: 'vie', label: 'Assurance Vie', Icon: TrendingUp, desc: 'Retraite, Épargne, Prévoyance' },
 ];
 
-const produitsParCategorie: Record<string, { id: string; nom: string; Icon: any }[]> = {
+const produitsParCategorie: Record<string, { id: string; nom: string; Icon: LucideIcon }[]> = {
   particuliers: [
     { id: 'automobile', nom: 'Assurance Automobile', Icon: Car },
     { id: 'habitation', nom: 'Assurance Habitation', Icon: Home },
@@ -178,13 +179,11 @@ export default function DevisPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold mb-4" style={{ backgroundColor: "rgba(42,138,138,0.1)", color: "#2a8a8a", border: "1px solid rgba(42,138,138,0.25)" }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            Réponse sous 48h maximum
-          </div>
           <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Obtenez votre Devis Gratuit</h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
-            Remplissez ce formulaire en 3 étapes. Un conseiller KARHON vous contactera rapidement.
+            Remplissez ce formulaire en 3 étapes. Un conseiller{" "}
+            <strong style={{ color: "#1a2e5a" }}>KARHON Assurances</strong>{" "}
+            vous{" "}contactera rapidement.
           </p>
         </motion.div>
 
@@ -432,7 +431,9 @@ export default function DevisPage() {
               </div>
               <h2 className="text-4xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Demande envoyée !</h2>
               <p className="text-xl text-gray-500 mb-8">
-                Merci <strong style={{ color: "#1a2e5a" }}>{formData.nom}</strong>. Un conseiller KARHON vous contactera sous 48h au{" "}
+                Merci <strong style={{ color: "#1a2e5a" }}>{formData.nom}</strong>. Un conseiller{" "}
+                <strong style={{ color: "#1a2e5a" }}>KARHON Assurances</strong>{" "}
+                <span className="whitespace-nowrap">vous contactera</span> au{" "}
                 <strong style={{ color: "#2a8a8a" }}>{formData.telephone}</strong>.
               </p>
 

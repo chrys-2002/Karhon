@@ -15,6 +15,7 @@ export default function Dashboard() {
       router.push("/client");
     } else {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser(JSON.parse(data));
       } catch {
         router.push("/client");

@@ -73,7 +73,7 @@ export default function ClientLoginPage() {
           <div className="px-8 pt-10 pb-6 text-center">
             <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-5 shadow-lg border relative overflow-hidden bg-white" style={{ borderColor: "#f1f5f9" }}>
               <Image 
-                src="/images/logo/LOGO-KARHON-Assurances.png" 
+                src="/images/logo/LOGO-KARHON-Assurances.svg" 
                 alt="Logo KARHON Assurances" 
                 fill 
                 sizes="80px"

@@ -12,7 +12,7 @@ interface SelectProps {
   label: string;
   name: string;
   value: string;
-  onChange: (e: any) => void;
+  onChange: (e: { target: { name: string; value: string } }) => void;
   options: Option[];
   required?: boolean;
 }

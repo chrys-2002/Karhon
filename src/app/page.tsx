@@ -145,10 +145,22 @@ const produitsVIE: Product[] = [
 ];
 
 const stats = [
-  { value: "50+", label: "Partenaires", Icon: Handshake },
-  { value: "1000+", label: "Clients", Icon: Users },
-  { value: "48h", label: "Devis express", Icon: Zap },
+  { value: "5+", label: "Partenaires", Icon: Handshake },
+  { value: "200+", label: "Clients", Icon: Users },
+  { value: "Gratuit", label: "Devis & conseils", Icon: Zap },
   { value: "100%", label: "Sans honoraires", Icon: ShieldCheck },
+];
+
+const partenaires = [
+  { nom: "ACTIVA", logo: "/images/logo/ACTIVA.png" },
+  { nom: "AFG", logo: "/images/logo/AFG.jpg" },
+  { nom: "GNA", logo: "/images/logo/GNA.jpg" },
+  { nom: "NSIA", logo: "/images/logo/NSIA.png" },
+  { nom: "SANLAM", logo: "/images/logo/SANLAM.png" },
+  { nom: "SUNU", logo: "/images/logo/SUNU.png" },
+  { nom: "VITALIS", logo: "/images/logo/VITALIS.png" },
+  { nom: "WAFA", logo: "/images/logo/WAFA.jpg" },
+  { nom: "Leadway", logo: "/images/logo/leadway.webp" },
 ];
 
 const pourquoi = [
@@ -169,7 +181,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
     timerRef.current = setInterval(() => {
       setDirection(1);
       setCurrent(prev => (prev + 1) % produits.length);
-    }, 7000);
+    }, 6000);
   };
 
   useEffect(() => {
@@ -393,6 +405,7 @@ export default function Home() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoaded(true);
     heroTimerRef.current = setInterval(() => {
       setHeroCurrent(prev => (prev + 1) % heroImages.length);
@@ -429,13 +442,13 @@ export default function Home() {
 
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 50 }} transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}>
-           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-tight" style={{ lineHeight: "1" }}>
+           <h1 className="text-5xl sm:text-7xl lg:text-7xl font-bold text-white mb-6 tracking-tight" style={{ lineHeight: "50px"}}>
   KARHON
-  <div style={{ height: "10px" }}></div>
-  <span className="text-6xl sm:text-10xl lg:text-9xl font-light" style={{ color: "#a8d8d8" }}>Assurances</span>
+  <br />
+  <span className="text-6xl sm:text-10xl lg:text-9xl font-light" style={{ color: "#a8d8d8", fontSize:"50px"}}>Assurances</span>
 </h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-              Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed" style={{marginTop:"60px", lineHeight:"30px"}}>
+              Votre interlocuteur unique, neutre et indépendant en assurance <br />en Côte d&apos;Ivoire.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/devis" className="group px-8 py-4 rounded-full font-bold text-white text-base transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
@@ -453,6 +466,23 @@ export default function Home() {
             <ChevronDown size={28} className="text-white/50" />
           </motion.div>
         </motion.div>
+      </div>
+
+      {/* ═══════════ CAROUSEL IARD ═══════════ */}
+      <div style={{ backgroundColor: "#f8fbfb" }}>
+        <Carousel produits={produitsIARD} title="Assurances IARD" subtitle="Incendie · Accidents · Risques Divers" />
+      </div>
+
+      {/* ═══════════ SÉPARATEUR ═══════════ */}
+      <div className="py-8 flex items-center justify-center">
+        <div className="w-full max-w-5xl mx-auto px-6">
+          <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #2a8a8a, transparent)" }} />
+        </div>
+      </div>
+
+      {/* ═══════════ CAROUSEL VIE ═══════════ */}
+      <div className="bg-white">
+        <Carousel produits={produitsVIE} title="Assurances Vie" subtitle="Épargne · Prévoyance · Avenir" />
       </div>
 
       {/* ═══════════ STATS ═══════════ */}
@@ -474,23 +504,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════ CAROUSEL IARD ═══════════ */}
-      <div style={{ backgroundColor: "#f8fbfb" }}>
-        <Carousel produits={produitsIARD} title="Assurances IARD" subtitle="Incendie · Accidents · Risques Divers" />
-      </div>
-
-      {/* ═══════════ SÉPARATEUR ═══════════ */}
-      <div className="py-8 flex items-center justify-center">
-        <div className="w-full max-w-5xl mx-auto px-6">
-          <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #2a8a8a, transparent)" }} />
-        </div>
-      </div>
-
-      {/* ═══════════ CAROUSEL VIE ═══════════ */}
-      <div className="bg-white">
-        <Carousel produits={produitsVIE} title="Assurances Vie" subtitle="Épargne · Prévoyance · Avenir" />
-      </div>
-
       {/* ═══════════ POURQUOI KARHON ═══════════ */}
       <section className="py-16 sm:py-24" style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
         <div className="max-w-6xl mx-auto px-6">
@@ -506,6 +519,33 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
                 <p className="text-white/55 text-sm leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ PARTENAIRES ═══════════ */}
+      <section className="py-16 sm:py-20 bg-white border-t" style={{ borderColor: "#e0ecec" }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-3" style={{ color: "#2a8a8a" }}>Nos partenaires</p>
+            <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#1a2e5a" }}>Les meilleures compagnies à vos côtés</h2>
+          </motion.div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
+            {partenaires.map((p, i) => (
+              <motion.div
+                key={p.nom}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06, duration: 0.4 }}
+                className="flex items-center justify-center rounded-2xl bg-white border p-6 h-28 transition-all duration-300 hover:shadow-lg"
+                style={{ borderColor: "#e0ecec" }}
+              >
+                <div className="relative w-full h-full">
+                  <Image src={p.logo} alt={p.nom} fill sizes="160px" className="object-contain" />
+                </div>
               </motion.div>
             ))}
           </div>

@@ -9,7 +9,7 @@ import {
   Car, Home, HeartPulse, ShieldAlert, Plane, Scale,
   Truck, Store, Users, Anchor, GraduationCap, Landmark,
   Briefcase, Flower2, Target, BadgeDollarSign, Zap,
-  Hammer, ShieldCheck
+  Hammer, ShieldCheck, PiggyBank, ShieldPlus
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -75,6 +75,61 @@ const produits = [
     exclusions: ["Dommages intentionnels", "Activité professionnelle"],
     options: ["Familiale", "Scolaire", "Sportive"]
   },
+  // 🆕 PRODUIT 1 : EPARGNE
+  {
+    id: "epargne",
+    categorie: "particuliers",
+    nom: "Épargne",
+    Icon: PiggyBank,
+    image: "/images/produits/epargne.jpg",
+    description: "Constituez un capital pour vos projets futurs grâce à une épargne sécurisée et rentable.",
+    longDescription: "Le contrat d'épargne KARHON vous permet de constituer progressivement un capital en toute sécurité, avec une rémunération attractive. Idéal pour préparer un projet immobilier, les études de vos enfants ou compléter votre retraite.",
+    garanties: [
+      "Capital Garanti à 100%",
+      "Taux d'intérêt compétitif",
+      "Versements libres ou programmés",
+      "Disponibilité des fonds",
+      "Transmission aux héritiers en cas de décès"
+    ],
+    exclusions: [
+      "Retrait total avant 1 an",
+      "Frais sur versement en cas de rupture anticipée"
+    ],
+    options: [
+      "Épargne Mensuelle",
+      "Épargne Trimestrielle",
+      "Dépôt Initial + Mensuel",
+      "Versement Libre"
+    ]
+  },
+  // 🆕 PRODUIT 2 : PREVOYANCE
+  {
+    id: "prevoyance",
+    categorie: "particuliers",
+    nom: "Prévoyance",
+    Icon: ShieldPlus,
+    image: "/images/produits/prevoyance.jpg",
+    description: "Protégez votre famille et vos proches face aux aléas de la vie (décès, invalidité, incapacité).",
+    longDescription: "Le contrat de prévoyance individuelle KARHON garantit à vous et à vos proches le versement d'un capital ou d'une rente en cas de décès, d'invalidité ou d'incapacité. Une solution essentielle pour assurer la sécurité financière de votre famille en toutes circonstances.",
+    garanties: [
+      "Capital décès versé aux bénéficiaires",
+      "Rente mensuelle en cas d'invalidité",
+      "Incapacité temporaire (arrêt de travail)",
+      "Frais médicaux et d'hospitalisation",
+      "Doublement du capital en cas d'accident",
+      "Soutien psychologique et assistance"
+    ],
+    exclusions: [
+      "Suicide durant la première année",
+      "Affections liées à l'alcoolisme ou toxicomanie",
+      "Sports extrêmes non déclarés"
+    ],
+    options: [
+      "Formule Individuelle",
+      "Formule Familiale (conjoint + enfants)",
+      "Formule Couple"
+    ]
+  },
   {
     id: "auto-flotte", categorie: "professionnelles", nom: "Assurance Automobile Flotte", Icon: Truck,
     image: "/images/produits/auto-flotte.jpg",
@@ -130,10 +185,7 @@ const produits = [
     options: ["Import/Export", "Transport National", "Pêche", "Plaisance"]
   },
   {
-    id: "tout-risque-chantier",
-    categorie: "professionnelles",
-    nom: "Assurance Tout Risque Chantier",
-    Icon: Hammer,
+    id: "tout-risque-chantier", categorie: "professionnelles", nom: "Assurance Tout Risque Chantier", Icon: Hammer,
     image: "/images/produits/tout-risque-chantier.jpg",
     description: "Protection complète des chantiers, équipements et risques liés aux travaux.",
     longDescription: "Cette assurance couvre les biens liés aux chantiers, les dommages matériels, la responsabilité civile et les risques de mise en cause de l'entreprise sur le site d'intervention.",
@@ -142,10 +194,7 @@ const produits = [
     options: ["Petit Chantier", "Grand Chantier", "Travaux Publics", "Bâtiment & Génie Civil"]
   },
   {
-    id: "caution",
-    categorie: "professionnelles",
-    nom: "Assurance Caution",
-    Icon: ShieldCheck,
+    id: "caution", categorie: "professionnelles", nom: "Assurance Caution", Icon: ShieldCheck,
     image: "/images/produits/caution.jpg",
     description: "Garantie de bonne exécution pour les cautions et engagements commerciaux.",
     longDescription: "L'assurance caution protège l'entreprise en cas de non-exécution d'un engagement, d'un contrat ou d'un cautionnement administratif ou commercial.",
@@ -154,10 +203,7 @@ const produits = [
     options: ["Caution Fournisseur", "Caution Marché Public", "Caution de bonne exécution"]
   },
   {
-    id: "credit",
-    categorie: "professionnelles",
-    nom: "Assurance Crédit",
-    Icon: BadgeDollarSign,
+    id: "credit", categorie: "professionnelles", nom: "Assurance Crédit", Icon: BadgeDollarSign,
     image: "/images/produits/credit.jpg",
     description: "Protection des créances et du risque d'impayé pour les entreprises.",
     longDescription: "L'assurance crédit aide les entreprises à sécuriser leurs ventes en couvrant les pertes liées au non-paiement de leurs clients, tout en préservant leur trésorerie.",
@@ -216,12 +262,12 @@ const pourquoi = [
   { Icon: Target, titre: "Interlocuteur Unique", desc: "Gestion personnalisée" },
   { Icon: Scale, titre: "Neutre & Indépendant", desc: "Dans votre intérêt" },
   { Icon: BadgeDollarSign, titre: "Sans Honoraires", desc: "Services gratuits" },
-  { Icon: Zap, titre: "Devis sous 48h", desc: "Réponse rapide" },
+  { Icon: Zap, titre: "Devis Gratuit", desc: "Étude sur-mesure" },
 ];
 
 export default function ProduitsPage() {
   const [activeCategorie, setActiveCategorie] = useState('all');
-  const [selectedProduit, setSelectedProduit] = useState<any>(null);
+  const [selectedProduit, setSelectedProduit] = useState<(typeof produits)[number] | null>(null);
   const router = useRouter();
 
   const produitsFiltres = activeCategorie === 'all'
@@ -233,13 +279,6 @@ export default function ProduitsPage() {
       <div className="container mx-auto px-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-          <div
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase mb-5"
-            style={{ backgroundColor: "rgba(42,138,138,0.1)", color: "#2a8a8a", border: "1px solid rgba(42,138,138,0.25)" }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-            Nos produits
-          </div>
           <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Nos Solutions d&apos;Assurance</h1>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
             Des protections sur mesure adaptées à vos besoins personnels et professionnels

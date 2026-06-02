@@ -206,7 +206,7 @@ export default function Footer() {
               <div className="flex items-center gap-3 mb-3">
                 <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-lg">
                   <Image
-                    src="/images/logo/LOGO-KARHON-Assurances.png"
+                    src="/images/logo/LOGO-KARHON-Assurances.svg"
                     alt="KARHON Assurances"
                     fill
                     sizes="48px"

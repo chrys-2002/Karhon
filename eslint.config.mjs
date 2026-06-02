@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Obsolete throwaway scaffolding script (not part of the app)
+    "fix.js",
   ]),
 ]);
 

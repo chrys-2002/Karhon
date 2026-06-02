@@ -1,25 +1,34 @@
 'use client';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { CheckCircle, Shield, Phone } from 'lucide-react';
+
+const partenaires = [
+  { nom: "ACTIVA", logo: "/images/logo/ACTIVA.png" },
+  { nom: "AFG", logo: "/images/logo/AFG.jpg" },
+  { nom: "GNA", logo: "/images/logo/GNA.jpg" },
+  { nom: "NSIA", logo: "/images/logo/NSIA.png" },
+  { nom: "SANLAM", logo: "/images/logo/SANLAM.png" },
+  { nom: "SUNU", logo: "/images/logo/SUNU.png" },
+  { nom: "VITALIS", logo: "/images/logo/VITALIS.png" },
+  { nom: "WAFA", logo: "/images/logo/WAFA.jpg" },
+  { nom: "Leadway", logo: "/images/logo/leadway.webp" },
+];
 
 export default function AproposPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      <div className="text-white pt-32 pb-20 relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
-        <div className="absolute inset-0 bg-[radial-gradient(at_top_right,#2a8a8a_0%,transparent_50%)]"></div>
-        <div className="container mx-auto px-6 relative">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl">
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight" style={{ marginBottom: "20px" }}>KARHON Assurances</h1>
-            <div className="inline-block bg-white/10 backdrop-blur-md px-6 py-2 rounded-full text-sm border border-white/20" style={{ marginBottom: "90px" }}>
-              Agrément n°0305/MEF/DGTCP/DA du 02 Septembre 2021
-            </div>
-            <p className="text-xl max-w-2xl" style={{ color: "#a8d8d8" }}>
-              Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
-            </p>
-          </motion.div>
-        </div>
+      <div className="container mx-auto px-6 pt-28 pb-4 max-w-6xl">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4" style={{ color: "#1a2e5a" }}>KARHON Assurances</h1>
+          <p className="text-xl text-gray-500 max-w-3xl mx-auto md:whitespace-nowrap mb-6">
+            Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
+          </p>
+          <div className="inline-block px-6 py-2 rounded-full text-sm border" style={{ borderColor: "#e0ecec", backgroundColor: "#f5fbfb", color: "#2a8a8a" }}>
+            Agrément n°0305/MEF/DGTCP/DA du 02 Septembre 2021
+          </div>
+        </motion.div>
       </div>
 
       <div className="container mx-auto px-6 py-16 max-w-6xl">
@@ -74,6 +83,30 @@ export default function AproposPage() {
                 ))}
               </ul>
             </div>
+          </div>
+        </motion.section>
+
+        <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-3" style={{ color: "#1a2e5a" }}>Nos Partenaires</h2>
+            <p className="text-gray-500">Nous collaborons avec les meilleures compagnies du marché ivoirien.</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
+            {partenaires.map((p, i) => (
+              <motion.div
+                key={p.nom}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06, duration: 0.4 }}
+                className="flex items-center justify-center rounded-2xl bg-white border p-6 h-28 transition-all duration-300 hover:shadow-lg"
+                style={{ borderColor: "#e0ecec" }}
+              >
+                <div className="relative w-full h-full">
+                  <Image src={p.logo} alt={p.nom} fill sizes="160px" className="object-contain" />
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.section>
 

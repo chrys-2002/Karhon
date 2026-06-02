@@ -60,7 +60,7 @@ export default function Header() {
             <button onClick={goToHome} className="group relative z-20 flex items-center gap-3">
               <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                 <Image
-                  src="/images/logo/LOGO-KARHON-Assurances.png"
+                  src="/images/logo/LOGO-KARHON-Assurances.svg"
                   alt="KARHON Assurances"
                   fill
                   sizes="44px"
@@ -68,14 +68,17 @@ export default function Header() {
                   priority
                 />
               </div>
-              <div className="flex items-baseline">
+              <div className="flex flex-col items-start leading-none">
                 <span
-                  className="font-bold text-xl tracking-tight"
+                  className="font-bold text-xl tracking-tight leading-none"
                   style={{ color: transparent ? "#ffffff" : "#1a2e5a" }}
                 >
                   KARHON
                 </span>
-                <span className="text-sm ml-1 font-medium" style={{ color: "#2a8a8a" }}>
+                <span
+                  className="text-xs font-medium uppercase tracking-[0.25em] mt-0.5"
+                  style={{ color: "#2a8a8a" }}
+                >
                   Assurances
                 </span>
               </div>
@@ -158,7 +161,7 @@ export default function Header() {
               <div className="flex items-center gap-2">
                 <div className="relative w-9 h-9 rounded-lg overflow-hidden shadow-md">
                   <Image
-                    src="/images/logo/LOGO-KARHON-Assurances.png"
+                    src="/images/logo/LOGO-KARHON-Assurances.svg"
                     alt="KARHON Assurances"
                     fill
                     sizes="36px"

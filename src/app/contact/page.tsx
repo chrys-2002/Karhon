@@ -221,6 +221,7 @@ function PhoneInput({
 
   useEffect(() => {
     if (!value) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNumero('');
       return;
     }
@@ -397,47 +398,8 @@ export default function ContactPage() {
         <div className="grid lg:grid-cols-5 gap-10">
           {/* Informations */}
           <div className="lg:col-span-3 space-y-10">
-            <div
-              className="bg-white rounded-3xl shadow-xl p-10 border"
-              style={{ borderColor: '#e0ecec' }}
-            >
-              <h2 className="text-3xl font-bold mb-8" style={{ color: '#1a2e5a' }}>
-                Pourquoi nous contacter ?
-              </h2>
-              <div className="space-y-8">
-                {[
-                  {
-                    label: 'Étude personnalisée gratuite',
-                    desc: 'Nous analysons votre situation et vous proposons la meilleure offre du marché ivoirien.',
-                  },
-                  {
-                    label: 'Accompagnement sinistre',
-                    desc: 'Nous vous assistons de la déclaration jusqu’au règlement de votre dossier.',
-                  },
-                  {
-                    label: 'Aucun honoraire',
-                    desc: 'Nos services sont entièrement pris en charge par les compagnies d’assurance.',
-                  },
-                ].map((item) => (
-                  <div key={item.label} className="flex gap-5">
-                    <div
-                      className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #eaf4f4, #d0ecec)' }}
-                    >
-                      <CheckCircle size={22} style={{ color: '#2a8a8a' }} strokeWidth={1.8} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg" style={{ color: '#1a2e5a' }}>
-                        {item.label}
-                      </h3>
-                      <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Coordonnées */}
+            
+            {/* 🆕 EN HAUR : Nos Coordonnées */}
             <div
               className="bg-white rounded-3xl shadow-xl p-10 border"
               style={{ borderColor: '#e0ecec' }}
@@ -508,6 +470,48 @@ export default function ContactPage() {
                 ))}
               </div>
             </div>
+
+            {/* 🆕 EN BAS : Pourquoi nous contacter */}
+            <div
+              className="bg-white rounded-3xl shadow-xl p-10 border"
+              style={{ borderColor: '#e0ecec' }}
+            >
+              <h2 className="text-3xl font-bold mb-8" style={{ color: '#1a2e5a' }}>
+                Pourquoi nous contacter ?
+              </h2>
+              <div className="space-y-8">
+                {[
+                  {
+                    label: 'Étude personnalisée gratuite',
+                    desc: 'Nous analysons votre situation et vous proposons la meilleure offre du marché ivoirien.',
+                  },
+                  {
+                    label: 'Accompagnement sinistre',
+                    desc: 'Nous vous assistons de la déclaration jusquau règlement de votre dossier.',
+                  },
+                  {
+                    label: 'Aucun honoraire',
+                    desc: 'Nos services sont entièrement pris en charge par les compagnies dassurance.',
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="flex gap-5">
+                    <div
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, #eaf4f4, #d0ecec)' }}
+                    >
+                      <CheckCircle size={22} style={{ color: '#2a8a8a' }} strokeWidth={1.8} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg" style={{ color: '#1a2e5a' }}>
+                        {item.label}
+                      </h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
 
           {/* Formulaire */}
