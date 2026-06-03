@@ -22,8 +22,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Normalise l'email (minuscules + espaces retirés) pour rester cohérent
+    // avec la connexion : un compte = un email unique, quelle que soit la casse.
+    const emailNormalise = String(email).trim().toLowerCase();
+
     // 2) Vérifie qu'aucun compte n'existe déjà avec cet email.
-    const existant = await prisma.user.findUnique({ where: { email } });
+    const existant = await prisma.user.findUnique({ where: { email: emailNormalise } });
     if (existant) {
       return NextResponse.json(
         { erreur: "Un compte existe déjà avec cet email." },
@@ -34,7 +38,7 @@ export async function POST(req: Request) {
     // 3) Hache le mot de passe puis crée l'utilisateur.
     const empreinte = await hacherMotDePasse(motDePasse);
     const user = await prisma.user.create({
-      data: { nom, prenom, email, telephone, adresse, motDePasse: empreinte },
+      data: { nom, prenom, email: emailNormalise, telephone, adresse, motDePasse: empreinte },
     });
 
     // 4) Délivre un jeton et le pose dans un cookie sécurisé.

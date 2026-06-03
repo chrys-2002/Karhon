@@ -15,8 +15,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Normalise l'email : minuscules + espaces retirés.
+    // Évite qu'une simple différence de casse/espace soit vue comme un mauvais identifiant.
+    const emailNormalise = String(email).trim().toLowerCase();
+
     // 1) Cherche l'utilisateur par email.
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email: emailNormalise } });
 
     // 2) Vérifie le mot de passe.
     //    Message volontairement identique si email OU mot de passe faux
