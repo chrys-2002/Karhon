@@ -132,7 +132,7 @@ async function main() {
   console.log(`✅ ${produits.length} produits créés`);
 
   // Compte admin de démonstration.
-  const motDePasse = await bcrypt.hash("admin1234", 10);
+  const motDePasse = await bcrypt.hash("AdMin#2020", 10);
   await prisma.user.upsert({
     where: { email: "admin@karhon.ci" },
     update: {},
