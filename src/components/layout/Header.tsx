@@ -10,8 +10,34 @@ export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [connecte, setConnecte] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
 
   const isHomePage = pathname === "/";
+
+  // Vérifie si l'utilisateur est connecté (cookie de session valide) et son rôle.
+  // Le bouton "Mon espace" mène alors directement au bon tableau de bord.
+  useEffect(() => {
+    let annule = false;
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        if (annule) return;
+        setConnecte(true);
+        setRole(data.utilisateur?.role ?? null);
+      })
+      .catch(() => {
+        if (!annule) { setConnecte(false); setRole(null); }
+      });
+    return () => { annule = true; };
+  }, [pathname]);
+
+  // Destination du bouton selon l'état de connexion et le rôle.
+  const espaceHref = !connecte
+    ? "/client"
+    : role === "admin"
+    ? "/admin"
+    : "/client/dashboard";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -58,13 +84,13 @@ export default function Header() {
 
             {/* Logo + Nom de l'entreprise */}
             <button onClick={goToHome} className="group relative z-20 flex items-center gap-3">
-              <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <div className="relative w-11 h-11 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                 <Image
-                  src="/images/logo/LOGO-KARHON-Assurances.svg"
+                  src={transparent ? "/images/logo/karhon-blanc.svg" : "/images/logo/karhon-couleur.svg"}
                   alt="KARHON Assurances"
                   fill
                   sizes="44px"
-                  className="object-cover"
+                  className="object-contain"
                   priority
                 />
               </div>
@@ -120,7 +146,7 @@ export default function Header() {
                 );
               })}
               <Link
-                href="/client"
+                href={espaceHref}
                 className="px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 style={{
                   background: pathname === "/client"
@@ -129,7 +155,7 @@ export default function Header() {
                   boxShadow: pathname === "/client" ? "0 0 0 3px rgba(42,138,138,0.3)" : "none",
                 }}
               >
-                Espace Client
+                {connecte ? "Mon espace" : "Espace Client"}
               </Link>
             </div>
 
@@ -159,13 +185,13 @@ export default function Header() {
           <div className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <div className="relative w-9 h-9 rounded-lg overflow-hidden shadow-md">
+                <div className="relative w-9 h-9">
                   <Image
-                    src="/images/logo/LOGO-KARHON-Assurances.svg"
+                    src="/images/logo/karhon-couleur.svg"
                     alt="KARHON Assurances"
                     fill
                     sizes="36px"
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
                 <div className="flex items-baseline">
@@ -212,7 +238,7 @@ export default function Header() {
 
             <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
               <Link
-                href="/client"
+                href={espaceHref}
                 className="block w-full text-white text-center py-3 rounded-xl font-semibold transition-all"
                 style={{
                   background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)",
@@ -220,7 +246,7 @@ export default function Header() {
                 }}
                 onClick={handleLinkClick}
               >
-                Espace Client
+                {connecte ? "Mon espace" : "Espace Client"}
               </Link>
             </div>
           </div>

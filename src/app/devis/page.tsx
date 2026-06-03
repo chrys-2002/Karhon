@@ -1,8 +1,9 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle } from 'lucide-react';
 
 const categories = [
   { id: 'particuliers', label: 'Particuliers', Icon: User, desc: 'Auto, Habitation, Santé...' },
@@ -10,28 +11,27 @@ const categories = [
   { id: 'vie', label: 'Assurance Vie', Icon: TrendingUp, desc: 'Retraite, Épargne, Prévoyance' },
 ];
 
-const produitsParCategorie: Record<string, { id: string; nom: string; Icon: LucideIcon }[]> = {
-  particuliers: [
-    { id: 'automobile', nom: 'Assurance Automobile', Icon: Car },
-    { id: 'habitation', nom: 'Assurance Habitation', Icon: Home },
-    { id: 'sante', nom: 'Santé Individuelle', Icon: HeartPulse },
-    { id: 'accident', nom: 'Individuelle Accident', Icon: ShieldAlert },
-    { id: 'voyage', nom: 'Assurance Voyage', Icon: Plane },
-    { id: 'rc', nom: 'Responsabilité Civile', Icon: Scale },
-  ],
-  professionnelles: [
-    { id: 'flotte', nom: 'Automobile Flotte', Icon: Truck },
-    { id: 'multirisque', nom: 'Multirisque Pro', Icon: Store },
-    { id: 'sante-groupe', nom: 'Santé Groupe', Icon: Users },
-    { id: 'rc-pro', nom: 'RC Professionnelle', Icon: Scale },
-    { id: 'maritime', nom: 'Assurance Maritime', Icon: Anchor },
-  ],
-  vie: [
-    { id: 'retraite', nom: 'Assurance Retraite', Icon: TrendingUp },
-    { id: 'etude', nom: 'Étude Plus', Icon: GraduationCap },
-    { id: 'emprunteur', nom: 'Vie Emprunteur', Icon: Landmark },
-    { id: 'funeraire', nom: 'Assistance Funéraire', Icon: Flower2 },
-  ],
+// Produit tel que renvoyé par l'API /api/produits (source de vérité = base).
+type ProduitDB = { id: string; nom: string; type: string; categorie: string };
+
+// Icône d'illustration associée à chaque produit, par nom.
+// (Le catalogue vient de la base ; seules les icônes restent côté front.)
+const ICONS: Record<string, LucideIcon> = {
+  'Assurance Automobile': Car,
+  'Assurance Habitation': Home,
+  'Santé Individuelle': HeartPulse,
+  'Individuelle Accident': ShieldAlert,
+  'Assurance Voyage': Plane,
+  'Responsabilité Civile': Scale,
+  'Automobile Flotte': Truck,
+  'Multirisque Pro': Store,
+  'Santé Groupe': Users,
+  'RC Professionnelle': Scale,
+  'Assurance Maritime': Anchor,
+  'Assurance Retraite': TrendingUp,
+  'Étude Plus': GraduationCap,
+  'Vie Emprunteur': Landmark,
+  'Assistance Funéraire': Flower2,
 };
 
 const pays = [
@@ -154,10 +154,14 @@ function PhoneInput({ value, onChange }: { value: string; onChange: (val: string
 }
 
 export default function DevisPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
+  const [produitsDB, setProduitsDB] = useState<ProduitDB[]>([]);
+  const [envoi, setEnvoi] = useState(false);
+  const [erreur, setErreur] = useState('');
   const [formData, setFormData] = useState({
     categorie: '',
-    produit: '',
+    produit: '', // contient désormais l'ID réel du produit en base (cuid)
     nom: '',
     prenom: '',
     telephone: '',
@@ -166,12 +170,72 @@ export default function DevisPage() {
     message: '',
   });
 
+  // Charge le catalogue réel depuis la base au montage de la page.
+  useEffect(() => {
+    let annule = false;
+    fetch('/api/produits')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!annule && Array.isArray(data.produits)) setProduitsDB(data.produits);
+      })
+      .catch(() => {/* le catalogue restera vide ; géré à l'affichage */});
+    return () => { annule = true; };
+  }, []);
+
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Produits de la catégorie sélectionnée (depuis la base).
+  const produitsCategorie = produitsDB.filter(p => p.categorie === formData.categorie);
+  const produitChoisi = produitsDB.find(p => p.id === formData.produit);
+
   const canGoToStep2 = formData.categorie !== '';
   const canGoToStep3 = formData.produit !== '' && formData.nom !== '' && formData.telephone !== '';
+
+  // Envoi réel : crée un devis en base via l'API (connexion obligatoire).
+  const envoyerDevis = async () => {
+    if (envoi) return;
+    setErreur('');
+    setEnvoi(true);
+    try {
+      // Description lisible pour le conseiller (les coordonnées saisies
+      // complètent le compte client déjà rattaché côté serveur).
+      const lignes = [
+        `Demandeur : ${formData.prenom} ${formData.nom}`.trim(),
+        `Téléphone : ${formData.telephone}`,
+        formData.email ? `Email : ${formData.email}` : '',
+        formData.entreprise ? `Entreprise : ${formData.entreprise}` : '',
+        formData.message ? `Message : ${formData.message}` : '',
+      ].filter(Boolean);
+
+      const res = await fetch('/api/devis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          produitId: formData.produit,
+          description: lignes.join('\n'),
+        }),
+      });
+
+      if (res.status === 401) {
+        // Non connecté : on redirige vers l'espace client pour se connecter.
+        setErreur("Vous devez être connecté pour envoyer une demande. Redirection…");
+        setTimeout(() => router.push('/client'), 1500);
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setErreur(data.erreur || "Une erreur est survenue. Réessayez.");
+        return;
+      }
+      setStep(3); // succès
+    } catch {
+      setErreur("Connexion impossible. Vérifiez votre réseau et réessayez.");
+    } finally {
+      setEnvoi(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-28 pb-20">
@@ -238,7 +302,7 @@ export default function DevisPage() {
                       key={cat.id}
                       whileHover={{ scale: 1.03, y: -4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => updateField('categorie', cat.id)}
+                      onClick={() => setFormData(prev => ({ ...prev, categorie: cat.id, produit: '' }))}
                       className="rounded-3xl p-8 text-center cursor-pointer transition-all"
                       style={{
                         border: isSelected ? "2px solid #2a8a8a" : "2px solid #e2e8f0",
@@ -292,9 +356,13 @@ export default function DevisPage() {
 
               <div className="mb-10">
                 <label className="block text-sm font-semibold mb-4 tracking-wide uppercase" style={{ color: "#1a2e5a" }}>Produit souhaité</label>
+                {produitsCategorie.length === 0 ? (
+                  <p className="text-sm text-gray-400">Chargement des produits…</p>
+                ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {produitsParCategorie[formData.categorie]?.map((prod) => {
+                  {produitsCategorie.map((prod) => {
                     const isSelected = formData.produit === prod.id;
+                    const Icon = ICONS[prod.nom] ?? ShieldCheck;
                     return (
                       <motion.div
                         key={prod.id}
@@ -311,7 +379,7 @@ export default function DevisPage() {
                           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                           style={{ background: isSelected ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#f1f5f9" }}
                         >
-                          <prod.Icon size={18} color={isSelected ? "#fff" : "#2a8a8a"} strokeWidth={1.6} />
+                          <Icon size={18} color={isSelected ? "#fff" : "#2a8a8a"} strokeWidth={1.6} />
                         </div>
                         <span className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{prod.nom}</span>
                         {isSelected && <Check className="ml-auto flex-shrink-0" size={18} style={{ color: "#2a8a8a" }} />}
@@ -319,6 +387,7 @@ export default function DevisPage() {
                     );
                   })}
                 </div>
+                )}
               </div>
 
               {/* Nom + Prénom */}
@@ -402,22 +471,50 @@ export default function DevisPage() {
                 />
               </div>
 
+              {erreur && (
+                <div className="flex items-center gap-2 mb-6 px-5 py-3 rounded-2xl text-sm" style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.25)", color: "#b91c1c" }}>
+                  <AlertCircle size={16} className="flex-shrink-0" />
+                  {erreur}
+                </div>
+              )}
+
+              <div
+                className="flex items-start gap-3 mb-6 px-5 py-4 rounded-2xl"
+                style={{
+                  background: "linear-gradient(135deg, rgba(26,46,90,0.05), rgba(42,138,138,0.09))",
+                  border: "1.5px solid rgba(42,138,138,0.35)",
+                }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                  <ShieldCheck size={18} color="#fff" strokeWidth={2} />
+                </div>
+                <div className="text-sm">
+                  <p className="font-bold" style={{ color: "#1a2e5a" }}>Connexion requise</p>
+                  <p className="text-gray-500 mt-0.5">
+                    Vous devez être connecté à votre espace client pour envoyer la demande.{" "}
+                    <a href="/client" className="font-semibold underline" style={{ color: "#2a8a8a" }}>
+                      Se connecter
+                    </a>
+                  </p>
+                </div>
+              </div>
+
               <div className="flex justify-between">
                 <button onClick={() => setStep(1)} className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-gray-500 hover:bg-gray-50 transition text-sm">
                   <ArrowLeft size={18} /> Retour
                 </button>
                 <button
-                  onClick={() => setStep(3)}
-                  disabled={!canGoToStep3}
+                  onClick={envoyerDevis}
+                  disabled={!canGoToStep3 || envoi}
                   className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
                   style={{
-                    background: canGoToStep3 ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#e2e8f0",
-                    color: canGoToStep3 ? "#fff" : "#94a3b8",
-                    cursor: canGoToStep3 ? "pointer" : "not-allowed",
-                    boxShadow: canGoToStep3 ? "0 8px 25px rgba(26,46,90,0.25)" : "none",
+                    background: canGoToStep3 && !envoi ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#e2e8f0",
+                    color: canGoToStep3 && !envoi ? "#fff" : "#94a3b8",
+                    cursor: canGoToStep3 && !envoi ? "pointer" : "not-allowed",
+                    boxShadow: canGoToStep3 && !envoi ? "0 8px 25px rgba(26,46,90,0.25)" : "none",
                   }}
                 >
-                  Continuer <ArrowRight size={20} />
+                  {envoi ? "Envoi…" : <>Envoyer ma demande <ArrowRight size={20} /></>}
                 </button>
               </div>
             </motion.div>
@@ -447,7 +544,7 @@ export default function DevisPage() {
                   <div className="h-px bg-gray-100" />
                   <div className="flex justify-between">
                     <span className="font-medium">Produit</span>
-                    <span style={{ color: "#1a2e5a" }}>{produitsParCategorie[formData.categorie]?.find(p => p.id === formData.produit)?.nom}</span>
+                    <span style={{ color: "#1a2e5a" }}>{produitChoisi?.nom}</span>
                   </div>
                   {formData.entreprise && (
                     <>
@@ -465,8 +562,8 @@ export default function DevisPage() {
                 <a href="tel:+2250787103939" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", boxShadow: "0 8px 25px rgba(26,46,90,0.25)" }}>
                   <Phone size={18} /> Appeler maintenant
                 </a>
-                <a href="/produits" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105" style={{ border: "2px solid #2a8a8a", color: "#2a8a8a" }}>
-                  Voir d&apos;autres produits
+                <a href="/client/dashboard" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105" style={{ border: "2px solid #2a8a8a", color: "#2a8a8a" }}>
+                  Voir mes devis
                 </a>
               </div>
             </motion.div>

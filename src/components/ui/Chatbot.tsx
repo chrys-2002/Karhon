@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
@@ -87,11 +88,30 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([MESSAGE_ACCUEIL]);
   const [saisie, setSaisie] = useState("");
   const finRef = useRef<HTMLDivElement>(null);
+  const panneauRef = useRef<HTMLDivElement>(null);
+  const bulleRef = useRef<HTMLButtonElement>(null);
 
   // Fait défiler vers le dernier message à chaque ajout.
   useEffect(() => {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, ouvert]);
+
+  // Ferme le chat si on clique en dehors de la fenêtre et du bouton.
+  // Aucune couche superposée → la page n'est jamais bloquée.
+  useEffect(() => {
+    if (!ouvert) return;
+    const handler = (e: MouseEvent) => {
+      const cible = e.target as Node;
+      if (
+        panneauRef.current && !panneauRef.current.contains(cible) &&
+        bulleRef.current && !bulleRef.current.contains(cible)
+      ) {
+        setOuvert(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [ouvert]);
 
   const envoyer = (texte: string) => {
     const contenu = texte.trim();
@@ -108,21 +128,41 @@ export default function Chatbot() {
   return (
     <>
       {/* Bouton bulle flottante */}
-      <button
+      <motion.button
+        ref={bulleRef}
         type="button"
         aria-label={ouvert ? "Fermer le chat" : "Ouvrir le chat"}
         onClick={() => setOuvert((o) => !o)}
-        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
+        className="fixed bottom-5 right-5 z-[60] flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl"
         style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
       >
-        {ouvert ? <X size={26} /> : <MessageCircle size={26} />}
-      </button>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={ouvert ? "close" : "open"}
+            initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.18 }}
+            className="flex items-center justify-center"
+          >
+            {ouvert ? <X size={26} /> : <MessageCircle size={26} />}
+          </motion.span>
+        </AnimatePresence>
+      </motion.button>
 
-      {/* Fenêtre de chat */}
-      {ouvert && (
-        <div
+      {/* Fenêtre de chat (aucune couche plein écran → page jamais bloquée) */}
+      <AnimatePresence>
+        {ouvert && (
+        <motion.div
+          ref={panneauRef}
+          initial={{ opacity: 0, scale: 0.85, y: 24 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 16 }}
+          transition={{ type: "spring", stiffness: 320, damping: 26, mass: 0.8 }}
           className="fixed bottom-24 right-5 z-50 flex w-[92vw] max-w-sm flex-col overflow-hidden rounded-3xl border bg-white shadow-2xl"
-          style={{ borderColor: "#e0ecec", height: "min(70vh, 520px)" }}
+          style={{ borderColor: "#e0ecec", height: "min(70vh, 520px)", transformOrigin: "bottom right" }}
         >
           {/* En-tête */}
           <div
@@ -200,8 +240,9 @@ export default function Chatbot() {
               <Send size={18} />
             </button>
           </form>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

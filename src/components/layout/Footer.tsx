@@ -204,13 +204,13 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-12 pb-10" style={{ borderBottom: "1px solid rgba(42,138,138,0.25)" }}>
             <div className="flex-1 max-w-md">
               <div className="flex items-center gap-3 mb-3">
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-lg">
+                <div className="relative w-12 h-12">
                   <Image
-                    src="/images/logo/LOGO-KARHON-Assurances.svg"
+                    src="/images/logo/karhon-blanc.svg"
                     alt="KARHON Assurances"
                     fill
                     sizes="48px"
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
                 <div className="flex items-baseline">

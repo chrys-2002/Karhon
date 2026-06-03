@@ -20,39 +20,69 @@ export default function ClientLoginPage() {
     setError("");
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Connexion : appelle la vraie route API /api/auth/login.
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      if (formData.email === "client@karhon.ci" && formData.password === "password") {
-        localStorage.setItem("user", JSON.stringify({ email: formData.email }));
-        router.push("/client/dashboard");
-      } else {
-        setError("Email ou mot de passe incorrect");
+    setError("");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, motDePasse: formData.password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.erreur ?? "Connexion impossible.");
         setIsLoading(false);
+        return;
       }
-    }, 1000);
+      // Le cookie de session est posé automatiquement par le serveur.
+      // On aiguille selon le rôle : l'admin va au back-office, le client à son espace.
+      router.push(data.utilisateur?.role === "admin" ? "/admin" : "/client/dashboard");
+    } catch {
+      setError("Erreur réseau. Vérifie ta connexion.");
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  // Inscription : appelle la vraie route API /api/auth/register.
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     if (formData.password !== formData.confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("user", JSON.stringify({ email: formData.email, nom: formData.nom }));
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nom: formData.nom,
+          prenom: formData.prenom,
+          email: formData.email,
+          telephone: formData.telephone,
+          motDePasse: formData.password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.erreur ?? "Inscription impossible.");
+        setIsLoading(false);
+        return;
+      }
       router.push("/client/dashboard");
-    }, 1000);
+    } catch {
+      setError("Erreur réseau. Vérifie ta connexion.");
+      setIsLoading(false);
+    }
   };
 
+  // Connexion Google : non disponible tant que l'OAuth backend n'est pas en place.
   const handleGoogleLogin = () => {
-    setIsGoogleLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("user", JSON.stringify({ email: "google-user@gmail.com", nom: "Utilisateur Google" }));
-      router.push("/client/dashboard");
-    }, 1200);
+    setError("La connexion Google sera bientôt disponible. Utilise ton email pour l'instant.");
   };
 
   return (
@@ -73,7 +103,7 @@ export default function ClientLoginPage() {
           <div className="px-8 pt-10 pb-6 text-center">
             <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-5 shadow-lg border relative overflow-hidden bg-white" style={{ borderColor: "#f1f5f9" }}>
               <Image 
-                src="/images/logo/LOGO-KARHON-Assurances.svg" 
+                src="/images/logo/karhon-couleur.svg"
                 alt="Logo KARHON Assurances" 
                 fill 
                 sizes="80px"
@@ -170,6 +200,14 @@ export default function ClientLoginPage() {
                 </div>
               )}
 
+              {!isLogin && (
+                <div className="relative">
+                  <Phone className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                  <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="Téléphone" required={!isLogin}
+                    className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
+                </div>
+              )}
+
               <div className="relative">
                 <Mail className="absolute left-4 top-3.5 text-gray-400" size={18} />
                 <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Adresse email" required
@@ -184,6 +222,14 @@ export default function ClientLoginPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+
+              {!isLogin && (
+                <div className="relative">
+                  <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                  <input type={showPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirmer le mot de passe" required={!isLogin}
+                    className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
+                </div>
+              )}
 
               {isLogin && (
                 <div className="flex justify-end">
@@ -216,7 +262,7 @@ export default function ClientLoginPage() {
             {isLogin && (
               <div className="mt-6 p-4 rounded-2xl text-center border border-dashed" style={{ backgroundColor: "#f8fbfb", borderColor: "#c0e0e0" }}>
                 <p className="text-[11px] text-gray-500">
-                  Accès Démo : <span className="font-bold">client@karhon.ci</span> / <span className="font-bold">password</span>
+                  Compte test : <span className="font-bold">admin@karhon.ci</span> / <span className="font-bold">admin1234</span>
                 </p>
               </div>
             )}
