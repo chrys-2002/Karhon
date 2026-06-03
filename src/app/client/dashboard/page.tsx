@@ -86,11 +86,16 @@ export default function Dashboard() {
 
   // Données réelles : aucune pour l'instant (les API contrats/devis/sinistres
   // seront branchées ensuite). On affiche donc 0 partout, honnêtement.
+  // Fait défiler en douceur vers une section (ancre) du tableau de bord.
+  const allerVers = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const stats = [
-    { label: "Contrats actifs", value: 0, Icon: FileText },
-    { label: "Sinistres", value: 0, Icon: AlertTriangle },
-    { label: "Devis", value: devis.length, Icon: ClipboardList },
-    { label: "Échéances", value: 0, Icon: CalendarClock },
+    { label: "Contrats actifs", value: 0, Icon: FileText, cible: "section-contrats" },
+    { label: "Sinistres", value: 0, Icon: AlertTriangle, cible: "section-sinistre" },
+    { label: "Devis", value: devis.length, Icon: ClipboardList, cible: "section-devis" },
+    { label: "Échéances", value: 0, Icon: CalendarClock, cible: "section-contrats" },
   ];
 
   return (
@@ -122,8 +127,14 @@ export default function Dashboard() {
 
         {/* Statistiques */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.1 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          {stats.map(({ label, value, Icon }) => (
-            <div key={label} className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+          {stats.map(({ label, value, Icon, cible }) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => allerVers(cible)}
+              className="bg-white rounded-3xl p-6 shadow-sm border text-left transition-all hover:shadow-md hover:scale-[1.02] active:scale-95"
+              style={{ borderColor: "#e0ecec" }}
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-wide">{label}</p>
@@ -133,12 +144,12 @@ export default function Dashboard() {
                   <Icon size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </motion.div>
 
         {/* Mes contrats */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.2 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
+        <motion.div id="section-contrats" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.2 }} className="scroll-mt-28 bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
           <div className="px-6 sm:px-8 py-5 border-b" style={{ borderColor: "#eef4f4" }}>
             <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes contrats</h2>
           </div>
@@ -163,7 +174,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Mes devis */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.25 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
+        <motion.div id="section-devis" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.25 }} className="scroll-mt-28 bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
             <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes devis</h2>
             <Link href="/devis" className="text-sm font-semibold" style={{ color: "#2a8a8a" }}>+ Nouveau</Link>
@@ -197,7 +208,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Actions rapides */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+        <motion.div id="section-sinistre" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="scroll-mt-28 grid sm:grid-cols-2 gap-4 sm:gap-6">
           <Link href="/client/sinistres/nouveau">
             <div className="bg-white rounded-3xl p-6 border flex items-center gap-4 transition-all hover:shadow-md hover:scale-[1.01] cursor-pointer h-full" style={{ borderColor: "#e0ecec" }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>

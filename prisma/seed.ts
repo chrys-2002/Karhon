@@ -135,7 +135,7 @@ async function main() {
   const motDePasse = await bcrypt.hash("AdMin#2020", 10);
   await prisma.user.upsert({
     where: { email: "admin@karhon.ci" },
-    update: {},
+    update: { motDePasse, role: "admin" },
     create: {
       nom: "KARHON",
       prenom: "Admin",
@@ -145,7 +145,7 @@ async function main() {
       role: "admin",
     },
   });
-  console.log("✅ Compte admin créé : admin@karhon.ci / admin1234");
+  console.log("✅ Compte admin créé / mis à jour : admin@karhon.ci");
 
   console.log("🎉 Seed terminé.");
 }
