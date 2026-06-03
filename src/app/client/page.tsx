@@ -257,15 +257,6 @@ export default function ClientLoginPage() {
                 )}
               </motion.button>
             </form>
-
-            {/* Démo Access */}
-            {isLogin && (
-              <div className="mt-6 p-4 rounded-2xl text-center border border-dashed" style={{ backgroundColor: "#f8fbfb", borderColor: "#c0e0e0" }}>
-                <p className="text-[11px] text-gray-500">
-                  Compte test : <span className="font-bold">admin@karhon.ci</span> / <span className="font-bold">admin1234</span>
-                </p>
-              </div>
-            )}
           </div>
         </motion.div>
         
