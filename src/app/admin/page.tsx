@@ -59,23 +59,61 @@ function StatutDropdown({
   disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const courant = infoStatut(valeur);
 
+  // Largeur du menu (px). On l'aligne sous le bouton et on le borne à l'écran.
+  const MENU_W = 208;
+
+  // Calcule la position du menu à partir du bouton (coordonnées écran).
+  // Le menu est rendu en position: fixed → il échappe à tout overflow-hidden parent.
+  const positionner = () => {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const marge = 8;
+    let left = r.right - MENU_W;                       // aligné à droite du bouton
+    left = Math.max(marge, Math.min(left, window.innerWidth - MENU_W - marge));
+    setCoords({ top: r.bottom + 6, left, width: MENU_W });
+  };
+
+  const basculer = () => {
+    if (!open) positionner();
+    setOpen((o) => !o);
+  };
+
+  // Ferme au clic/tap extérieur (pointerdown = souris + tactile).
+  // Repositionne ou ferme au scroll/redimensionnement.
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    if (!open) return;
+    const dehors = (e: Event) => {
+      const cible = e.target as Node;
+      if (
+        btnRef.current && !btnRef.current.contains(cible) &&
+        menuRef.current && !menuRef.current.contains(cible)
+      ) {
+        setOpen(false);
+      }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    const onScroll = () => setOpen(false);
+    document.addEventListener("pointerdown", dehors);
+    window.addEventListener("resize", onScroll);
+    window.addEventListener("scroll", onScroll, true);
+    return () => {
+      document.removeEventListener("pointerdown", dehors);
+      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", onScroll, true);
+    };
+  }, [open]);
 
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
+        ref={btnRef}
         type="button"
         disabled={disabled}
-        onClick={() => setOpen((o) => !o)}
+        onClick={basculer}
         className="flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all hover:shadow-sm disabled:opacity-50"
         style={{ background: courant.fond, color: courant.couleur, minWidth: "150px" }}
       >
@@ -87,14 +125,23 @@ function StatutDropdown({
       </button>
 
       <AnimatePresence>
-        {open && (
+        {open && coords && (
           <motion.div
+            ref={menuRef}
             initial={{ opacity: 0, y: -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-2xl bg-white p-1.5"
-            style={{ border: "1px solid #e0ecec", boxShadow: "0 16px 40px rgba(26,46,90,0.16)" }}
+            className="overflow-hidden rounded-2xl bg-white p-1.5"
+            style={{
+              position: "fixed",
+              top: coords.top,
+              left: coords.left,
+              width: coords.width,
+              zIndex: 200,
+              border: "1px solid #e0ecec",
+              boxShadow: "0 16px 40px rgba(26,46,90,0.16)",
+            }}
           >
             {STATUTS.map((s) => {
               const actif = s.value === valeur;
@@ -118,7 +165,7 @@ function StatutDropdown({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 
