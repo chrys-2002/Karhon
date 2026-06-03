@@ -86,7 +86,7 @@ export default function Header() {
             <button onClick={goToHome} className="group relative z-20 flex items-center gap-3">
               <div className="relative w-11 h-11 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                 <Image
-                  src={transparent ? "/images/logo/karhon-blanc.svg" : "/images/logo/karhon-couleur.svg"}
+                  src="/images/logo/karhon-couleur.svg"
                   alt="KARHON Assurances"
                   fill
                   sizes="44px"
