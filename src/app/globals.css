@@ -1,5 +1,29 @@
 ﻿@import "tailwindcss";
 
+/* Fluidité globale — easing "à la Apple" + défilement doux */
+:root {
+  --ease-apple: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Respect des préférences d'accessibilité : on coupe tout si l'utilisateur
+   a demandé moins d'animations. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Animations KARHON */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
