@@ -104,7 +104,7 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="mb-6">
-          <BackButton href="/" label="Retour à l'accueil" />
+          <BackButton label="Retour" />
         </div>
 
         {/* En-tête de bienvenue */}

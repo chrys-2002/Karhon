@@ -243,7 +243,7 @@ export default function DevisPage() {
       <div className="container mx-auto px-6 max-w-5xl">
 
         <div className="mb-6">
-          <BackButton href="/" label="Retour à l'accueil" />
+          <BackButton label="Retour" />
         </div>
 
         {/* Header */}

@@ -22,7 +22,7 @@ export default function AproposPage() {
 
       <div className="container mx-auto px-6 pt-28 pb-4 max-w-6xl">
         <div className="mb-6">
-          <BackButton href="/" label="Retour à l'accueil" />
+          <BackButton label="Retour" />
         </div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-4" style={{ color: "#1a2e5a" }}>KARHON Assurances</h1>

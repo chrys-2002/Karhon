@@ -279,7 +279,7 @@ export default function ProduitsPage() {
     <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
       <div className="container mx-auto px-6">
         <div className="mb-6">
-          <BackButton href="/" label="Retour à l'accueil" />
+          <BackButton label="Retour" />
         </div>
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">

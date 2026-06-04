@@ -2,14 +2,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ShieldAlert, CalendarDays, FileText, Coins, Send, Phone, CheckCircle2, Car, Home } from "lucide-react";
+import { ShieldAlert, CalendarDays, FileText, Coins, Send, Phone, CheckCircle2, Car, Home, HeartPulse, Plane, Scale, Truck, Store, Briefcase, Anchor, Landmark, Flower2 } from "lucide-react";
 import Select from "@/components/ui/Select";
 import DatePicker from "@/components/ui/DatePicker";
 import BackButton from "@/components/ui/BackButton";
 
+// Gamme des assurances pouvant faire l'objet d'une déclaration de sinistre.
 const contrats = [
-  { value: "C001", label: "Assurance Auto", desc: "Police n° C001", Icon: Car },
-  { value: "C002", label: "Assurance Habitation", desc: "Police n° C002", Icon: Home },
+  { value: "auto", label: "Assurance Auto", desc: "Particulier", Icon: Car },
+  { value: "habitation", label: "Assurance Habitation", desc: "Multirisque", Icon: Home },
+  { value: "sante", label: "Assurance Santé", desc: "Individuelle / Groupe", Icon: HeartPulse },
+  { value: "accident", label: "Individuelle Accident", desc: "Dommages corporels", Icon: ShieldAlert },
+  { value: "voyage", label: "Assurance Voyage", desc: "Multirisque voyage", Icon: Plane },
+  { value: "rc", label: "Responsabilité Civile", desc: "Particulier", Icon: Scale },
+  { value: "flotte", label: "Flotte Automobile", desc: "Professionnel", Icon: Truck },
+  { value: "multirisque-pro", label: "Multirisque Professionnelle", desc: "Professionnel", Icon: Store },
+  { value: "rc-pro", label: "RC Professionnelle", desc: "Professionnel", Icon: Briefcase },
+  { value: "maritime", label: "Assurance Maritime", desc: "Transport / Marchandises", Icon: Anchor },
+  { value: "emprunteur", label: "Vie Emprunteur", desc: "Protection de prêt", Icon: Landmark },
+  { value: "funeraire", label: "Assistance Funéraire", desc: "Prévoyance", Icon: Flower2 },
 ];
 
 // Date du jour au format AAAA-MM-JJ (pour interdire les dates futures).
@@ -69,7 +80,7 @@ export default function NouveauSinistre() {
 
         {/* Bouton retour */}
         <div className="mb-6">
-          <BackButton href="/client/dashboard" label="Retour à mon espace" />
+          <BackButton label="Retour" />
         </div>
 
         <motion.div
