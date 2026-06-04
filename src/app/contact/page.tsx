@@ -15,6 +15,7 @@ import {
   CircleHelp,
 } from 'lucide-react';
 import MapItineraire from '@/components/ui/MapItineraire';
+import BackButton from '@/components/ui/BackButton';
 import {
   useState,
   useRef,
@@ -383,6 +384,9 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-white pt-28 pb-20">
       <div className="container mx-auto px-6 max-w-6xl">
+        <div className="mb-6">
+          <BackButton href="/" label="Retour à l'accueil" />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import BackButton from "@/components/ui/BackButton";
 import {
   FileText,
   AlertTriangle,
@@ -101,6 +102,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div className="mb-6">
+          <BackButton href="/" label="Retour à l'accueil" />
+        </div>
 
         {/* En-tête de bienvenue */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="flex flex-wrap items-center justify-between gap-4 mb-10">

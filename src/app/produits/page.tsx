@@ -9,9 +9,10 @@ import {
   Car, Home, HeartPulse, ShieldAlert, Plane, Scale,
   Truck, Store, Users, Anchor, GraduationCap, Landmark,
   Briefcase, Flower2, Target, BadgeDollarSign, Zap,
-  Hammer, ShieldCheck, PiggyBank, ShieldPlus
+  Hammer, ShieldCheck, PiggyBank, ShieldPlus,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import BackButton from '@/components/ui/BackButton';
 
 const categories = [
   { id: 'all', nom: 'Tous', Icon: Globe },
@@ -277,6 +278,9 @@ export default function ProduitsPage() {
   return (
     <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
       <div className="container mx-auto px-6">
+        <div className="mb-6">
+          <BackButton href="/" label="Retour à l'accueil" />
+        </div>
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
           <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Nos Solutions d&apos;Assurance</h1>

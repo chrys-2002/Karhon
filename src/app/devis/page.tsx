@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
 
 const categories = [
   { id: 'particuliers', label: 'Particuliers', Icon: User, desc: 'Auto, Habitation, Santé...' },
@@ -240,6 +241,10 @@ export default function DevisPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-28 pb-20">
       <div className="container mx-auto px-6 max-w-5xl">
+
+        <div className="mb-6">
+          <BackButton href="/" label="Retour à l'accueil" />
+        </div>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
@@ -573,12 +578,20 @@ export default function DevisPage() {
         {/* Contact Rapide */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-12 text-center">
           <p className="text-gray-400 mb-3 text-sm font-medium tracking-wide uppercase">Une question urgente ?</p>
-          <a href="tel:+2250787103939" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-              <Phone size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
-            </div>
-            +225 07 87 10 39 39
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
+            <a href="tel:+2250787103939" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <Phone size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
+              </div>
+              +225 07 87 10 39 39
+            </a>
+            <a href="tel:+2250576367272" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <Phone size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
+              </div>
+              +225 05 76 36 72 72
+            </a>
+          </div>
           <p className="text-gray-400 mt-2 text-sm">Ou écrivez-nous à infos@karhonassurance.com</p>
         </motion.div>
       </div>

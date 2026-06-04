@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { CheckCircle, Shield, Phone } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
 
 const partenaires = [
   { nom: "ACTIVA", logo: "/images/logo/ACTIVA.png" },
@@ -20,6 +21,9 @@ export default function AproposPage() {
     <div className="min-h-screen bg-white">
 
       <div className="container mx-auto px-6 pt-28 pb-4 max-w-6xl">
+        <div className="mb-6">
+          <BackButton href="/" label="Retour à l'accueil" />
+        </div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-4" style={{ color: "#1a2e5a" }}>KARHON Assurances</h1>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto md:whitespace-nowrap mb-6">
@@ -114,7 +118,10 @@ export default function AproposPage() {
           <Phone className="w-16 h-16 mx-auto mb-6" />
           <h3 className="text-3xl font-bold mb-4">Prêt à être bien protégé ?</h3>
           <p className="text-xl mb-8 text-white/80">Contactez-nous pour une étude personnalisée gratuite.</p>
-          <a href="tel:+2250787103939" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 07 87 10 39 39</a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="tel:+2250787103939" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 07 87 10 39 39</a>
+            <a href="tel:+2250576367272" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 05 76 36 72 72</a>
+          </div>
         </motion.div>
 
       </div>

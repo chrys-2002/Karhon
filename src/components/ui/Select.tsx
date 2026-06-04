@@ -1,11 +1,17 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Check, type LucideIcon } from "lucide-react";
 
 interface Option {
   value: string;
   label: string;
+  /** Emoji (rétro-compatible). */
   icon?: string;
+  /** Icône premium Lucide — affichée dans une pastille colorée. */
+  Icon?: LucideIcon;
+  /** Sous-libellé optionnel affiché en gris sous le label. */
+  desc?: string;
 }
 
 interface SelectProps {
@@ -43,10 +49,25 @@ export default function Select({ label, name, value, onChange, options, required
         type="button"
         whileTap={{ scale: 0.99 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all flex justify-between items-center hover:border-blue-300"
+        className="w-full px-3 py-2.5 text-left bg-white border rounded-xl focus:outline-none transition-all flex justify-between items-center"
+        style={{ borderColor: "#e0ecec" }}
       >
-        <span className={`text-sm ${!selectedOption ? "text-gray-400" : "text-gray-700"}`}>
-          {selectedOption ? selectedOption.label : "Sélectionnez une option"}
+        <span className="flex items-center gap-3 min-w-0">
+          {selectedOption?.Icon ? (
+            <span className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+              <selectedOption.Icon size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.7} />
+            </span>
+          ) : selectedOption?.icon ? (
+            <span className="text-lg flex-shrink-0">{selectedOption.icon}</span>
+          ) : null}
+          <span className="min-w-0">
+            <span className={`block text-sm truncate ${!selectedOption ? "text-gray-400" : "text-gray-800 font-medium"}`}>
+              {selectedOption ? selectedOption.label : "Sélectionnez une option"}
+            </span>
+            {selectedOption?.desc && (
+              <span className="block text-xs text-gray-400 truncate">{selectedOption.desc}</span>
+            )}
+          </span>
         </span>
         <motion.svg 
           animate={{ rotate: isOpen ? 180 : 0 }}
@@ -72,21 +93,29 @@ export default function Select({ label, name, value, onChange, options, required
             {options.map((option) => (
               <motion.button
                 key={option.value}
-                whileHover={{ x: 4, backgroundColor: "#f8fafc" }}
+                whileHover={{ backgroundColor: "#f0f7f7" }}
                 onClick={() => {
                   onChange({ target: { name, value: option.value } });
                   setIsOpen(false);
                 }}
-                className={`w-full px-4 py-3 text-left text-sm transition-all flex items-center gap-2 ${
-                  value === option.value ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700"
+                className={`w-full px-3 py-2.5 text-left text-sm transition-all flex items-center gap-3 ${
+                  value === option.value ? "font-semibold" : "text-gray-700"
                 }`}
+                style={value === option.value ? { backgroundColor: "#eaf4f4", color: "#1a2e5a" } : undefined}
               >
-                {option.icon && <span className="text-lg">{option.icon}</span>}
-                <span>{option.label}</span>
+                {option.Icon ? (
+                  <span className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                    <option.Icon size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.7} />
+                  </span>
+                ) : option.icon ? (
+                  <span className="text-lg flex-shrink-0">{option.icon}</span>
+                ) : null}
+                <span className="flex-1 min-w-0">
+                  <span className="block truncate">{option.label}</span>
+                  {option.desc && <span className="block text-xs text-gray-400 font-normal truncate">{option.desc}</span>}
+                </span>
                 {value === option.value && (
-                  <svg className="w-4 h-4 ml-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check size={16} className="ml-auto flex-shrink-0" style={{ color: "#2a8a8a" }} />
                 )}
               </motion.button>
             ))}

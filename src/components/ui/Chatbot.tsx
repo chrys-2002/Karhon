@@ -40,7 +40,7 @@ const REGLES: Regle[] = [
   {
     motsCles: ["contact", "téléphone", "telephone", "numéro", "numero", "appeler", "joindre", "mail", "email"],
     reponse:
-      "Vous pouvez nous joindre au +225 07 87 10 39 39, ou via la page Contact. Nous répondons à toutes vos questions.",
+      "Vous pouvez nous joindre au +225 07 87 10 39 39 ou au +225 05 76 36 72 72, ou via la page Contact. Nous répondons à toutes vos questions.",
   },
   {
     motsCles: ["adresse", "bureau", "où", "ou êtes", "localisation", "situé", "situe", "venir", "itinéraire", "itineraire"],
@@ -50,7 +50,7 @@ const REGLES: Regle[] = [
   {
     motsCles: ["horaire", "ouvert", "heure", "ouverture", "fermé", "ferme"],
     reponse:
-      "Nous sommes disponibles du lundi au vendredi. Pour un rendez-vous, appelez le +225 07 87 10 39 39 ou passez par la page Contact.",
+      "Nous sommes disponibles du lundi au vendredi. Pour un rendez-vous, appelez le +225 07 87 10 39 39 ou le +225 05 76 36 72 72, ou passez par la page Contact.",
   },
   {
     motsCles: ["courtier", "indépendant", "independant", "qui êtes", "qui etes", "karhon", "cabinet"],
@@ -60,7 +60,7 @@ const REGLES: Regle[] = [
   {
     motsCles: ["rendez-vous", "rendez vous", "rdv", "conseiller", "rencontrer"],
     reponse:
-      "Pour prendre rendez-vous avec un conseiller, appelez le +225 07 87 10 39 39 ou laissez vos coordonnées sur la page Contact. Nous revenons vers vous rapidement.",
+      "Pour prendre rendez-vous avec un conseiller, appelez le +225 07 87 10 39 39 ou le +225 05 76 36 72 72, ou laissez vos coordonnées sur la page Contact. Nous revenons vers vous rapidement.",
   },
 ];
 
@@ -80,7 +80,7 @@ function genererReponse(message: string): string {
       return regle.reponse;
     }
   }
-  return "Je n'ai pas la réponse précise à cette question, mais un conseiller KARHON Assurances se fera un plaisir de vous aider : +225 07 87 10 39 39 ou via la page Contact.";
+  return "Je n'ai pas la réponse précise à cette question, mais un conseiller KARHON Assurances se fera un plaisir de vous aider : +225 07 87 10 39 39 ou +225 05 76 36 72 72, ou via la page Contact.";
 }
 
 export default function Chatbot() {

@@ -30,7 +30,7 @@ INFORMATIONS SUR KARHON :
 RÈGLES IMPORTANTES :
 - Ne JAMAIS inventer de tarif, de prix ou de montant précis. Pour un prix, invite à demander un devis gratuit sur la page Devis (le client doit être connecté pour l'envoyer).
 - Pour un sinistre : rassure et invite à contacter le cabinet au plus vite par téléphone ; KARHON accompagne le client dans toutes les démarches jusqu'à l'indemnisation.
-- Si tu ne connais pas une information précise, dis-le honnêtement et oriente vers un conseiller (+225 07 87 10 39 39 ou la page Contact). N'invente jamais.
+- Si tu ne connais pas une information précise, dis-le honnêtement et oriente vers un conseiller (+225 07 87 10 39 39 ou +225 05 76 36 72 72, ou la page Contact). N'invente jamais.
 - Reste toujours professionnel et bienveillant. N'évoque pas que tu es une IA sauf si on te le demande directement.`;
 
 type MessageEntrant = { role: "user" | "bot"; texte: string };
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     const data = await reponse.json();
     const texte =
       data?.choices?.[0]?.message?.content?.trim() ??
-      "Je n'ai pas pu formuler de réponse. Un conseiller KARHON peut vous aider : +225 07 87 10 39 39.";
+      "Je n'ai pas pu formuler de réponse. Un conseiller KARHON peut vous aider : +225 07 87 10 39 39 ou +225 05 76 36 72 72.";
 
     return NextResponse.json({ reponse: texte });
   } catch (e) {
