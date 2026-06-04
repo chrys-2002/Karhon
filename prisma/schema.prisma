@@ -75,6 +75,7 @@ model User {
   devis           Devis[]
   contrats        Contrat[]
   rendezVous      RendezVous[]
+  sinistres       Sinistre[]
 
   @@map("users")
 }
@@ -133,14 +134,23 @@ model Contrat {
 model Sinistre {
   id               String         @id @default(cuid())
   dateSurvenance   DateTime
+  heureSurvenance  String?        // heure approximative du sinistre (ex. "14:30")
+  lieu             String?        // lieu du sinistre
   dateDeclaration  DateTime       @default(now())
   description      String
-  montantIndemnise Float?
+  typeAssurance    String?        // type d'assurance choisi par le client (auto, habitation…)
+  montantEstime    Float?         // estimation déclarée par le client
+  montantIndemnise Float?         // montant réellement indemnisé (renseigné par le courtier)
   statut           StatutSinistre @default(declare)
   documents        String[]
 
-  contratId        String
-  contrat          Contrat        @relation(fields: [contratId], references: [id], onDelete: Cascade)
+  // Le sinistre est rattaché au client connecté qui le déclare.
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Lien facultatif vers un contrat précis (renseigné plus tard par le courtier).
+  contratId        String?
+  contrat          Contrat?       @relation(fields: [contratId], references: [id], onDelete: SetNull)
 
   @@map("sinistres")
 }

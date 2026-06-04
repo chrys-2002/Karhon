@@ -13,6 +13,8 @@ import {
   Inbox,
   ChevronDown,
   Check,
+  AlertTriangle,
+  HandCoins,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
@@ -32,12 +34,67 @@ type DevisAdmin = {
   statut: string;
   montantEstime: number | null;
   description: string;
+  documents?: string[];
   produit?: { nom?: string; type?: string };
   user?: { nom?: string; prenom?: string; email?: string };
 };
 
+type SinistreAdmin = {
+  id: string;
+  dateDeclaration: string;
+  dateSurvenance: string;
+  heureSurvenance: string | null;
+  lieu: string | null;
+  statut: string;
+  typeAssurance: string | null;
+  montantEstime: number | null;
+  description: string;
+  documents?: string[];
+  user?: { nom?: string; prenom?: string; email?: string };
+};
+
+// Affiche les pièces jointes (format "Libellé|url") en miniatures cliquables.
+function PiecesJointes({ documents }: { documents?: string[] }) {
+  if (!documents || documents.length === 0) return null;
+  return (
+    <div className="mt-3">
+      <p className="text-xs font-semibold mb-2" style={{ color: "#1a2e5a" }}>
+        Pièces jointes ({documents.length})
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {documents.map((doc, i) => {
+          const sep = doc.indexOf("|");
+          const libelle = sep > 0 ? doc.slice(0, sep) : "Document";
+          const url = sep > 0 ? doc.slice(sep + 1) : doc;
+          return (
+            <a
+              key={i}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block w-24"
+              title={libelle}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={url}
+                alt={libelle}
+                className="w-24 h-20 rounded-xl object-cover border transition-all group-hover:shadow-md"
+                style={{ borderColor: "#e0ecec" }}
+              />
+              <span className="block text-[11px] text-gray-500 mt-1 truncate">{libelle}</span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+type StatutInfo = { value: string; label: string; couleur: string; fond: string };
+
 // Libellés + couleurs des statuts (alignés sur l'enum StatutDevis).
-const STATUTS: { value: string; label: string; couleur: string; fond: string }[] = [
+const STATUTS: StatutInfo[] = [
   { value: "en_attente", label: "En attente", couleur: "#92600a", fond: "#fef3c7" },
   { value: "en_cours", label: "En cours", couleur: "#1e40af", fond: "#dbeafe" },
   { value: "envoye", label: "Envoyé", couleur: "#5b21b6", fond: "#ede9fe" },
@@ -45,24 +102,37 @@ const STATUTS: { value: string; label: string; couleur: string; fond: string }[]
   { value: "refuse", label: "Refusé", couleur: "#991b1b", fond: "#fee2e2" },
 ];
 
+// Libellés + couleurs des statuts de sinistre (alignés sur l'enum StatutSinistre).
+const STATUTS_SINISTRE: StatutInfo[] = [
+  { value: "declare", label: "Déclaré", couleur: "#92600a", fond: "#fef3c7" },
+  { value: "en_cours", label: "En cours", couleur: "#1e40af", fond: "#dbeafe" },
+  { value: "indemnise", label: "Indemnisé", couleur: "#166534", fond: "#dcfce7" },
+  { value: "refuse", label: "Refusé", couleur: "#991b1b", fond: "#fee2e2" },
+];
+
 const infoStatut = (v: string) =>
   STATUTS.find((s) => s.value === v) ?? STATUTS[0];
+
+const infoStatutSinistre = (v: string) =>
+  STATUTS_SINISTRE.find((s) => s.value === v) ?? STATUTS_SINISTRE[0];
 
 // ── Dropdown de statut « premium » (remplace le <select> natif) ──
 function StatutDropdown({
   valeur,
   onChange,
   disabled,
+  options = STATUTS,
 }: {
   valeur: string;
   onChange: (v: string) => void;
   disabled?: boolean;
+  options?: StatutInfo[];
 }) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const courant = infoStatut(valeur);
+  const courant = options.find((s) => s.value === valeur) ?? options[0];
 
   // Largeur du menu (px). On l'aligne sous le bouton et on le borne à l'écran.
   const MENU_W = 208;
@@ -143,7 +213,7 @@ function StatutDropdown({
               boxShadow: "0 16px 40px rgba(26,46,90,0.16)",
             }}
           >
-            {STATUTS.map((s) => {
+            {options.map((s) => {
               const actif = s.value === valeur;
               return (
                 <button
@@ -174,7 +244,9 @@ export default function AdminPage() {
   const [autorise, setAutorise] = useState(false);
   const [loading, setLoading] = useState(true);
   const [devis, setDevis] = useState<DevisAdmin[]>([]);
+  const [sinistres, setSinistres] = useState<SinistreAdmin[]>([]);
   const [majId, setMajId] = useState<string | null>(null);
+  const [majSinistreId, setMajSinistreId] = useState<string | null>(null);
   // Filtre actif : "tous" ou une valeur de statut. Piloté par les cartes.
   const [filtre, setFiltre] = useState<string>("tous");
 
@@ -199,13 +271,16 @@ export default function AdminPage() {
     };
   }, [router]);
 
-  // 2) Charge tous les devis (l'API renvoie TOUT pour un admin).
+  // 2) Charge tous les devis ET tous les sinistres (l'API renvoie TOUT pour un admin).
   useEffect(() => {
     if (!autorise) return;
-    fetch("/api/devis")
-      .then((res) => (res.ok ? res.json() : { devis: [] }))
-      .then((data) => {
-        if (Array.isArray(data.devis)) setDevis(data.devis);
+    Promise.all([
+      fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
+      fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
+    ])
+      .then(([dDevis, dSin]) => {
+        if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
+        if (Array.isArray(dSin.sinistres)) setSinistres(dSin.sinistres);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -231,6 +306,24 @@ export default function AdminPage() {
       }
     } finally {
       setMajId(null);
+    }
+  };
+
+  // Change le statut d'un sinistre via PATCH /api/sinistres/[id].
+  const changerStatutSinistre = async (id: string, statut: string) => {
+    setMajSinistreId(id);
+    try {
+      const res = await fetch(`/api/sinistres/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ statut }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSinistres((prev) => prev.map((s) => (s.id === id ? { ...s, statut: data.sinistre.statut } : s)));
+      }
+    } finally {
+      setMajSinistreId(null);
     }
   };
 
@@ -278,7 +371,7 @@ export default function AdminPage() {
               <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: "#1a2e5a" }}>
                 Back-office administrateur
               </h1>
-              <p className="text-gray-500 text-sm mt-0.5">Gestion des demandes de devis clients</p>
+              <p className="text-gray-500 text-sm mt-0.5">Gestion des devis et des sinistres clients</p>
             </div>
           </div>
           <button
@@ -347,7 +440,7 @@ export default function AdminPage() {
               </p>
             </div>
           ) : (
-            <div className="divide-y" style={{ borderColor: "#eef4f4" }}>
+            <div className="divide-y divide-[#eef4f4]">
               {devisAffiches.map((d) => {
                 const st = infoStatut(d.statut);
                 const date = new Date(d.dateCreation).toLocaleDateString("fr-FR", {
@@ -374,6 +467,7 @@ export default function AdminPage() {
                             {d.description}
                           </p>
                         )}
+                        <PiecesJointes documents={d.documents} />
                       </div>
 
                       {/* Changement de statut (dropdown premium) */}
@@ -383,6 +477,90 @@ export default function AdminPage() {
                           valeur={d.statut}
                           disabled={majId === d.id}
                           onChange={(v) => changerStatut(d.id, v)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+
+        {/* ── Sinistres déclarés par les clients ── */}
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="mt-8 bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <AlertTriangle size={18} style={{ color: "#2a8a8a" }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Sinistres déclarés</h2>
+            </div>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+              {sinistres.length} déclaration{sinistres.length > 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {sinistres.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-16 px-6">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <Inbox size={28} style={{ color: "#2a8a8a" }} />
+              </div>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun sinistre déclaré</p>
+              <p className="text-gray-400 text-sm max-w-sm">Les déclarations de sinistre envoyées par les clients apparaîtront ici.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-[#eef4f4]">
+              {sinistres.map((s) => {
+                const st = infoStatutSinistre(s.statut);
+                const dateDecl = new Date(s.dateDeclaration).toLocaleDateString("fr-FR", {
+                  day: "2-digit", month: "short", year: "numeric",
+                });
+                const dateSurv = new Date(s.dateSurvenance).toLocaleDateString("fr-FR", {
+                  day: "2-digit", month: "short", year: "numeric",
+                });
+                return (
+                  <div key={s.id} className="px-6 sm:px-8 py-5">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold" style={{ color: "#1a2e5a" }}>
+                            {s.typeAssurance ?? "Sinistre"}
+                          </span>
+                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: st.fond, color: st.couleur }}>
+                            {st.label}
+                          </span>
+                          {typeof s.montantEstime === "number" && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#f0f7f7", color: "#2a8a8a" }}>
+                              <HandCoins size={12} /> {s.montantEstime.toLocaleString("fr-FR")} FCFA
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {s.user?.prenom} {s.user?.nom} · {s.user?.email}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Survenu le {dateSurv}{s.heureSurvenance ? ` à ${s.heureSurvenance}` : ""} · Déclaré le {dateDecl}
+                        </p>
+                        {s.lieu && (
+                          <p className="text-xs text-gray-500 mt-0.5">Lieu : {s.lieu}</p>
+                        )}
+                        {s.description && (
+                          <p className="text-sm text-gray-600 mt-2 whitespace-pre-line bg-gray-50 rounded-xl px-3 py-2">
+                            {s.description}
+                          </p>
+                        )}
+                        <PiecesJointes documents={s.documents} />
+                      </div>
+
+                      {/* Changement de statut du sinistre */}
+                      <div className="flex items-center gap-2">
+                        {majSinistreId === s.id && <Loader2 className="animate-spin" size={16} style={{ color: "#2a8a8a" }} />}
+                        <StatutDropdown
+                          valeur={s.statut}
+                          options={STATUTS_SINISTRE}
+                          disabled={majSinistreId === s.id}
+                          onChange={(v) => changerStatutSinistre(s.id, v)}
                         />
                       </div>
                     </div>

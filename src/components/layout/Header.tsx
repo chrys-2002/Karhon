@@ -39,19 +39,30 @@ export default function Header() {
     ? "/admin"
     : "/client/dashboard";
 
+  // Bloque le défilement de la page quand le menu mobile est ouvert.
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = isMenuOpen ? "hidden" : "unset";
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isMenuOpen]);
+
+  // Détection du scroll — listener PASSIF + garde requestAnimationFrame.
+  // Passif → le navigateur n'attend pas un éventuel preventDefault, le scroll
+  // reste fluide. rAF → on ne touche au state qu'une fois par frame, au plus.
+  useEffect(() => {
+    let frame = 0;
+    const handleScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 50);
+        frame = 0;
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      document.body.style.overflow = "unset";
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [isMenuOpen]);
+  }, []);
 
   const handleLinkClick = () => setIsMenuOpen(false);
 
@@ -73,7 +84,7 @@ export default function Header() {
   return (
     <>
       <header
-        className="fixed top-0 w-full z-[100] transition-all duration-500"
+        className="fixed top-0 w-full z-[100] transition-[background-color,box-shadow] duration-300"
         style={{
           backgroundColor: transparent ? "transparent" : "#ffffff",
           boxShadow: transparent ? "none" : "0 2px 20px rgba(26,46,90,0.12)",

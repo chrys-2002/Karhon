@@ -2,10 +2,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ShieldAlert, CalendarDays, FileText, Coins, Send, Phone, CheckCircle2, Car, Home, HeartPulse, Plane, Scale, Truck, Store, Briefcase, Anchor, Landmark, Flower2 } from "lucide-react";
+import { ShieldAlert, CalendarDays, Clock, MapPin, FileText, Send, Phone, CheckCircle2, Car, Home, HeartPulse, Plane, Scale, Truck, Store, Briefcase, Anchor, Landmark, Flower2 } from "lucide-react";
 import Select from "@/components/ui/Select";
 import DatePicker from "@/components/ui/DatePicker";
+import DocumentUpload from "@/components/ui/DocumentUpload";
 import BackButton from "@/components/ui/BackButton";
+
+// Types pour lesquels on demande les pièces du véhicule.
+const TYPES_AUTO = ["auto", "flotte"];
 
 // Gamme des assurances pouvant faire l'objet d'une déclaration de sinistre.
 const contrats = [
@@ -28,22 +32,80 @@ const aujourdhui = new Date().toISOString().split("T")[0];
 
 export default function NouveauSinistre() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ contratId: "", date: "", description: "", montant: "" });
+  const [formData, setFormData] = useState({ contratId: "", date: "", heure: "", lieu: "", description: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [envoye, setEnvoye] = useState(false);
+  const [erreur, setErreur] = useState("");
+
+  // Documents du véhicule (uniquement pour un sinistre automobile).
+  const [docs, setDocs] = useState({
+    carteVehicule: [] as string[],   // pièce afférente au véhicule
+    permis: [] as string[],
+    carteGrise: [] as string[],
+    visiteTechnique: [] as string[],
+    dommages: [] as string[],        // photos des dommages (plusieurs)
+  });
+  const setDoc = (cle: keyof typeof docs, urls: string[]) =>
+    setDocs((prev) => ({ ...prev, [cle]: urls }));
+
+  const estAuto = TYPES_AUTO.includes(formData.contratId);
 
   const setChamp = (name: string, value: string) =>
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.contratId || !formData.date || !formData.description) return;
+    setErreur("");
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    // Libellé lisible du type d'assurance choisi (ex. "Assurance Auto").
+    const typeAssurance =
+      contrats.find((c) => c.value === formData.contratId)?.label ?? formData.contratId;
+
+    // Construit la liste des pièces jointes au format "Libellé|url".
+    const documents: string[] = [];
+    if (estAuto) {
+      docs.carteVehicule.forEach((u) => documents.push(`Pièce du véhicule|${u}`));
+      docs.permis.forEach((u) => documents.push(`Permis de conduire|${u}`));
+      docs.carteGrise.forEach((u) => documents.push(`Carte grise|${u}`));
+      docs.visiteTechnique.forEach((u) => documents.push(`Visite technique|${u}`));
+      docs.dommages.forEach((u, i) => documents.push(`Photo dommage ${i + 1}|${u}`));
+    }
+
+    try {
+      const res = await fetch("/api/sinistres", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          typeAssurance,
+          dateSurvenance: formData.date,
+          heureSurvenance: formData.heure || undefined,
+          lieu: formData.lieu || undefined,
+          description: formData.description,
+          documents,
+        }),
+      });
+
+      if (res.status === 401) {
+        // Session expirée → on renvoie vers la connexion.
+        router.push("/client");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setErreur(data.erreur || "Une erreur est survenue. Veuillez réessayer.");
+        setIsSubmitting(false);
+        return;
+      }
+
       setIsSubmitting(false);
       setEnvoye(true);
       setTimeout(() => router.push("/client/dashboard"), 1800);
-    }, 1400);
+    } catch {
+      setErreur("Connexion impossible. Vérifiez votre réseau et réessayez.");
+      setIsSubmitting(false);
+    }
   };
 
   // Écran de confirmation après envoi.
@@ -114,14 +176,46 @@ export default function NouveauSinistre() {
               required
             />
 
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <CalendarDays size={15} style={{ color: "#2a8a8a" }} /> Date du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
+                </label>
+                <DatePicker
+                  value={formData.date}
+                  onChange={(v) => setChamp("date", v)}
+                  max={aujourdhui}
+                />
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <Clock size={15} style={{ color: "#2a8a8a" }} /> Heure <span className="text-gray-400 font-normal">(facultatif)</span>
+                </label>
+                <input
+                  type="time"
+                  value={formData.heure}
+                  onChange={(e) => setChamp("heure", e.target.value)}
+                  className="w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none"
+                  style={{ borderColor: "#e0ecec" }}
+                  onFocus={(e) => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(42,138,138,0.18)")}
+                  onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
+                />
+              </div>
+            </div>
+
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <CalendarDays size={15} style={{ color: "#2a8a8a" }} /> Date du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
+                <MapPin size={15} style={{ color: "#2a8a8a" }} /> Lieu du sinistre <span className="text-gray-400 font-normal">(facultatif)</span>
               </label>
-              <DatePicker
-                value={formData.date}
-                onChange={(v) => setChamp("date", v)}
-                max={aujourdhui}
+              <input
+                type="text"
+                placeholder="Ex. Boulevard de Marseille, Marcory, Abidjan"
+                value={formData.lieu}
+                onChange={(e) => setChamp("lieu", e.target.value)}
+                className="w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none"
+                style={{ borderColor: "#e0ecec" }}
+                onFocus={(e) => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(42,138,138,0.18)")}
+                onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
               />
             </div>
 
@@ -142,24 +236,51 @@ export default function NouveauSinistre() {
               />
             </div>
 
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <Coins size={15} style={{ color: "#2a8a8a" }} /> Montant estimé <span className="text-gray-400 font-normal">(facultatif)</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={formData.montant}
-                  onChange={(e) => setChamp("montant", e.target.value)}
-                  className="w-full px-4 py-3 pr-16 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none"
-                  style={{ borderColor: "#e0ecec" }}
-                  onFocus={(e) => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(42,138,138,0.18)")}
-                  onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
+            {/* Pièces justificatives — affichées uniquement pour un sinistre automobile */}
+            {estAuto && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="space-y-5 rounded-2xl p-5"
+                style={{ backgroundColor: "#fbfdfd", border: "1px solid #e6f0f0" }}
+              >
+                <div className="flex items-center gap-2">
+                  <Car size={16} style={{ color: "#2a8a8a" }} />
+                  <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Pièces du véhicule</h3>
+                </div>
+                <p className="text-xs text-gray-500 -mt-3">
+                  Photographiez ou importez vos documents (PNG ou JPG). Cela accélère le traitement de votre dossier.
+                </p>
+
+                <DocumentUpload
+                  label="Pièce afférente au véhicule"
+                  value={docs.carteVehicule}
+                  onChange={(u) => setDoc("carteVehicule", u)}
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">FCFA</span>
-              </div>
-            </div>
+                <DocumentUpload
+                  label="Permis de conduire"
+                  value={docs.permis}
+                  onChange={(u) => setDoc("permis", u)}
+                />
+                <DocumentUpload
+                  label="Carte grise du véhicule"
+                  value={docs.carteGrise}
+                  onChange={(u) => setDoc("carteGrise", u)}
+                />
+                <DocumentUpload
+                  label="Visite technique"
+                  value={docs.visiteTechnique}
+                  onChange={(u) => setDoc("visiteTechnique", u)}
+                />
+                <DocumentUpload
+                  label="Photos des dommages"
+                  hint="Vous pouvez ajouter plusieurs photos."
+                  value={docs.dommages}
+                  onChange={(u) => setDoc("dommages", u)}
+                  max={6}
+                />
+              </motion.div>
+            )}
 
             {/* Encart d'urgence */}
             <div className="flex items-start gap-3 rounded-2xl p-4" style={{ backgroundColor: "#f0f7f7" }}>
@@ -168,6 +289,13 @@ export default function NouveauSinistre() {
                 Pour un sinistre urgent, contactez-nous directement au <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span> ou <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span>. Nous vous accompagnons dans toutes vos démarches.
               </p>
             </div>
+
+            {/* Message d'erreur éventuel */}
+            {erreur && (
+              <div className="rounded-2xl px-4 py-3 text-sm font-medium" style={{ backgroundColor: "#fdecec", color: "#b42318", border: "1px solid #f7caca" }}>
+                {erreur}
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">

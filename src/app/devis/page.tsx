@@ -5,6 +5,10 @@ import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle } from 'lucide-react';
 import BackButton from '@/components/ui/BackButton';
+import DocumentUpload from '@/components/ui/DocumentUpload';
+
+// Produits automobiles → on demande la carte grise + la visite technique.
+const PRODUITS_AUTO = ['Assurance Automobile', 'Automobile Flotte'];
 
 const categories = [
   { id: 'particuliers', label: 'Particuliers', Icon: User, desc: 'Auto, Habitation, Santé...' },
@@ -160,6 +164,9 @@ export default function DevisPage() {
   const [produitsDB, setProduitsDB] = useState<ProduitDB[]>([]);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState('');
+  // Pièces jointes pour un devis automobile.
+  const [docCarteGrise, setDocCarteGrise] = useState<string[]>([]);
+  const [docVisite, setDocVisite] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     categorie: '',
     produit: '', // contient désormais l'ID réel du produit en base (cuid)
@@ -190,6 +197,7 @@ export default function DevisPage() {
   // Produits de la catégorie sélectionnée (depuis la base).
   const produitsCategorie = produitsDB.filter(p => p.categorie === formData.categorie);
   const produitChoisi = produitsDB.find(p => p.id === formData.produit);
+  const estAuto = !!produitChoisi && PRODUITS_AUTO.includes(produitChoisi.nom);
 
   const canGoToStep2 = formData.categorie !== '';
   const canGoToStep3 = formData.produit !== '' && formData.nom !== '' && formData.telephone !== '';
@@ -210,12 +218,20 @@ export default function DevisPage() {
         formData.message ? `Message : ${formData.message}` : '',
       ].filter(Boolean);
 
+      // Pièces jointes au format "Libellé|url" (uniquement pour l'auto).
+      const documents: string[] = [];
+      if (estAuto) {
+        docCarteGrise.forEach((u) => documents.push(`Carte grise|${u}`));
+        docVisite.forEach((u) => documents.push(`Visite technique|${u}`));
+      }
+
       const res = await fetch('/api/devis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           produitId: formData.produit,
           description: lignes.join('\n'),
+          documents,
         }),
       });
 
@@ -394,6 +410,28 @@ export default function DevisPage() {
                 </div>
                 )}
               </div>
+
+              {/* Pièces du véhicule — affichées uniquement pour un produit auto */}
+              {estAuto && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8 rounded-2xl p-5 space-y-5"
+                  style={{ background: "#fbfdfd", border: "1.5px solid #e6f0f0" }}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Car size={18} style={{ color: "#2a8a8a" }} />
+                      <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Documents du véhicule</h3>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Joignez votre carte grise et votre visite technique (PNG ou JPG). Vous pouvez les prendre en photo depuis votre mobile.
+                    </p>
+                  </div>
+                  <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} />
+                  <DocumentUpload label="Visite technique" value={docVisite} onChange={setDocVisite} />
+                </motion.div>
+              )}
 
               {/* Nom + Prénom */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">

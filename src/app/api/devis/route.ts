@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { produitId, description, montantEstime } = await req.json();
+    const { produitId, description, montantEstime, documents } = await req.json();
 
     // 2) Validation des champs.
     if (!produitId || !description) {
@@ -28,13 +28,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ erreur: "Produit introuvable." }, { status: 404 });
     }
 
-    // 4) Crée le devis, rattaché au client connecté (auth.userId).
+    // 4) N'accepte que des entrées "Libellé|url" pointant vers Vercel Blob.
+    const docsValides = Array.isArray(documents)
+      ? documents
+          .filter(
+            (d): d is string =>
+              typeof d === "string" &&
+              /\|https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\//i.test(d)
+          )
+          .slice(0, 8)
+      : [];
+
+    // 5) Crée le devis, rattaché au client connecté (auth.userId).
     const devis = await prisma.devis.create({
       data: {
         userId: auth.userId,
         produitId,
         description,
         montantEstime: typeof montantEstime === "number" ? montantEstime : null,
+        documents: docsValides,
         // statut "en_attente" par défaut (défini dans le schéma).
       },
       include: { produit: true },

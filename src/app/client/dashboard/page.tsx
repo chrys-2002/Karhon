@@ -194,7 +194,7 @@ export default function Dashboard() {
               <p className="text-gray-400 text-sm max-w-sm">Vos demandes de devis apparaîtront ici.</p>
             </div>
           ) : (
-            <ul className="divide-y" style={{ borderColor: "#eef4f4" }}>
+            <ul className="divide-y divide-[#eef4f4]">
               {devis.map((d) => (
                 <li key={d.id} className="flex items-center justify-between px-6 sm:px-8 py-4">
                   <div className="flex items-center gap-3">
