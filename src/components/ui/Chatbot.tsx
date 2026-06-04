@@ -87,6 +87,7 @@ export default function Chatbot() {
   const [ouvert, setOuvert] = useState(false);
   const [messages, setMessages] = useState<Message[]>([MESSAGE_ACCUEIL]);
   const [saisie, setSaisie] = useState("");
+  const [enAttente, setEnAttente] = useState(false);
   const finRef = useRef<HTMLDivElement>(null);
   const panneauRef = useRef<HTMLDivElement>(null);
   const bulleRef = useRef<HTMLButtonElement>(null);
@@ -94,7 +95,7 @@ export default function Chatbot() {
   // Fait défiler vers le dernier message à chaque ajout.
   useEffect(() => {
     finRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, ouvert]);
+  }, [messages, ouvert, enAttente]);
 
   // Ferme le chat si on clique en dehors de la fenêtre et du bouton.
   // Aucune couche superposée → la page n'est jamais bloquée.
@@ -113,16 +114,36 @@ export default function Chatbot() {
     return () => document.removeEventListener("mousedown", handler);
   }, [ouvert]);
 
-  const envoyer = (texte: string) => {
+  // Envoie le message à l'assistant IA (route /api/chat).
+  // En cas d'échec réseau/serveur, on retombe sur la FAQ par mots-clés
+  // pour ne jamais laisser l'utilisateur sans réponse.
+  const envoyer = async (texte: string) => {
     const contenu = texte.trim();
-    if (!contenu) return;
-    const reponse = genererReponse(contenu);
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", texte: contenu },
-      { role: "bot", texte: reponse },
-    ]);
+    if (!contenu || enAttente) return;
+
+    // 1) Affiche immédiatement le message de l'utilisateur.
+    const historique: Message[] = [...messages, { role: "user", texte: contenu }];
+    setMessages(historique);
     setSaisie("");
+    setEnAttente(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // On envoie l'historique (sans le message d'accueil) pour le contexte.
+        body: JSON.stringify({ messages: historique.slice(1) }),
+      });
+      const data = await res.json();
+      const reponse =
+        (res.ok && data?.reponse) ? data.reponse : genererReponse(contenu);
+      setMessages((prev) => [...prev, { role: "bot", texte: reponse }]);
+    } catch {
+      // Repli hors-ligne : FAQ par mots-clés.
+      setMessages((prev) => [...prev, { role: "bot", texte: genererReponse(contenu) }]);
+    } finally {
+      setEnAttente(false);
+    }
   };
 
   return (
@@ -211,6 +232,23 @@ export default function Chatbot() {
                 ))}
               </div>
             )}
+
+            {/* Indicateur « en train d'écrire » pendant l'appel à l'IA */}
+            {enAttente && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-1.5 rounded-2xl px-4 py-3" style={{ backgroundColor: "#ffffff", border: "1px solid #e0ecec" }}>
+                  {[0, 1, 2].map((i) => (
+                    <motion.span
+                      key={i}
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: "#2a8a8a" }}
+                      animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
+                      transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
             <div ref={finRef} />
           </div>
 
@@ -226,14 +264,15 @@ export default function Chatbot() {
             <input
               value={saisie}
               onChange={(e) => setSaisie(e.target.value)}
-              placeholder="Écrivez votre message…"
-              className="flex-1 rounded-full border px-4 py-2.5 text-sm outline-none focus:ring-2"
+              disabled={enAttente}
+              placeholder={enAttente ? "L'assistant répond…" : "Écrivez votre message…"}
+              className="flex-1 rounded-full border px-4 py-2.5 text-sm outline-none focus:ring-2 disabled:opacity-60"
               style={{ borderColor: "#cfe3e3" }}
             />
             <button
               type="submit"
               aria-label="Envoyer"
-              disabled={!saisie.trim()}
+              disabled={!saisie.trim() || enAttente}
               className="flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:scale-105 disabled:opacity-40"
               style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
             >
