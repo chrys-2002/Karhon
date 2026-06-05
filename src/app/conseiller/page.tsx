@@ -7,6 +7,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import BackButton from "@/components/ui/BackButton";
 import {
   ShieldCheck, Scale, UserCheck, Wallet, ArrowRight, Phone, Check,
   User, Users, Building2, Car, Home, HeartPulse, Plane, Briefcase, Shield,
@@ -14,9 +15,18 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+// Met en gras chaque occurrence de « KARHON Assurance » dans un texte.
+function marque(texte: string) {
+  return texte.split(/(KARHON Assurance)/g).map((p, i) =>
+    p === "KARHON Assurance"
+      ? <strong key={i} style={{ color: "#1a2e5a" }}>{p}</strong>
+      : p
+  );
+}
+
 // ── Données : pourquoi un courtier ───────────────────────────
 const ATOUTS = [
-  { Icon: Scale, titre: "Neutre et indépendant", texte: "KARHON ne dépend d'aucune compagnie. Nous comparons le marché et choisissons ce qui est le mieux POUR VOUS, pas pour un assureur." },
+  { Icon: Scale, titre: "Neutre et indépendant", texte: "KARHON Assurance ne dépend d'aucune compagnie. Nous comparons le marché et choisissons ce qui est le mieux POUR VOUS, pas pour un assureur." },
   { Icon: ShieldCheck, titre: "Votre intérêt d'abord", texte: "En cas de sinistre, nous défendons votre dossier face à la compagnie jusqu'à la juste indemnisation. Vous n'êtes jamais seul." },
   { Icon: Wallet, titre: "Zéro frais pour vous", texte: "Notre accompagnement, le conseil et la gestion de vos contrats sont gratuits. Nous sommes rémunérés par les compagnies, pas par vous." },
   { Icon: UserCheck, titre: "Un interlocuteur unique", texte: "Un seul contact pour toutes vos assurances : auto, habitation, santé, pro… Plus simple, plus rapide, plus humain." },
@@ -89,7 +99,7 @@ const ETAPES = [
 // ── FAQ ──────────────────────────────────────────────────────
 const FAQ = [
   { q: "Combien coûte le service d'un courtier ?", r: "Rien pour vous. Le conseil, la souscription et la gestion de vos contrats sont gratuits : nous sommes rémunérés par les compagnies d'assurance." },
-  { q: "Pourquoi passer par KARHON plutôt qu'aller directement chez un assureur ?", r: "Parce que nous comparons plusieurs compagnies pour vous, négocions les meilleures conditions, et surtout nous défendons VOTRE intérêt en cas de sinistre — un assureur ne défend que le sien." },
+  { q: "Pourquoi passer par KARHON Assurance plutôt qu'aller directement chez un assureur ?", r: "Parce que nous comparons plusieurs compagnies pour vous, négocions les meilleures conditions, et surtout nous défendons VOTRE intérêt en cas de sinistre — un assureur ne défend que le sien." },
   { q: "Puis-je souscrire pour une courte durée ?", r: "Oui. Selon le produit, vous pouvez souscrire pour 1, 2, 3, 6 mois ou 1 an. Nous vous conseillons la durée la plus avantageuse." },
   { q: "Que se passe-t-il en cas de sinistre ?", r: "Vous nous contactez, nous montons votre dossier et nous nous occupons de tout face à la compagnie, jusqu'à votre indemnisation." },
 ];
@@ -97,14 +107,19 @@ const FAQ = [
 export default function ConseillerPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f8fbfb" }}>
+      {/* Bouton retour */}
+      <div className="max-w-5xl mx-auto px-4 pt-28">
+        <BackButton label="Retour" />
+      </div>
+
       {/* ── HERO (clair et sobre, comme les autres pages) ── */}
-      <section className="max-w-4xl mx-auto px-4 pt-32 pb-10 text-center">
+      <section className="max-w-4xl mx-auto px-4 pt-8 pb-10 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight mb-5" style={{ color: "#1a2e5a" }}>
             Bien assuré, l&apos;esprit tranquille.
           </h1>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            KARHON est votre courtier neutre et indépendant à Abidjan. Nous vous expliquons tout, comparons le marché, et défendons vos intérêts — gratuitement. Trouvez en 1 minute l&apos;assurance qu&apos;il vous faut.
+            <strong style={{ color: "#1a2e5a" }}>KARHON Assurance</strong> est votre courtier neutre et indépendant à Abidjan. Nous vous expliquons tout, comparons le marché, et défendons vos intérêts — gratuitement. Trouvez en 1 minute l&apos;assurance qu&apos;il vous faut.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <a href="#diagnostic" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm text-white transition-all hover:scale-105 shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
@@ -137,7 +152,7 @@ export default function ConseillerPage() {
                 <a.Icon size={22} style={{ color: "#2a8a8a" }} />
               </div>
               <h3 className="font-bold mb-2" style={{ color: "#1a2e5a" }}>{a.titre}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{a.texte}</p>
+              <p className="text-sm text-gray-500 leading-relaxed">{marque(a.texte)}</p>
             </motion.div>
           ))}
         </div>
@@ -256,6 +271,9 @@ export default function ConseillerPage() {
             <a href="tel:+2250787103939" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-white/10" style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)" }}>
               <Phone size={17} /> +225 07 87 10 39 39
             </a>
+            <a href="tel:+2250576367272" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-white/10" style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)" }}>
+              <Phone size={17} /> +225 05 76 36 72 72
+            </a>
           </div>
         </div>
       </section>
@@ -356,7 +374,7 @@ function FaqItem({ q, r }: { q: string; r: string }) {
   return (
     <div className="bg-white rounded-2xl border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
       <button onClick={() => setOuvert((o) => !o)} className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left">
-        <span className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{q}</span>
+        <span className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{marque(q)}</span>
         <motion.span animate={{ rotate: ouvert ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
           <ChevronDown size={18} style={{ color: "#2a8a8a" }} />
         </motion.span>
@@ -364,7 +382,7 @@ function FaqItem({ q, r }: { q: string; r: string }) {
       <AnimatePresence>
         {ouvert && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}>
-            <p className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">{r}</p>
+            <p className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">{marque(r)}</p>
           </motion.div>
         )}
       </AnimatePresence>
