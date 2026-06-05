@@ -1,8 +1,11 @@
 "use client";
 
 // <BackButton> — bouton de retour réutilisable, style KARHON.
-// Par défaut il revient à la page précédente (router.back()). On peut aussi
-// forcer une destination via `href`, et personnaliser le libellé.
+// Priorité de comportement au clic :
+//   1. `onClick` fourni → on l'exécute (ex. reculer d'une étape dans un
+//      formulaire multi-étapes au lieu de quitter la page) ;
+//   2. sinon `href` → navigation vers cette URL ;
+//   3. sinon → page précédente (router.back()).
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -11,17 +14,21 @@ type BackButtonProps = {
   href?: string;
   label?: string;
   className?: string;
+  /** Action personnalisée au clic (prioritaire sur href/back). */
+  onClick?: () => void;
 };
 
 export default function BackButton({
   href,
   label = "Retour",
   className = "",
+  onClick: onClickProp,
 }: BackButtonProps) {
   const router = useRouter();
 
   const onClick = () => {
-    if (href) router.push(href);
+    if (onClickProp) onClickProp();
+    else if (href) router.push(href);
     else router.back();
   };
 

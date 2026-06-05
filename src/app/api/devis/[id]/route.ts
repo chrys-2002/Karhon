@@ -49,3 +49,27 @@ export async function PATCH(
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
   }
 }
+
+// ── DELETE : supprimer définitivement un devis (admin) ───────────
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await exigerAdmin();
+  if (auth instanceof NextResponse) return auth;
+
+  try {
+    const { id } = await params;
+
+    const existant = await prisma.devis.findUnique({ where: { id } });
+    if (!existant) {
+      return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
+    }
+
+    await prisma.devis.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[devis DELETE]", e);
+    return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
+  }
+}

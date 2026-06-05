@@ -41,7 +41,7 @@ const produits = [
     options: ["Locataire", "Propriétaire Occupant", "Propriétaire Non Occupant"]
   },
   {
-    id: "sante-individuelle", categorie: "particuliers", nom: "Assurance Santé Individuelle", Icon: HeartPulse,
+    id: "sante-individuelle", categorie: "particuliers", nom: "Assurance Santé", Icon: HeartPulse,
     image: "/images/produits/sante-individuelle.jpg",
     description: "Remboursement des frais médicaux, maternité et invalidité via ticket modérateur.",
     longDescription: "Assurance santé qui prend en charge vos dépenses médicales selon le système du ticket modérateur. Idéale pour les particuliers et les familles.",
@@ -150,7 +150,7 @@ const produits = [
     options: ["Commerce", "Industrie", "Services", "Bureaux"]
   },
   {
-    id: "sante-groupe", categorie: "professionnelles", nom: "Assurance Santé Groupe", Icon: Users,
+    id: "sante-groupe", categorie: "professionnelles", nom: "Assurance Santé", Icon: Users,
     image: "/images/produits/sante-groupe.jpg",
     description: "Couverture santé collective pour les employés d'une société.",
     longDescription: "Couverture santé collective pour les employés d'une société. Avantage social majeur pour attirer et fidéliser les talents.",

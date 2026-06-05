@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const produitsParticuliers = [
   { label: "Assurance Automobile", Icon: Car },
   { label: "Assurance Habitation", Icon: Home },
-  { label: "Santé Individuelle", Icon: HeartPulse },
+  { label: "Assurance Santé", Icon: HeartPulse },
   { label: "Assurance Accident", Icon: ShieldAlert },
   { label: "Assurance Voyage", Icon: Plane },
   { label: "Responsabilité Civile", Icon: Scale },
@@ -17,7 +17,7 @@ const produitsParticuliers = [
 const produitsPro = [
   { label: "Automobile Flotte", Icon: Truck },
   { label: "Multirisque Pro", Icon: Store },
-  { label: "Santé Groupe", Icon: Users },
+  { label: "Assurance Santé", Icon: Users },
   { label: "Accident Groupe", Icon: ShieldAlert },
   { label: "RC Professionnelle", Icon: Scale },
   { label: "Assurance Maritime", Icon: Anchor },

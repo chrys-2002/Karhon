@@ -3,12 +3,15 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Users, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle, Globe, CalendarClock, Cake } from 'lucide-react';
 import BackButton from '@/components/ui/BackButton';
 import DocumentUpload from '@/components/ui/DocumentUpload';
 
 // Produits automobiles → on demande la carte grise + la visite technique.
 const PRODUITS_AUTO = ['Assurance Automobile', 'Automobile Flotte'];
+
+// Produit voyage → on demande passeport + destination, durée et âge de l'assuré.
+const PRODUIT_VOYAGE = 'Assurance Voyage';
 
 const categories = [
   { id: 'particuliers', label: 'Particuliers', Icon: User, desc: 'Auto, Habitation, Santé...' },
@@ -24,13 +27,12 @@ type ProduitDB = { id: string; nom: string; type: string; categorie: string };
 const ICONS: Record<string, LucideIcon> = {
   'Assurance Automobile': Car,
   'Assurance Habitation': Home,
-  'Santé Individuelle': HeartPulse,
+  'Assurance Santé': HeartPulse,
   'Individuelle Accident': ShieldAlert,
   'Assurance Voyage': Plane,
   'Responsabilité Civile': Scale,
   'Automobile Flotte': Truck,
   'Multirisque Pro': Store,
-  'Santé Groupe': Users,
   'RC Professionnelle': Scale,
   'Assurance Maritime': Anchor,
   'Assurance Retraite': TrendingUp,
@@ -167,6 +169,8 @@ export default function DevisPage() {
   // Pièces jointes pour un devis automobile.
   const [docCarteGrise, setDocCarteGrise] = useState<string[]>([]);
   const [docVisite, setDocVisite] = useState<string[]>([]);
+  // Pièce jointe pour un devis voyage (copie du passeport).
+  const [docPasseport, setDocPasseport] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     categorie: '',
     produit: '', // contient désormais l'ID réel du produit en base (cuid)
@@ -176,6 +180,10 @@ export default function DevisPage() {
     email: '',
     entreprise: '',
     message: '',
+    // Champs spécifiques au produit Voyage.
+    destination: '',
+    duree: '',
+    ageAssure: '',
   });
 
   // Charge le catalogue réel depuis la base au montage de la page.
@@ -198,9 +206,13 @@ export default function DevisPage() {
   const produitsCategorie = produitsDB.filter(p => p.categorie === formData.categorie);
   const produitChoisi = produitsDB.find(p => p.id === formData.produit);
   const estAuto = !!produitChoisi && PRODUITS_AUTO.includes(produitChoisi.nom);
+  const estVoyage = !!produitChoisi && produitChoisi.nom === PRODUIT_VOYAGE;
 
   const canGoToStep2 = formData.categorie !== '';
-  const canGoToStep3 = formData.produit !== '' && formData.nom !== '' && formData.telephone !== '';
+  // Pour un voyage, destination, durée et âge sont requis.
+  const voyageComplet = !estVoyage || (formData.destination !== '' && formData.duree !== '' && formData.ageAssure !== '');
+  const canGoToStep3 =
+    formData.produit !== '' && formData.nom !== '' && formData.telephone !== '' && voyageComplet;
 
   // Envoi réel : crée un devis en base via l'API (connexion obligatoire).
   const envoyerDevis = async () => {
@@ -215,14 +227,21 @@ export default function DevisPage() {
         `Téléphone : ${formData.telephone}`,
         formData.email ? `Email : ${formData.email}` : '',
         formData.entreprise ? `Entreprise : ${formData.entreprise}` : '',
+        // Détails spécifiques au voyage.
+        estVoyage ? `Destination : ${formData.destination}` : '',
+        estVoyage ? `Durée du séjour : ${formData.duree} jour(s)` : '',
+        estVoyage ? `Âge de l'assuré : ${formData.ageAssure} an(s)` : '',
         formData.message ? `Message : ${formData.message}` : '',
       ].filter(Boolean);
 
-      // Pièces jointes au format "Libellé|url" (uniquement pour l'auto).
+      // Pièces jointes au format "Libellé|url" selon le produit.
       const documents: string[] = [];
       if (estAuto) {
         docCarteGrise.forEach((u) => documents.push(`Carte grise|${u}`));
         docVisite.forEach((u) => documents.push(`Visite technique|${u}`));
+      }
+      if (estVoyage) {
+        docPasseport.forEach((u) => documents.push(`Passeport|${u}`));
       }
 
       const res = await fetch('/api/devis', {
@@ -259,7 +278,11 @@ export default function DevisPage() {
       <div className="container mx-auto px-6 max-w-5xl">
 
         <div className="mb-6">
-          <BackButton label="Retour" />
+          {/* Recule d'une étape ; à l'étape 1, quitte la page normalement. */}
+          <BackButton
+            label="Retour"
+            onClick={step > 1 ? () => setStep((s) => Math.max(1, s - 1)) : undefined}
+          />
         </div>
 
         {/* Header */}
@@ -430,6 +453,84 @@ export default function DevisPage() {
                   </div>
                   <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} />
                   <DocumentUpload label="Visite technique" value={docVisite} onChange={setDocVisite} />
+                </motion.div>
+              )}
+
+              {/* Informations voyage — affichées uniquement pour l'assurance voyage */}
+              {estVoyage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8 rounded-2xl p-5 space-y-5"
+                  style={{ background: "#fbfdfd", border: "1.5px solid #e6f0f0" }}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Plane size={18} style={{ color: "#2a8a8a" }} />
+                      <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Informations du voyage</h3>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Ces détails nous permettent de calculer une offre adaptée à votre séjour.
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-5">
+                    <div>
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600 mb-2">
+                        <Globe size={14} style={{ color: "#2a8a8a" }} /> Destination *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.destination}
+                        onChange={(e) => updateField('destination', e.target.value)}
+                        className="w-full rounded-2xl px-4 py-3.5 focus:outline-none text-sm transition-all"
+                        style={{ border: formData.destination ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0" }}
+                        onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                        onBlur={e => { e.target.style.border = formData.destination ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0"; }}
+                        placeholder="Ex. France, Maroc, Dubaï…"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600 mb-2">
+                        <CalendarClock size={14} style={{ color: "#2a8a8a" }} /> Durée (jours) *
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={formData.duree}
+                        onChange={(e) => updateField('duree', e.target.value)}
+                        className="w-full rounded-2xl px-4 py-3.5 focus:outline-none text-sm transition-all"
+                        style={{ border: formData.duree ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0" }}
+                        onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                        onBlur={e => { e.target.style.border = formData.duree ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0"; }}
+                        placeholder="Ex. 15"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600 mb-2">
+                        <Cake size={14} style={{ color: "#2a8a8a" }} /> Âge de l&apos;assuré *
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={120}
+                        value={formData.ageAssure}
+                        onChange={(e) => updateField('ageAssure', e.target.value)}
+                        className="w-full rounded-2xl px-4 py-3.5 focus:outline-none text-sm transition-all"
+                        style={{ border: formData.ageAssure ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0" }}
+                        onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
+                        onBlur={e => { e.target.style.border = formData.ageAssure ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0"; }}
+                        placeholder="Ex. 34"
+                      />
+                    </div>
+                  </div>
+
+                  <DocumentUpload
+                    label="Copie du passeport"
+                    hint="Photographiez ou importez la page principale de votre passeport (PNG ou JPG)."
+                    value={docPasseport}
+                    onChange={setDocPasseport}
+                  />
                 </motion.div>
               )}
 

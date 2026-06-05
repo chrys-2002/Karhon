@@ -61,7 +61,7 @@ const produitsIARD: Product[] = [
   },
   {
     nom: "Assurance Santé",
-    description: "Individuelle et famille",
+    description: "Frais médicaux et hospitalisation",
     image: "/images/accueil/sante.jpg",
     tag: "IARD",
     longDescription: "Dispositif permettant aux assurés confrontés à des risques de maladies, maternité ou invalidité de bénéficier de prestations au ticket modérateur et de remboursement des frais médicaux.",

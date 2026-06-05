@@ -20,7 +20,7 @@ TON RÔLE :
 
 INFORMATIONS SUR KARHON :
 - Activité : courtage en assurances. KARHON est l'interlocuteur unique du client, défend exclusivement ses intérêts, sans honoraires facturés au client.
-- Produits IARD : Automobile, Habitation (Multirisque), Santé (individuelle et groupe), Individuelle Accident, Voyage, Responsabilité Civile, Flotte automobile, Multirisque Professionnelle, RC Professionnelle, Assurance Maritime.
+- Produits IARD : Automobile, Habitation (Multirisque), Assurance Santé, Individuelle Accident, Voyage, Responsabilité Civile, Flotte automobile, Multirisque Professionnelle, RC Professionnelle, Assurance Maritime.
 - Produits VIE : Assurance Retraite, Étude Plus (épargne études), Vie Emprunteur, Assistance Funéraire.
 - Bureaux : Abidjan, Cocody — Angré 8ème Tranche (BP V 236).
 - Téléphones : +225 07 87 10 39 39 et +225 05 76 36 72 72.

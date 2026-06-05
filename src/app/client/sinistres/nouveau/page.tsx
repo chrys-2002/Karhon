@@ -15,7 +15,7 @@ const TYPES_AUTO = ["auto", "flotte"];
 const contrats = [
   { value: "auto", label: "Assurance Auto", desc: "Particulier", Icon: Car },
   { value: "habitation", label: "Assurance Habitation", desc: "Multirisque", Icon: Home },
-  { value: "sante", label: "Assurance Santé", desc: "Individuelle / Groupe", Icon: HeartPulse },
+  { value: "sante", label: "Assurance Santé", desc: "Frais médicaux", Icon: HeartPulse },
   { value: "accident", label: "Individuelle Accident", desc: "Dommages corporels", Icon: ShieldAlert },
   { value: "voyage", label: "Assurance Voyage", desc: "Multirisque voyage", Icon: Plane },
   { value: "rc", label: "Responsabilité Civile", desc: "Particulier", Icon: Scale },

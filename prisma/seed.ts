@@ -27,7 +27,7 @@ const produits = [
     garanties: ["Incendie", "Dégâts des eaux", "Vol", "Responsabilité civile"],
   },
   {
-    nom: "Santé Individuelle",
+    nom: "Assurance Santé",
     type: "IARD" as const,
     categorie: "particuliers",
     description: "Prise en charge de vos frais médicaux pour vous et votre famille.",
@@ -70,7 +70,7 @@ const produits = [
     garanties: ["Incendie", "Vol", "Bris de matériel", "Pertes d'exploitation"],
   },
   {
-    nom: "Santé Groupe",
+    nom: "Assurance Santé",
     type: "IARD" as const,
     categorie: "professionnelles",
     description: "Couverture santé collective pour vos salariés.",

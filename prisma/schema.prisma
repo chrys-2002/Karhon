@@ -103,6 +103,10 @@ model Devis {
   description   String
   documents     String[]
 
+  // Suivi des relances par le courtier.
+  derniereRelance DateTime?
+  nombreRelances  Int       @default(0)
+
   // Clés étrangères
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -117,9 +121,14 @@ model Contrat {
   numeroContrat String        @unique
   dateDebut     DateTime
   dateFin       DateTime
+  dureeMois     Int           @default(12) // durée souscrite : 1, 2, 3, 6 ou 12 mois
   primeAnnuelle Float
   statut        StatutContrat @default(actif)
   options       String[]
+
+  // Suivi des relances de renouvellement (avant le terme).
+  derniereRelance DateTime?
+  nombreRelances  Int        @default(0)
 
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -143,6 +152,10 @@ model Sinistre {
   montantIndemnise Float?         // montant réellement indemnisé (renseigné par le courtier)
   statut           StatutSinistre @default(declare)
   documents        String[]
+
+  // Suivi des relances par le courtier.
+  derniereRelance  DateTime?
+  nombreRelances   Int            @default(0)
 
   // Le sinistre est rattaché au client connecté qui le déclare.
   userId           String

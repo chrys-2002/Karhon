@@ -78,9 +78,9 @@ export async function GET() {
       where: estAdmin ? undefined : { userId: auth.userId },
       orderBy: { dateDeclaration: "desc" },
       include: {
-        // L'admin a besoin de savoir de quel client vient le sinistre.
+        // L'admin a besoin du client (+ téléphone pour la relance WhatsApp).
         user: estAdmin
-          ? { select: { nom: true, prenom: true, email: true } }
+          ? { select: { nom: true, prenom: true, email: true, telephone: true } }
           : false,
       },
     });

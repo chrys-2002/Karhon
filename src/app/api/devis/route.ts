@@ -73,9 +73,9 @@ export async function GET() {
       orderBy: { dateCreation: "desc" },
       include: {
         produit: { select: { nom: true, type: true } },
-        // L'admin a besoin de savoir de quel client vient le devis.
+        // L'admin a besoin du client (+ téléphone pour la relance WhatsApp).
         user: estAdmin
-          ? { select: { nom: true, prenom: true, email: true } }
+          ? { select: { nom: true, prenom: true, email: true, telephone: true } }
           : false,
       },
     });

@@ -45,3 +45,27 @@ export async function PATCH(
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
   }
 }
+
+// ── DELETE : supprimer définitivement un sinistre (admin) ────────
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await exigerAdmin();
+  if (auth instanceof NextResponse) return auth;
+
+  try {
+    const { id } = await params;
+
+    const existant = await prisma.sinistre.findUnique({ where: { id } });
+    if (!existant) {
+      return NextResponse.json({ erreur: "Sinistre introuvable." }, { status: 404 });
+    }
+
+    await prisma.sinistre.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[sinistres DELETE]", e);
+    return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
+  }
+}
