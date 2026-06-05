@@ -78,6 +78,7 @@ export default function Header() {
     { href: "/produits", label: "Produits" },
     { href: "/devis", label: "Devis" },
     { href: "/contact", label: "Contact" },
+    { href: "/conseiller", label: "Conseiller" },
     { href: "/apropos", label: "À propos" },
   ];
 
