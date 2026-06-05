@@ -86,6 +86,8 @@ type SinistreAdmin = {
   documents?: string[];
   derniereRelance?: string | null;
   nombreRelances?: number;
+  supprimePar?: string | null;
+  supprimeLe?: string | null;
   user?: UserAdmin;
 };
 
