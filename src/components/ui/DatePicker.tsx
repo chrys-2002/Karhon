@@ -37,7 +37,19 @@ function versISO(d: Date) {
 
 export default function DatePicker({ value, onChange, max, min, placeholder = "Choisir une date" }: DatePickerProps) {
   const [open, setOpen] = useState(false);
+  // Le panneau s'ouvre vers le haut s'il manque de place en bas (ex. en bas d'une modale).
+  const [versLeHaut, setVersLeHaut] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  // Décide du sens d'ouverture avant d'afficher le panneau.
+  const basculer = () => {
+    if (!open) {
+      const r = ref.current?.getBoundingClientRect();
+      const placeEnBas = window.innerHeight - (r?.bottom ?? 0);
+      setVersLeHaut(placeEnBas < 380); // hauteur approx. du calendrier
+    }
+    setOpen((o) => !o);
+  };
 
   // Mois affiché : celui de la valeur, sinon le mois courant.
   const dateBase = value ? new Date(value + "T00:00:00") : new Date();
@@ -83,7 +95,7 @@ export default function DatePicker({ value, onChange, max, min, placeholder = "C
       <motion.button
         type="button"
         whileTap={{ scale: 0.99 }}
-        onClick={() => setOpen((o) => !o)}
+        onClick={basculer}
         className="relative w-full px-3 py-2.5 bg-white border rounded-xl flex items-center gap-3 text-left transition-all hover:border-gray-300"
         style={{ borderColor: "#e0ecec" }}
       >
@@ -102,11 +114,11 @@ export default function DatePicker({ value, onChange, max, min, placeholder = "C
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            initial={{ opacity: 0, y: versLeHaut ? 8 : -8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            exit={{ opacity: 0, y: versLeHaut ? 8 : -8, scale: 0.97 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute z-50 mt-2 w-full max-w-[320px] bg-white rounded-2xl shadow-2xl p-4 border"
+            className={`absolute z-50 w-full max-w-[320px] bg-white rounded-2xl shadow-2xl p-4 border ${versLeHaut ? "bottom-full mb-2" : "mt-2"}`}
             style={{ borderColor: "#e0ecec" }}
           >
             {/* En-tête : mois + navigation */}

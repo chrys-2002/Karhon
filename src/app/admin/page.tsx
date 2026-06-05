@@ -442,10 +442,10 @@ function ConversionModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2 }}
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+        className="w-full max-w-md bg-white rounded-3xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 py-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+        <div className="px-6 py-5 flex items-center justify-between rounded-t-3xl" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
           <div className="flex items-center gap-2.5 text-white">
             <FileSignature size={20} />
             <h3 className="font-bold">Convertir en contrat</h3>
@@ -483,7 +483,7 @@ function ConversionModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA)</label>
               <input
