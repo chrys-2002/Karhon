@@ -1,10 +1,12 @@
 // Route /api/sinistres/[id]
-//   PATCH → un admin met à jour le statut d'un sinistre (workflow courtier).
+//   PATCH  → met à jour le statut, OU restaure un sinistre archivé (gérant).
+//   DELETE → suppression douce (archivage) par le personnel ;
+//            ?purge=1 → suppression définitive (gérant uniquement).
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { exigerAdmin } from "@/lib/session";
+import { exigerStaff, exigerGerant } from "@/lib/session";
+import { journaliser } from "@/lib/audit";
 
-// Valeurs autorisées pour le statut (alignées sur l'enum StatutSinistre).
 const STATUTS_VALIDES = ["declare", "en_cours", "indemnise", "refuse"] as const;
 type StatutSinistre = (typeof STATUTS_VALIDES)[number];
 
@@ -12,33 +14,45 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Seul un admin peut faire évoluer un sinistre.
-  const auth = await exigerAdmin();
+  const auth = await exigerStaff();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const { id } = await params;
-    const { statut } = await req.json();
+    const body = await req.json();
 
-    // Validation : le statut doit faire partie des valeurs autorisées.
-    if (!statut || !STATUTS_VALIDES.includes(statut)) {
-      return NextResponse.json({ erreur: "Statut invalide." }, { status: 400 });
-    }
-
-    // Vérifie que le sinistre existe avant de tenter la mise à jour.
-    const existant = await prisma.sinistre.findUnique({ where: { id } });
+    const existant = await prisma.sinistre.findUnique({
+      where: { id },
+      include: { user: { select: { nom: true, prenom: true } } },
+    });
     if (!existant) {
       return NextResponse.json({ erreur: "Sinistre introuvable." }, { status: 404 });
     }
+    const resume = `Sinistre ${existant.typeAssurance ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
+    // Cas 1 : restauration (réservé au gérant).
+    if (body?.restaurer === true) {
+      const g = await exigerGerant();
+      if (g instanceof NextResponse) return g;
+      const sinistre = await prisma.sinistre.update({
+        where: { id },
+        data: { supprime: false, supprimePar: null, supprimeLe: null },
+        include: { user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
+      });
+      await journaliser({ action: "restauration", entite: "sinistre", entiteId: id, resume, auteurEmail: auth.email });
+      return NextResponse.json({ sinistre });
+    }
+
+    // Cas 2 : changement de statut.
+    const { statut } = body;
+    if (!statut || !STATUTS_VALIDES.includes(statut)) {
+      return NextResponse.json({ erreur: "Statut invalide." }, { status: 400 });
+    }
     const sinistre = await prisma.sinistre.update({
       where: { id },
       data: { statut: statut as StatutSinistre },
-      include: {
-        user: { select: { nom: true, prenom: true, email: true } },
-      },
+      include: { user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
     });
-
     return NextResponse.json({ sinistre });
   } catch (e) {
     console.error("[sinistres PATCH]", e);
@@ -46,24 +60,40 @@ export async function PATCH(
   }
 }
 
-// ── DELETE : supprimer définitivement un sinistre (admin) ────────
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await exigerAdmin();
+  const auth = await exigerStaff();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const { id } = await params;
+    const purge = new URL(req.url).searchParams.get("purge") === "1";
 
-    const existant = await prisma.sinistre.findUnique({ where: { id } });
+    const existant = await prisma.sinistre.findUnique({
+      where: { id },
+      include: { user: { select: { nom: true, prenom: true } } },
+    });
     if (!existant) {
       return NextResponse.json({ erreur: "Sinistre introuvable." }, { status: 404 });
     }
+    const resume = `Sinistre ${existant.typeAssurance ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
-    await prisma.sinistre.delete({ where: { id } });
-    return NextResponse.json({ ok: true });
+    if (purge) {
+      const g = await exigerGerant();
+      if (g instanceof NextResponse) return g;
+      await prisma.sinistre.delete({ where: { id } });
+      await journaliser({ action: "purge", entite: "sinistre", entiteId: id, resume, auteurEmail: auth.email });
+      return NextResponse.json({ ok: true, purge: true });
+    }
+
+    await prisma.sinistre.update({
+      where: { id },
+      data: { supprime: true, supprimePar: auth.email, supprimeLe: new Date() },
+    });
+    await journaliser({ action: "archivage", entite: "sinistre", entiteId: id, resume, auteurEmail: auth.email });
+    return NextResponse.json({ ok: true, archive: true });
   } catch (e) {
     console.error("[sinistres DELETE]", e);
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });

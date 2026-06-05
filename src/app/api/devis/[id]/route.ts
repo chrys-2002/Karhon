@@ -1,10 +1,12 @@
 // Route /api/devis/[id]
-//   PATCH → un admin met à jour le statut d'un devis (workflow courtier).
+//   PATCH  → met à jour le statut, OU restaure un devis archivé (gérant).
+//   DELETE → suppression douce (archivage) par le personnel ;
+//            ?purge=1 → suppression définitive (gérant uniquement).
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { exigerAdmin } from "@/lib/session";
+import { exigerStaff, exigerGerant } from "@/lib/session";
+import { journaliser } from "@/lib/audit";
 
-// Valeurs autorisées pour le statut (alignées sur l'enum StatutDevis).
 const STATUTS_VALIDES = ["en_attente", "en_cours", "envoye", "accepte", "refuse"] as const;
 type StatutDevis = (typeof STATUTS_VALIDES)[number];
 
@@ -12,37 +14,51 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Seul un admin peut faire évoluer un devis.
-  const auth = await exigerAdmin();
+  const auth = await exigerStaff();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const { id } = await params;
-    const { statut } = await req.json();
+    const body = await req.json();
 
-    // Validation : le statut doit faire partie des valeurs autorisées.
-    if (!statut || !STATUTS_VALIDES.includes(statut)) {
-      return NextResponse.json(
-        { erreur: "Statut invalide." },
-        { status: 400 }
-      );
-    }
-
-    // Vérifie que le devis existe avant de tenter la mise à jour.
-    const existant = await prisma.devis.findUnique({ where: { id } });
+    const existant = await prisma.devis.findUnique({
+      where: { id },
+      include: { produit: { select: { nom: true } }, user: { select: { nom: true, prenom: true } } },
+    });
     if (!existant) {
       return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
     }
 
+    // Cas 1 : restauration d'un devis archivé (réservé au gérant).
+    if (body?.restaurer === true) {
+      const g = await exigerGerant();
+      if (g instanceof NextResponse) return g;
+      const devis = await prisma.devis.update({
+        where: { id },
+        data: { supprime: false, supprimePar: null, supprimeLe: null },
+        include: { produit: { select: { nom: true, type: true } }, user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
+      });
+      await journaliser({
+        action: "restauration", entite: "devis", entiteId: id,
+        resume: `Devis ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim(),
+        auteurEmail: auth.email,
+      });
+      return NextResponse.json({ devis });
+    }
+
+    // Cas 2 : changement de statut.
+    const { statut } = body;
+    if (!statut || !STATUTS_VALIDES.includes(statut)) {
+      return NextResponse.json({ erreur: "Statut invalide." }, { status: 400 });
+    }
     const devis = await prisma.devis.update({
       where: { id },
       data: { statut: statut as StatutDevis },
       include: {
         produit: { select: { nom: true, type: true } },
-        user: { select: { nom: true, prenom: true, email: true } },
+        user: { select: { nom: true, prenom: true, email: true, telephone: true } },
       },
     });
-
     return NextResponse.json({ devis });
   } catch (e) {
     console.error("[devis PATCH]", e);
@@ -50,24 +66,42 @@ export async function PATCH(
   }
 }
 
-// ── DELETE : supprimer définitivement un devis (admin) ───────────
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await exigerAdmin();
+  const auth = await exigerStaff();
   if (auth instanceof NextResponse) return auth;
 
   try {
     const { id } = await params;
+    const purge = new URL(req.url).searchParams.get("purge") === "1";
 
-    const existant = await prisma.devis.findUnique({ where: { id } });
+    const existant = await prisma.devis.findUnique({
+      where: { id },
+      include: { produit: { select: { nom: true } }, user: { select: { nom: true, prenom: true } } },
+    });
     if (!existant) {
       return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
     }
+    const resume = `Devis ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
-    await prisma.devis.delete({ where: { id } });
-    return NextResponse.json({ ok: true });
+    if (purge) {
+      // Suppression DÉFINITIVE — réservée au gérant.
+      const g = await exigerGerant();
+      if (g instanceof NextResponse) return g;
+      await prisma.devis.delete({ where: { id } });
+      await journaliser({ action: "purge", entite: "devis", entiteId: id, resume, auteurEmail: auth.email });
+      return NextResponse.json({ ok: true, purge: true });
+    }
+
+    // Suppression DOUCE (archivage) — le gérant garde la trace + l'auteur.
+    await prisma.devis.update({
+      where: { id },
+      data: { supprime: true, supprimePar: auth.email, supprimeLe: new Date() },
+    });
+    await journaliser({ action: "archivage", entite: "devis", entiteId: id, resume, auteurEmail: auth.email });
+    return NextResponse.json({ ok: true, archive: true });
   } catch (e) {
     console.error("[devis DELETE]", e);
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });

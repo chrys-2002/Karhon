@@ -35,18 +35,45 @@ export async function exigerAuth(): Promise<JwtPayload | NextResponse> {
   return session;
 }
 
-// Exige un utilisateur connecté ET ayant le rôle admin.
-// C'est le garde-fou de sécurité du back-office : un client qui devine
-// l'URL admin sera bloqué côté serveur (403), même menu caché ou non.
+// Rôles ayant accès au back-office (personnel KARHON).
+const ROLES_STAFF = ["agent", "gerant", "admin"];
+// Rôles ayant les pouvoirs du dirigeant (restaurer, purger, voir le journal).
+const ROLES_GERANT = ["gerant", "admin"]; // "admin" = ancien rôle, traité comme gérant
+
+// Exige un membre du personnel (agent OU gérant). C'est le garde-fou du
+// back-office : un client qui devine l'URL sera bloqué côté serveur (403).
+// (Conserve le nom exigerAdmin pour compatibilité avec les routes existantes.)
 export async function exigerAdmin(): Promise<JwtPayload | NextResponse> {
+  return exigerStaff();
+}
+
+export async function exigerStaff(): Promise<JwtPayload | NextResponse> {
   const session = await getUtilisateurConnecte();
   if (!session) {
     return NextResponse.json({ erreur: "Non authentifié." }, { status: 401 });
   }
-  if (session.role !== "admin") {
-    return NextResponse.json({ erreur: "Accès réservé à l'administration." }, { status: 403 });
+  if (!ROLES_STAFF.includes(session.role)) {
+    return NextResponse.json({ erreur: "Accès réservé au personnel KARHON." }, { status: 403 });
   }
   return session;
+}
+
+// Exige le rôle dirigeant (gérant). Pour les actions sensibles :
+// restaurer un élément archivé, purger définitivement, consulter le journal.
+export async function exigerGerant(): Promise<JwtPayload | NextResponse> {
+  const session = await getUtilisateurConnecte();
+  if (!session) {
+    return NextResponse.json({ erreur: "Non authentifié." }, { status: 401 });
+  }
+  if (!ROLES_GERANT.includes(session.role)) {
+    return NextResponse.json({ erreur: "Action réservée au gérant." }, { status: 403 });
+  }
+  return session;
+}
+
+// Indique si un rôle est de niveau gérant (utilitaire partagé).
+export function estGerant(role: string): boolean {
+  return ROLES_GERANT.includes(role);
 }
 
 // Options communes pour poser le cookie de session de façon sécurisée.

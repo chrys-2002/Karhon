@@ -3,7 +3,9 @@
 //   GET  → liste des sinistres : un client voit LES SIENS, un admin voit TOUT.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { exigerAuth } from "@/lib/session";
+import { exigerAuth, estGerant } from "@/lib/session";
+
+const ROLES_STAFF = ["agent", "gerant", "admin"];
 
 // ── POST : déclarer un sinistre ──────────────────────────────
 export async function POST(req: Request) {
@@ -66,20 +68,28 @@ export async function POST(req: Request) {
 }
 
 // ── GET : lister les sinistres ───────────────────────────────
-export async function GET() {
+export async function GET(req: Request) {
   const auth = await exigerAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const estAdmin = auth.role === "admin";
+    const estStaff = ROLES_STAFF.includes(auth.role);
+    const gerant = estGerant(auth.role);
+    const archives = new URL(req.url).searchParams.get("archives") === "1";
+
+    if (archives && !gerant) {
+      return NextResponse.json({ erreur: "Action réservée au gérant." }, { status: 403 });
+    }
+
+    const where = estStaff
+      ? { supprime: archives }
+      : { userId: auth.userId, supprime: false };
 
     const sinistres = await prisma.sinistre.findMany({
-      // Un client ne voit que SES sinistres ; l'admin les voit tous.
-      where: estAdmin ? undefined : { userId: auth.userId },
+      where,
       orderBy: { dateDeclaration: "desc" },
       include: {
-        // L'admin a besoin du client (+ téléphone pour la relance WhatsApp).
-        user: estAdmin
+        user: estStaff
           ? { select: { nom: true, prenom: true, email: true, telephone: true } }
           : false,
       },

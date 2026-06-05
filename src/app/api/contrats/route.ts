@@ -3,8 +3,10 @@
 //   GET  → liste des contrats : un client voit LES SIENS, un admin voit TOUT.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { exigerAuth, exigerAdmin } from "@/lib/session";
+import { exigerAuth, exigerAdmin, estGerant } from "@/lib/session";
 import { ajouterMois } from "@/lib/contrats";
+
+const ROLES_STAFF = ["agent", "gerant", "admin"];
 
 // Durées de souscription autorisées (en mois).
 const DUREES_VALIDES = [1, 2, 3, 6, 12];
@@ -84,19 +86,29 @@ export async function POST(req: Request) {
 }
 
 // ── GET : lister les contrats ────────────────────────────────
-export async function GET() {
+export async function GET(req: Request) {
   const auth = await exigerAuth();
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const estAdmin = auth.role === "admin";
+    const estStaff = ROLES_STAFF.includes(auth.role);
+    const gerant = estGerant(auth.role);
+    const archives = new URL(req.url).searchParams.get("archives") === "1";
+
+    if (archives && !gerant) {
+      return NextResponse.json({ erreur: "Action réservée au gérant." }, { status: 403 });
+    }
+
+    const where = estStaff
+      ? { supprime: archives }
+      : { userId: auth.userId, supprime: false };
 
     const contrats = await prisma.contrat.findMany({
-      where: estAdmin ? undefined : { userId: auth.userId },
+      where,
       orderBy: { dateFin: "asc" }, // les plus proches du terme en premier
       include: {
         produit: { select: { nom: true, type: true } },
-        user: estAdmin
+        user: estStaff
           ? { select: { nom: true, prenom: true, email: true, telephone: true } }
           : false,
       },

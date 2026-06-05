@@ -22,7 +22,9 @@ datasource db {
 
 enum Role {
   client
-  admin
+  agent   // gestionnaire : traite devis, sinistres, contrats ; suppression = archivage
+  gerant  // dirigeant : voit tout (y compris archives + journal), peut restaurer/purger
+  admin   // ancien rôle (compatibilité) — traité comme gérant
 }
 
 enum StatutDevis {
@@ -107,6 +109,11 @@ model Devis {
   derniereRelance DateTime?
   nombreRelances  Int       @default(0)
 
+  // Suppression douce (archivage) — traçabilité des agents.
+  supprime    Boolean   @default(false)
+  supprimePar String?   // email de l'agent ayant archivé
+  supprimeLe  DateTime?
+
   // Clés étrangères
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -129,6 +136,11 @@ model Contrat {
   // Suivi des relances de renouvellement (avant le terme).
   derniereRelance DateTime?
   nombreRelances  Int        @default(0)
+
+  // Suppression douce (archivage) — traçabilité des agents.
+  supprime    Boolean   @default(false)
+  supprimePar String?
+  supprimeLe  DateTime?
 
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -157,6 +169,11 @@ model Sinistre {
   derniereRelance  DateTime?
   nombreRelances   Int            @default(0)
 
+  // Suppression douce (archivage) — traçabilité des agents.
+  supprime         Boolean        @default(false)
+  supprimePar      String?
+  supprimeLe       DateTime?
+
   // Le sinistre est rattaché au client connecté qui le déclare.
   userId           String
   user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -179,4 +196,20 @@ model RendezVous {
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("rendez_vous")
+}
+
+// Journal d'audit : trace les actions sensibles (archivage, restauration,
+// purge). Permet au gérant de savoir QUI a fait QUOI et QUAND.
+model JournalAudit {
+  id          String   @id @default(cuid())
+  action      String   // "archivage" | "restauration" | "purge"
+  entite      String   // "devis" | "sinistre" | "contrat"
+  entiteId    String
+  resume      String?  // description lisible (ex. "Devis Assurance Auto — Jean Koffi")
+  auteurEmail String   // qui a agi
+  auteurNom   String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("journal_audit")
 }

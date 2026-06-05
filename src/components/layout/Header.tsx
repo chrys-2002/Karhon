@@ -35,7 +35,7 @@ export default function Header() {
   // Destination du bouton selon l'état de connexion et le rôle.
   const espaceHref = !connecte
     ? "/client"
-    : role === "admin"
+    : ["agent", "gerant", "admin"].includes(role ?? "")
     ? "/admin"
     : "/client/dashboard";
 

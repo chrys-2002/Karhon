@@ -21,10 +21,12 @@ if (!JWT_SECRET) {
 }
 
 // Données que l'on glisse dans le jeton (jamais le mot de passe !).
+export type Role = "client" | "agent" | "gerant" | "admin";
+
 export interface JwtPayload {
   userId: string;
   email: string;
-  role: "client" | "admin";
+  role: Role;
 }
 
 // ── Mots de passe ────────────────────────────────────────────

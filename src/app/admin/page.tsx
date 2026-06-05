@@ -22,8 +22,13 @@ import {
   CalendarClock,
   BellRing,
   X,
+  RotateCcw,
+  Archive,
+  History,
+  ShieldAlert,
 } from "lucide-react";
 import { infoRelance } from "@/lib/contrats";
+import DatePicker from "@/components/ui/DatePicker";
 
 // Construit un lien WhatsApp (wa.me) à partir d'un numéro et d'un message.
 // Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
@@ -62,6 +67,8 @@ type DevisAdmin = {
   documents?: string[];
   derniereRelance?: string | null;
   nombreRelances?: number;
+  supprimePar?: string | null;
+  supprimeLe?: string | null;
   produit?: { nom?: string; type?: string };
   user?: UserAdmin;
 };
@@ -92,8 +99,21 @@ type ContratAdmin = {
   statut: string;
   derniereRelance?: string | null;
   nombreRelances?: number;
+  supprimePar?: string | null;
+  supprimeLe?: string | null;
   produit?: { nom?: string; type?: string };
   user?: UserAdmin;
+};
+
+type JournalEntree = {
+  id: string;
+  action: string;
+  entite: string;
+  entiteId: string;
+  resume?: string | null;
+  auteurEmail: string;
+  auteurNom?: string | null;
+  createdAt: string;
 };
 
 // Affiche les pièces jointes (format "Libellé|url") en miniatures cliquables.
@@ -319,6 +339,66 @@ function ActionsLigne({
   );
 }
 
+// Une ligne d'élément archivé, avec actions Restaurer / Purger (gérant).
+function LigneArchive({
+  type,
+  titre,
+  sousTitre,
+  par,
+  le,
+  enCours,
+  onRestaurer,
+  onPurger,
+}: {
+  type: string;
+  titre: string;
+  sousTitre: string;
+  par?: string | null;
+  le?: string | null;
+  enCours: boolean;
+  onRestaurer: () => void;
+  onPurger: () => void;
+}) {
+  const TYPE_LABEL: Record<string, string> = { devis: "Devis", sinistres: "Sinistre", contrats: "Contrat" };
+  return (
+    <div className="px-6 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md" style={{ background: "#eef2f7", color: "#64748b" }}>
+            {TYPE_LABEL[type] ?? type}
+          </span>
+          <span className="font-semibold" style={{ color: "#1a2e5a" }}>{titre}</span>
+        </div>
+        <p className="text-sm text-gray-500 mt-0.5">{sousTitre}</p>
+        <p className="text-xs mt-0.5" style={{ color: "#b42318" }}>
+          Archivé par <strong>{par ?? "—"}</strong>{le ? ` le ${dateCourte(le)}` : ""}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          disabled={enCours}
+          onClick={onRestaurer}
+          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all hover:shadow-sm disabled:opacity-50"
+          style={{ border: "1px solid #cfe3e3", color: "#166534", background: "#f0fdf4" }}
+        >
+          {enCours ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />} Restaurer
+        </button>
+        <button
+          type="button"
+          disabled={enCours}
+          onClick={onPurger}
+          title="Supprimer définitivement"
+          className="inline-flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:bg-red-100 disabled:opacity-50"
+          style={{ border: "1px solid #f7caca", color: "#b42318", background: "#fef2f2" }}
+        >
+          <Trash2 size={15} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Modale de conversion d'un devis en contrat (durée, prime, date de début).
 const DUREES = [
   { mois: 1, label: "1 mois" },
@@ -416,13 +496,7 @@ function ConversionModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
-              <input
-                type="date"
-                value={dateDebut}
-                onChange={(e) => setDateDebut(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none"
-                style={{ borderColor: "#e0ecec" }}
-              />
+              <DatePicker value={dateDebut} onChange={setDateDebut} placeholder="Choisir une date" />
             </div>
           </div>
 
@@ -450,12 +524,18 @@ function ConversionModal({
 export default function AdminPage() {
   const router = useRouter();
   const [autorise, setAutorise] = useState(false);
+  const [estGerant, setEstGerant] = useState(false);
   const [loading, setLoading] = useState(true);
   const [devis, setDevis] = useState<DevisAdmin[]>([]);
   const [sinistres, setSinistres] = useState<SinistreAdmin[]>([]);
   const [contrats, setContrats] = useState<ContratAdmin[]>([]);
   // Devis en cours de conversion en contrat (ouvre la modale).
   const [conversion, setConversion] = useState<DevisAdmin | null>(null);
+  // Archives + journal d'audit (gérant uniquement).
+  const [archDevis, setArchDevis] = useState<DevisAdmin[]>([]);
+  const [archSinistres, setArchSinistres] = useState<SinistreAdmin[]>([]);
+  const [archContrats, setArchContrats] = useState<ContratAdmin[]>([]);
+  const [journal, setJournal] = useState<JournalEntree[]>([]);
   const [majId, setMajId] = useState<string | null>(null);
   const [majSinistreId, setMajSinistreId] = useState<string | null>(null);
   // Id en cours d'action (suppression / relance) pour afficher le spinner.
@@ -478,8 +558,10 @@ export default function AdminPage() {
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
         if (annule) return;
-        if (data.utilisateur?.role === "admin") {
+        const role = data.utilisateur?.role;
+        if (["agent", "gerant", "admin"].includes(role)) {
           setAutorise(true);
+          setEstGerant(["gerant", "admin"].includes(role)); // admin = ancien rôle, traité comme gérant
         } else {
           router.push("/client/dashboard"); // client connecté → son espace
         }
@@ -508,6 +590,24 @@ export default function AdminPage() {
       })
       .catch(() => setLoading(false));
   }, [autorise]);
+
+  // 3) Données réservées au gérant : archives (éléments supprimés) + journal d'audit.
+  useEffect(() => {
+    if (!autorise || !estGerant) return;
+    Promise.all([
+      fetch("/api/devis?archives=1").then((r) => (r.ok ? r.json() : { devis: [] })),
+      fetch("/api/sinistres?archives=1").then((r) => (r.ok ? r.json() : { sinistres: [] })),
+      fetch("/api/contrats?archives=1").then((r) => (r.ok ? r.json() : { contrats: [] })),
+      fetch("/api/journal").then((r) => (r.ok ? r.json() : { entrees: [] })),
+    ])
+      .then(([dD, dS, dC, dJ]) => {
+        if (Array.isArray(dD.devis)) setArchDevis(dD.devis);
+        if (Array.isArray(dS.sinistres)) setArchSinistres(dS.sinistres);
+        if (Array.isArray(dC.contrats)) setArchContrats(dC.contrats);
+        if (Array.isArray(dJ.entrees)) setJournal(dJ.entrees);
+      })
+      .catch(() => {});
+  }, [autorise, estGerant]);
 
   const seDeconnecter = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -550,17 +650,47 @@ export default function AdminPage() {
     }
   };
 
-  // ── Suppression d'un devis (avec confirmation) ──
-  const supprimerDevis = async (id: string) => {
-    if (!window.confirm("Supprimer définitivement ce devis ? Cette action est irréversible.")) return;
+  // Recharge les listes ACTIVES (après restauration notamment).
+  const rechargerActifs = async () => {
+    const [dD, dS, dC] = await Promise.all([
+      fetch("/api/devis").then((r) => (r.ok ? r.json() : { devis: [] })),
+      fetch("/api/sinistres").then((r) => (r.ok ? r.json() : { sinistres: [] })),
+      fetch("/api/contrats").then((r) => (r.ok ? r.json() : { contrats: [] })),
+    ]);
+    if (Array.isArray(dD.devis)) setDevis(dD.devis);
+    if (Array.isArray(dS.sinistres)) setSinistres(dS.sinistres);
+    if (Array.isArray(dC.contrats)) setContrats(dC.contrats);
+  };
+
+  // Recharge les ARCHIVES + le journal (gérant).
+  const rechargerArchives = async () => {
+    if (!estGerant) return;
+    const [dD, dS, dC, dJ] = await Promise.all([
+      fetch("/api/devis?archives=1").then((r) => (r.ok ? r.json() : { devis: [] })),
+      fetch("/api/sinistres?archives=1").then((r) => (r.ok ? r.json() : { sinistres: [] })),
+      fetch("/api/contrats?archives=1").then((r) => (r.ok ? r.json() : { contrats: [] })),
+      fetch("/api/journal").then((r) => (r.ok ? r.json() : { entrees: [] })),
+    ]);
+    if (Array.isArray(dD.devis)) setArchDevis(dD.devis);
+    if (Array.isArray(dS.sinistres)) setArchSinistres(dS.sinistres);
+    if (Array.isArray(dC.contrats)) setArchContrats(dC.contrats);
+    if (Array.isArray(dJ.entrees)) setJournal(dJ.entrees);
+  };
+
+  // ── ARCHIVER (suppression douce) — disponible pour tout le personnel ──
+  const archiver = async (type: "devis" | "sinistres" | "contrats", id: string) => {
+    if (!window.confirm("Archiver cet élément ? Il quitte la liste active. Le gérant pourra toujours le consulter et le restaurer.")) return;
     setActionId(id);
     try {
-      const res = await fetch(`/api/devis/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/${type}/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setDevis((prev) => prev.filter((d) => d.id !== id));
-        afficherNotif("ok", "Devis supprimé.");
+        if (type === "devis") setDevis((p) => p.filter((d) => d.id !== id));
+        else if (type === "sinistres") setSinistres((p) => p.filter((s) => s.id !== id));
+        else setContrats((p) => p.filter((c) => c.id !== id));
+        afficherNotif("ok", "Élément archivé.");
+        await rechargerArchives();
       } else {
-        afficherNotif("err", "Suppression impossible.");
+        afficherNotif("err", "Archivage impossible.");
       }
     } catch {
       afficherNotif("err", "Erreur réseau.");
@@ -569,17 +699,44 @@ export default function AdminPage() {
     }
   };
 
-  // ── Suppression d'un sinistre (avec confirmation) ──
-  const supprimerSinistre = async (id: string) => {
-    if (!window.confirm("Supprimer définitivement cette déclaration de sinistre ? Cette action est irréversible.")) return;
+  // ── RESTAURER un élément archivé — gérant uniquement ──
+  const restaurer = async (type: "devis" | "sinistres" | "contrats", id: string) => {
     setActionId(id);
     try {
-      const res = await fetch(`/api/sinistres/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/${type}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restaurer: true }),
+      });
       if (res.ok) {
-        setSinistres((prev) => prev.filter((s) => s.id !== id));
-        afficherNotif("ok", "Sinistre supprimé.");
+        afficherNotif("ok", "Élément restauré.");
+        await Promise.all([rechargerActifs(), rechargerArchives()]);
       } else {
-        afficherNotif("err", "Suppression impossible.");
+        const d = await res.json().catch(() => ({}));
+        afficherNotif("err", d.erreur || "Restauration impossible.");
+      }
+    } catch {
+      afficherNotif("err", "Erreur réseau.");
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  // ── PURGER définitivement un élément archivé — gérant uniquement ──
+  const purger = async (type: "devis" | "sinistres" | "contrats", id: string) => {
+    if (!window.confirm("Supprimer DÉFINITIVEMENT cet élément ? Cette action est IRRÉVERSIBLE : la donnée sera effacée pour de bon.")) return;
+    setActionId(id);
+    try {
+      const res = await fetch(`/api/${type}/${id}?purge=1`, { method: "DELETE" });
+      if (res.ok) {
+        if (type === "devis") setArchDevis((p) => p.filter((d) => d.id !== id));
+        else if (type === "sinistres") setArchSinistres((p) => p.filter((s) => s.id !== id));
+        else setArchContrats((p) => p.filter((c) => c.id !== id));
+        afficherNotif("ok", "Élément supprimé définitivement.");
+        await rechargerArchives();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        afficherNotif("err", d.erreur || "Suppression impossible.");
       }
     } catch {
       afficherNotif("err", "Erreur réseau.");
@@ -850,7 +1007,7 @@ export default function AdminPage() {
                         <ActionsLigne
                           enCours={actionId === d.id}
                           onRelance={() => relancer("devis", d.id)}
-                          onSupprimer={() => supprimerDevis(d.id)}
+                          onSupprimer={() => archiver("devis", d.id)}
                         />
                         <button
                           type="button"
@@ -955,7 +1112,7 @@ export default function AdminPage() {
                         <ActionsLigne
                           enCours={actionId === s.id}
                           onRelance={() => relancer("sinistres", s.id)}
-                          onSupprimer={() => supprimerSinistre(s.id)}
+                          onSupprimer={() => archiver("sinistres", s.id)}
                         />
                       </div>
                     </div>
@@ -1049,6 +1206,16 @@ export default function AdminPage() {
                           {actionId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                           Relancer
                         </button>
+                        <button
+                          type="button"
+                          disabled={actionId === c.id}
+                          onClick={() => archiver("contrats", c.id)}
+                          title="Archiver ce contrat"
+                          className="inline-flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:bg-red-50 disabled:opacity-50"
+                          style={{ border: "1px solid #f7caca", color: "#b42318" }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1057,6 +1224,107 @@ export default function AdminPage() {
             </div>
           )}
         </motion.div>
+
+        {/* ── ESPACE GÉRANT : archives + journal d'audit (réservé) ── */}
+        {estGerant && (
+          <>
+            {/* Bandeau de rôle */}
+            <div className="mt-10 mb-4 flex items-center gap-2">
+              <ShieldAlert size={18} style={{ color: "#b45309" }} />
+              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Espace gérant</h2>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>réservé</span>
+            </div>
+
+            {/* Archives (éléments supprimés par les agents) */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+              <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fde9d2, #f8d4a8)" }}>
+                    <Archive size={18} style={{ color: "#b45309" }} />
+                  </div>
+                  <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Éléments archivés</h3>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+                  {archDevis.length + archSinistres.length + archContrats.length} archivé(s)
+                </span>
+              </div>
+
+              {archDevis.length + archSinistres.length + archContrats.length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-center py-12 px-6">
+                  <p className="text-gray-400 text-sm">Rien d&apos;archivé. Tout ce qu&apos;un agent supprime apparaîtra ici, avec son auteur.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-[#eef4f4]">
+                  {archDevis.map((d) => (
+                    <LigneArchive
+                      key={d.id} type="devis"
+                      titre={d.produit?.nom ?? "Devis"}
+                      sousTitre={`${d.user?.prenom ?? ""} ${d.user?.nom ?? ""} · ${d.user?.email ?? ""}`}
+                      par={d.supprimePar} le={d.supprimeLe}
+                      enCours={actionId === d.id}
+                      onRestaurer={() => restaurer("devis", d.id)}
+                      onPurger={() => purger("devis", d.id)}
+                    />
+                  ))}
+                  {archSinistres.map((s) => (
+                    <LigneArchive
+                      key={s.id} type="sinistres"
+                      titre={s.typeAssurance ?? "Sinistre"}
+                      sousTitre={`${s.user?.prenom ?? ""} ${s.user?.nom ?? ""} · ${s.user?.email ?? ""}`}
+                      par={s.supprimePar} le={s.supprimeLe}
+                      enCours={actionId === s.id}
+                      onRestaurer={() => restaurer("sinistres", s.id)}
+                      onPurger={() => purger("sinistres", s.id)}
+                    />
+                  ))}
+                  {archContrats.map((c) => (
+                    <LigneArchive
+                      key={c.id} type="contrats"
+                      titre={`${c.produit?.nom ?? "Contrat"} (${c.numeroContrat})`}
+                      sousTitre={`${c.user?.prenom ?? ""} ${c.user?.nom ?? ""} · ${c.user?.email ?? ""}`}
+                      par={c.supprimePar} le={c.supprimeLe}
+                      enCours={actionId === c.id}
+                      onRestaurer={() => restaurer("contrats", c.id)}
+                      onPurger={() => purger("contrats", c.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Journal d'audit */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mt-8 bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+              <div className="px-6 sm:px-8 py-5 border-b flex items-center gap-2.5" style={{ borderColor: "#eef4f4" }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <History size={18} style={{ color: "#2a8a8a" }} />
+                </div>
+                <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
+              </div>
+
+              {journal.length === 0 ? (
+                <div className="py-12 text-center text-sm text-gray-400">Aucune action enregistrée pour l&apos;instant.</div>
+              ) : (
+                <div className="divide-y divide-[#eef4f4]">
+                  {journal.map((j) => {
+                    const couleur = j.action === "purge" ? "#b42318" : j.action === "restauration" ? "#166534" : "#b45309";
+                    const fond = j.action === "purge" ? "#fee2e2" : j.action === "restauration" ? "#dcfce7" : "#fef3c7";
+                    return (
+                      <div key={j.id} className="px-6 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold px-2.5 py-0.5 rounded-full capitalize" style={{ background: fond, color: couleur }}>{j.action}</span>
+                          <span className="text-sm text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
+                        </div>
+                        <p className="text-xs text-gray-400">
+                          par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
 
       </div>
 

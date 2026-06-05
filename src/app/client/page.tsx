@@ -38,8 +38,10 @@ export default function ClientLoginPage() {
         return;
       }
       // Le cookie de session est posé automatiquement par le serveur.
-      // On aiguille selon le rôle : l'admin va au back-office, le client à son espace.
-      router.push(data.utilisateur?.role === "admin" ? "/admin" : "/client/dashboard");
+      // On aiguille selon le rôle : le personnel (agent/gérant) va au back-office,
+      // le client à son espace.
+      const estStaff = ["agent", "gerant", "admin"].includes(data.utilisateur?.role);
+      router.push(estStaff ? "/admin" : "/client/dashboard");
     } catch {
       setError("Erreur réseau. Vérifie ta connexion.");
       setIsLoading(false);
