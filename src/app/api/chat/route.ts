@@ -5,6 +5,7 @@
 // l'historique de la conversation ; on y ajoute un "system prompt" qui donne
 // à l'IA sa personnalité et ses connaissances sur KARHON Assurances.
 import { NextResponse } from "next/server";
+import { verifierLimite } from "@/lib/rateLimit";
 
 // Modèle rapide et économique (palier gratuit). "mistral-small-latest" suffit
 // largement pour un assistant FAQ conversationnel.
@@ -36,6 +37,10 @@ RÈGLES IMPORTANTES :
 type MessageEntrant = { role: "user" | "bot"; texte: string };
 
 export async function POST(req: Request) {
+  // Protège le budget Mistral : 15 messages par minute et par IP.
+  const limite = verifierLimite(req, "chat", 15, 60_000);
+  if (limite) return limite;
+
   try {
     const cle = process.env.MISTRAL_API_KEY;
     if (!cle) {

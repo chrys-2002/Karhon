@@ -13,16 +13,30 @@ import {
   FolderOpen,
   ShieldCheck,
   ArrowRight,
+  Printer,
 } from "lucide-react";
 
 type Utilisateur = { nom?: string; prenom?: string; email?: string; role?: string };
 
 type Devis = { id: string; statut?: string; produit?: { nom?: string } };
 
+type Contrat = {
+  id: string;
+  numeroContrat: string;
+  statut?: string;
+  dateFin?: string;
+  dureeMois?: number;
+  produit?: { nom?: string };
+};
+
+const fmtDate = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<Utilisateur | null>(null);
   const [devis, setDevis] = useState<Devis[]>([]);
+  const [contrats, setContrats] = useState<Contrat[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Récupère l'utilisateur réellement connecté via le cookie de session.
@@ -47,15 +61,19 @@ export default function Dashboard() {
     };
   }, [router]);
 
-  // Charge les vrais devis du client connecté.
+  // Charge les vrais devis ET contrats du client connecté.
   useEffect(() => {
     let annule = false;
-    fetch("/api/devis")
-      .then((res) => (res.ok ? res.json() : { devis: [] }))
-      .then((data) => {
-        if (!annule && Array.isArray(data.devis)) setDevis(data.devis);
+    Promise.all([
+      fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
+      fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
+    ])
+      .then(([dDevis, dCon]) => {
+        if (annule) return;
+        if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
+        if (Array.isArray(dCon.contrats)) setContrats(dCon.contrats);
       })
-      .catch(() => {/* compteur restera à 0 */});
+      .catch(() => {/* compteurs restent à 0 */});
     return () => {
       annule = true;
     };
@@ -92,11 +110,12 @@ export default function Dashboard() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const contratsActifs = contrats.filter((c) => c.statut === "actif").length;
   const stats = [
-    { label: "Contrats actifs", value: 0, Icon: FileText, cible: "section-contrats" },
+    { label: "Contrats actifs", value: contratsActifs, Icon: FileText, cible: "section-contrats" },
     { label: "Sinistres", value: 0, Icon: AlertTriangle, cible: "section-sinistre" },
     { label: "Devis", value: devis.length, Icon: ClipboardList, cible: "section-devis" },
-    { label: "Échéances", value: 0, Icon: CalendarClock, cible: "section-contrats" },
+    { label: "Contrats", value: contrats.length, Icon: CalendarClock, cible: "section-contrats" },
   ];
 
   return (
@@ -159,23 +178,53 @@ export default function Dashboard() {
             <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes contrats</h2>
           </div>
 
-          {/* État vide (aucune donnée réelle pour l'instant) */}
-          <div className="flex flex-col items-center justify-center text-center py-16 px-6">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-              <FolderOpen size={28} style={{ color: "#2a8a8a" }} />
+          {contrats.length === 0 ? (
+            /* État vide */
+            <div className="flex flex-col items-center justify-center text-center py-16 px-6">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <FolderOpen size={28} style={{ color: "#2a8a8a" }} />
+              </div>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun contrat pour le moment</p>
+              <p className="text-gray-400 text-sm max-w-sm mb-6">
+                Vos contrats apparaîtront ici dès qu&apos;ils seront enregistrés. Commencez par demander un devis.
+              </p>
+              <Link
+                href="/devis"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.02] active:scale-95"
+                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+              >
+                Demander un devis <ArrowRight size={16} />
+              </Link>
             </div>
-            <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun contrat pour le moment</p>
-            <p className="text-gray-400 text-sm max-w-sm mb-6">
-              Vos contrats apparaîtront ici dès qu&apos;ils seront enregistrés. Commencez par demander un devis.
-            </p>
-            <Link
-              href="/devis"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.02] active:scale-95"
-              style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
-            >
-              Demander un devis <ArrowRight size={16} />
-            </Link>
-          </div>
+          ) : (
+            <ul className="divide-y divide-[#eef4f4]">
+              {contrats.map((c) => (
+                <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-6 sm:px-8 py-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                      <FileText size={18} style={{ color: "#2a8a8a" }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{c.produit?.nom ?? "Contrat"}</p>
+                      <p className="text-xs text-gray-400">N° {c.numeroContrat} · échéance {fmtDate(c.dateFin)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: c.statut === "actif" ? "#dcfce7" : "#eaf4f4", color: c.statut === "actif" ? "#166534" : "#2a8a8a" }}>
+                      {(c.statut ?? "actif").replace(/_/g, " ")}
+                    </span>
+                    <Link
+                      href={`/client/contrats/${c.id}/imprimer`}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105"
+                      style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
+                    >
+                      <Printer size={14} /> Imprimer
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </motion.div>
 
         {/* Mes devis */}

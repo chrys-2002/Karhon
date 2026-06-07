@@ -3,10 +3,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifierMotDePasse, genererToken } from "@/lib/auth";
 import { COOKIE_NAME, cookieOptions } from "@/lib/session";
+import { verifierLimite } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
+  // Anti-brute-force : 8 tentatives de connexion par minute et par IP.
+  const limite = verifierLimite(req, "login", 8, 60_000);
+  if (limite) return limite;
+
   try {
-    const { email, motDePasse } = await req.json();
+    // Corps JSON invalide ou absent → 400 (et non 500).
+    const corps = await req.json().catch(() => null);
+    if (!corps || typeof corps !== "object") {
+      return NextResponse.json({ erreur: "Requête invalide." }, { status: 400 });
+    }
+    const { email, motDePasse } = corps;
 
     if (!email || !motDePasse) {
       return NextResponse.json(
@@ -25,7 +35,9 @@ export async function POST(req: Request) {
     // 2) Vérifie le mot de passe.
     //    Message volontairement identique si email OU mot de passe faux
     //    → on ne révèle pas si l'email existe (bonne pratique de sécurité).
-    if (!user || !(await verifierMotDePasse(motDePasse, user.motDePasse))) {
+    // user.motDePasse peut être null (compte créé via Google) → pas de
+    // connexion par mot de passe possible ; message volontairement identique.
+    if (!user || !user.motDePasse || !(await verifierMotDePasse(motDePasse, user.motDePasse))) {
       return NextResponse.json(
         { erreur: "Email ou mot de passe incorrect." },
         { status: 401 }

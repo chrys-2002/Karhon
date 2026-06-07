@@ -211,8 +211,10 @@ export default function DevisPage() {
   const canGoToStep2 = formData.categorie !== '';
   // Pour un voyage, destination, durée et âge sont requis.
   const voyageComplet = !estVoyage || (formData.destination !== '' && formData.duree !== '' && formData.ageAssure !== '');
+  // Pour l'auto, la carte grise et la visite technique sont obligatoires.
+  const autoComplet = !estAuto || (docCarteGrise.length > 0 && docVisite.length > 0);
   const canGoToStep3 =
-    formData.produit !== '' && formData.nom !== '' && formData.telephone !== '' && voyageComplet;
+    formData.produit !== '' && formData.nom !== '' && formData.telephone !== '' && voyageComplet && autoComplet;
 
   // Envoi réel : crée un devis en base via l'API (connexion obligatoire).
   const envoyerDevis = async () => {
@@ -451,8 +453,8 @@ export default function DevisPage() {
                       Joignez votre carte grise et votre visite technique (PNG ou JPG). Vous pouvez les prendre en photo depuis votre mobile.
                     </p>
                   </div>
-                  <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} />
-                  <DocumentUpload label="Visite technique" value={docVisite} onChange={setDocVisite} />
+                  <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} required />
+                  <DocumentUpload label="Visite technique" value={docVisite} onChange={setDocVisite} required />
                 </motion.div>
               )}
 

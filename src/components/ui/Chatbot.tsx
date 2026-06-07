@@ -156,7 +156,7 @@ export default function Chatbot() {
         onClick={() => setOuvert((o) => !o)}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
-        className="fixed bottom-5 right-5 z-[60] flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl"
+        className="fixed bottom-5 right-5 z-[60] flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl print:hidden"
         style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -182,7 +182,7 @@ export default function Chatbot() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 16 }}
           transition={{ type: "spring", stiffness: 320, damping: 26, mass: 0.8 }}
-          className="fixed bottom-24 right-5 z-50 flex w-[92vw] max-w-sm flex-col overflow-hidden rounded-3xl border bg-white shadow-2xl"
+          className="fixed bottom-24 right-5 z-50 flex w-[92vw] max-w-sm flex-col overflow-hidden rounded-3xl border bg-white shadow-2xl print:hidden"
           style={{ borderColor: "#e0ecec", height: "min(70vh, 520px)", transformOrigin: "bottom right" }}
         >
           {/* En-tête */}

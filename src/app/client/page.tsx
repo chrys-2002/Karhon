@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link"; 
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +14,23 @@ export default function ClientLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({ email: "", password: "", nom: "", prenom: "", telephone: "", confirmPassword: "" });
+
+  // Affiche un message clair si on revient d'un échec de connexion Google.
+  useEffect(() => {
+    const err = new URLSearchParams(window.location.search).get("erreur");
+    if (!err) return;
+    const messages: Record<string, string> = {
+      google_non_configure: "La connexion Google n'est pas encore configurée.",
+      google_annule: "Connexion Google annulée.",
+      google_state: "Session expirée. Réessayez la connexion Google.",
+      google_token: "Échec de la connexion Google. Réessayez.",
+      google_profil: "Impossible de récupérer votre profil Google.",
+      google_email: "Votre adresse Google n'est pas vérifiée.",
+      google_erreur: "Une erreur est survenue avec Google.",
+    };
+    setError(messages[err] ?? "Connexion Google impossible.");
+    window.history.replaceState({}, "", "/client"); // nettoie l'URL
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -82,9 +99,10 @@ export default function ClientLoginPage() {
     }
   };
 
-  // Connexion Google : non disponible tant que l'OAuth backend n'est pas en place.
+  // Connexion Google : redirige vers le flux OAuth côté serveur.
   const handleGoogleLogin = () => {
-    setError("La connexion Google sera bientôt disponible. Utilise ton email pour l'instant.");
+    setIsGoogleLoading(true);
+    window.location.href = "/api/auth/google";
   };
 
   return (
@@ -235,7 +253,7 @@ export default function ClientLoginPage() {
 
               {isLogin && (
                 <div className="flex justify-end">
-                  <Link href="#" className="text-xs font-semibold hover:underline" style={{ color: "#2a8a8a" }}>
+                  <Link href="/client/mot-de-passe-oublie" className="text-xs font-semibold hover:underline" style={{ color: "#2a8a8a" }}>
                     Mot de passe oublié ?
                   </Link>
                 </div>

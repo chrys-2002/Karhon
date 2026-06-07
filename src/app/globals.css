@@ -190,3 +190,20 @@ body.home-page header {
   background-color: transparent !important;
   background: transparent !important;
 }
+
+/* Impression : on ne garde que le contenu utile (reçu, document).
+   On masque la navigation, le pied de page global et le chatbot. */
+@media print {
+  header,
+  footer,
+  .print-hide {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  /* Évite les coupures disgracieuses au milieu du reçu. */
+  #recu {
+    break-inside: avoid;
+  }
+}

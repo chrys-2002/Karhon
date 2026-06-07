@@ -3,8 +3,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hacherMotDePasse, genererToken } from "@/lib/auth";
 import { COOKIE_NAME, cookieOptions } from "@/lib/session";
+import { verifierLimite } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
+  // Anti-spam : 5 inscriptions par minute et par IP.
+  const limite = verifierLimite(req, "register", 5, 60_000);
+  if (limite) return limite;
+
   try {
     const { nom, prenom, email, telephone, motDePasse, adresse } = await req.json();
 
