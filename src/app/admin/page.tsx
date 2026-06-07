@@ -26,6 +26,7 @@ import {
   Archive,
   History,
   ShieldAlert,
+  Printer,
 } from "lucide-react";
 import { infoRelance } from "@/lib/contrats";
 import DatePicker from "@/components/ui/DatePicker";
@@ -1221,6 +1222,16 @@ export default function AdminPage() {
                           {actionId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                           Relancer
                         </button>
+                        <a
+                          href={`/client/contrats/${c.id}/imprimer`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Imprimer le contrat (traçabilité physique)"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all hover:shadow-sm"
+                          style={{ border: "1px solid #cfe3e3", color: "#1a2e5a", background: "#ffffff" }}
+                        >
+                          <Printer size={14} style={{ color: "#2a8a8a" }} /> Imprimer
+                        </a>
                         <button
                           type="button"
                           disabled={actionId === c.id}
