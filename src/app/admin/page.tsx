@@ -30,14 +30,13 @@ import {
 import { infoRelance } from "@/lib/contrats";
 import DatePicker from "@/components/ui/DatePicker";
 
-// Construit un lien WhatsApp pré-rempli à partir d'un numéro et d'un message.
-// On utilise api.whatsapp.com/send (plus fiable que wa.me pour conserver le
-// paramètre ?text sur desktop). Le numéro est nettoyé (chiffres uniquement).
+// Construit un lien WhatsApp pré-rempli (format wa.me standard).
+// Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
 function lienWhatsApp(telephone: string | undefined, message: string): string | null {
   if (!telephone) return null;
   const numero = telephone.replace(/\D/g, "");
   if (!numero) return null;
-  return `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
 }
 
 // Date courte lisible (ex. "5 juin 2026").
@@ -786,9 +785,22 @@ export default function AdminPage() {
         afficherNotif("warn", `Relance enregistrée. Email non envoyé : ${data.email?.erreur ?? "service non configuré"}.`);
       }
 
-      // Ouvre WhatsApp pré-rempli si on a le numéro.
-      const lien = lienWhatsApp(data.whatsapp?.telephone, data.whatsapp?.message ?? "");
-      if (lien) window.open(lien, "_blank", "noopener,noreferrer");
+      // Prépare le message WhatsApp. On le COPIE dans le presse-papier (fiable
+      // à 100 %) ET on ouvre WhatsApp pré-rempli. Si WhatsApp n'affiche pas le
+      // texte (capricieux sur desktop), l'agent n'a qu'à coller (Ctrl+V).
+      const texteWa = data.whatsapp?.message ?? "";
+      const lien = lienWhatsApp(data.whatsapp?.telephone, texteWa);
+      if (lien) {
+        let copie = false;
+        try {
+          await navigator.clipboard.writeText(texteWa);
+          copie = true;
+        } catch { /* le presse-papier peut être bloqué selon le navigateur */ }
+        window.open(lien, "_blank", "noopener,noreferrer");
+        if (copie) {
+          afficherNotif("ok", "Message copié — si WhatsApp ne l'affiche pas, collez-le avec Ctrl+V.");
+        }
+      }
     } catch {
       afficherNotif("err", "Erreur réseau lors de la relance.");
     } finally {
