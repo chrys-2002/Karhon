@@ -54,7 +54,13 @@ export async function POST(
     return NextResponse.json({
       devis: maj,
       email,
-      whatsapp: { telephone: devis.user.telephone, message: `Bonjour ${devis.user.prenom}, ${corps}` },
+      whatsapp: {
+        telephone: devis.user.telephone,
+        message:
+          `Bonjour ${devis.user.prenom},\n\n${corps}\n\n` +
+          `À votre disposition,\nKARHON Assurances — Cabinet de courtage, Abidjan\n` +
+          `Tel : +2250787103939 / +2250576367272`,
+      },
     });
   } catch (e) {
     console.error("[devis relance]", e);

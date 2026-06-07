@@ -4,8 +4,44 @@
 //            ?purge=1 → suppression définitive (gérant uniquement).
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { exigerStaff, exigerGerant } from "@/lib/session";
+import { exigerAuth, exigerStaff, exigerGerant } from "@/lib/session";
 import { journaliser } from "@/lib/audit";
+
+const ROLES_STAFF = ["agent", "gerant", "admin"];
+
+// ── GET : un contrat précis (pour l'impression / le reçu) ────
+//   Le client ne peut voir QUE son contrat ; le personnel voit tout.
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await exigerAuth();
+  if (auth instanceof NextResponse) return auth;
+
+  try {
+    const { id } = await params;
+    const contrat = await prisma.contrat.findUnique({
+      where: { id },
+      include: {
+        produit: { select: { nom: true, type: true, garanties: true } },
+        user: { select: { nom: true, prenom: true, email: true, telephone: true, adresse: true } },
+      },
+    });
+    if (!contrat) {
+      return NextResponse.json({ erreur: "Contrat introuvable." }, { status: 404 });
+    }
+
+    const estStaff = ROLES_STAFF.includes(auth.role);
+    if (!estStaff && contrat.userId !== auth.userId) {
+      return NextResponse.json({ erreur: "Accès refusé." }, { status: 403 });
+    }
+
+    return NextResponse.json({ contrat });
+  } catch (e) {
+    console.error("[contrat GET]", e);
+    return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
+  }
+}
 
 export async function PATCH(
   req: Request,

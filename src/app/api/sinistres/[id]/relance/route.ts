@@ -50,7 +50,13 @@ export async function POST(
     return NextResponse.json({
       sinistre: maj,
       email,
-      whatsapp: { telephone: sinistre.user.telephone, message: `Bonjour ${sinistre.user.prenom}, ${corps}` },
+      whatsapp: {
+        telephone: sinistre.user.telephone,
+        message:
+          `Bonjour ${sinistre.user.prenom},\n\n${corps}\n\n` +
+          `À votre disposition,\nKARHON Assurances — Cabinet de courtage, Abidjan\n` +
+          `Tel : +2250787103939 / +2250576367272`,
+      },
     });
   } catch (e) {
     console.error("[sinistres relance]", e);

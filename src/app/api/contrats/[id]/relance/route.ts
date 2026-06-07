@@ -34,13 +34,19 @@ export async function POST(
       day: "2-digit", month: "long", year: "numeric",
     });
     const { joursRestants } = infoRelance(contrat.dateFin, contrat.dureeMois);
+    const produit = contrat.produit?.nom ?? "votre contrat";
+    // On ne mentionne le compte à rebours que lorsqu'il est proche (≤120 j),
+    // sinon « dans 363 jours » sonne bizarrement pour une relance anticipée.
+    const echeance = joursRestants > 0 && joursRestants <= 120
+      ? `le ${finFr} (dans ${joursRestants} jour${joursRestants > 1 ? "s" : ""})`
+      : `le ${finFr}`;
 
-    const sujet = `le renouvellement de votre contrat ${contrat.produit?.nom ?? ""} (n° ${contrat.numeroContrat})`.trim();
+    const sujet = `le renouvellement de votre contrat ${produit} (n° ${contrat.numeroContrat})`.trim();
     const corps =
       typeof message === "string" && message.trim()
         ? message.trim()
-        : `Votre contrat arrive à échéance le ${finFr}${joursRestants > 0 ? ` (dans ${joursRestants} jour${joursRestants > 1 ? "s" : ""})` : ""}. ` +
-          `Pour continuer à être couvert sans interruption, nous vous invitons à renouveler dès maintenant. Notre équipe se tient à votre disposition pour préparer votre nouvelle cotation.`;
+        : `Votre contrat ${produit} (n° ${contrat.numeroContrat}) arrive à échéance ${echeance}. ` +
+          `Pour rester couvert sans interruption, nous vous invitons à le renouveler. Notre équipe prépare avec plaisir votre nouvelle cotation.`;
 
     // 1) Email (peut échouer si non configuré : on continue).
     const email = await envoyerEmail({
@@ -48,6 +54,15 @@ export async function POST(
       subject: `KARHON Assurances — Renouvellement de votre contrat`,
       html: gabaritRelance({ prenom: contrat.user.prenom, sujet, message: corps }),
     });
+
+    // Message WhatsApp : il n'a ni en-tête ni signature automatique → on
+    // identifie clairement KARHON Assurances et on ajoute les contacts.
+    const messageWhatsapp =
+      `Bonjour ${contrat.user.prenom},\n\n` +
+      `${corps}\n\n` +
+      `À votre disposition,\n` +
+      `KARHON Assurances — Cabinet de courtage, Abidjan\n` +
+      `Tel : +2250787103939 / +2250576367272`;
 
     // 2) Marque la relance (date + compteur).
     const maj = await prisma.contrat.update({
@@ -62,7 +77,7 @@ export async function POST(
     return NextResponse.json({
       contrat: maj,
       email,
-      whatsapp: { telephone: contrat.user.telephone, message: `Bonjour ${contrat.user.prenom}, ${corps}` },
+      whatsapp: { telephone: contrat.user.telephone, message: messageWhatsapp },
     });
   } catch (e) {
     console.error("[contrats relance]", e);
