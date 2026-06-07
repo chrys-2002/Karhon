@@ -30,13 +30,14 @@ import {
 import { infoRelance } from "@/lib/contrats";
 import DatePicker from "@/components/ui/DatePicker";
 
-// Construit un lien WhatsApp (wa.me) à partir d'un numéro et d'un message.
-// Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
+// Construit un lien WhatsApp pré-rempli à partir d'un numéro et d'un message.
+// On utilise api.whatsapp.com/send (plus fiable que wa.me pour conserver le
+// paramètre ?text sur desktop). Le numéro est nettoyé (chiffres uniquement).
 function lienWhatsApp(telephone: string | undefined, message: string): string | null {
   if (!telephone) return null;
   const numero = telephone.replace(/\D/g, "");
   if (!numero) return null;
-  return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
+  return `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(message)}`;
 }
 
 // Date courte lisible (ex. "5 juin 2026").
