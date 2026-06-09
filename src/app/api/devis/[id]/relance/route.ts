@@ -55,7 +55,8 @@ export async function POST(
       devis: maj,
       email,
       whatsapp: {
-        telephone: devis.user.telephone,
+        // Priorité au numéro de contact saisi dans le devis, sinon celui du compte.
+        telephone: devis.telephoneContact || devis.user.telephone,
         message:
           `Bonjour ${devis.user.prenom},\n\n${corps}\n\n` +
           `À votre disposition,\nKARHON Assurances — Cabinet de courtage, Abidjan\n` +

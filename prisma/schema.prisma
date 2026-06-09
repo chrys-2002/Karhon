@@ -107,9 +107,11 @@ model Devis {
   id            String      @id @default(cuid())
   dateCreation  DateTime    @default(now())
   statut        StatutDevis @default(en_attente)
-  montantEstime Float?
-  description   String
-  documents     String[]
+  montantEstime    Float?
+  description      String
+  documents        String[]
+  reponses         Json?     // réponses au questionnaire spécifique du produit
+  telephoneContact String?   // numéro où le client souhaite être joint (relance)
 
   // Suivi des relances par le courtier.
   derniereRelance DateTime?
@@ -136,6 +138,8 @@ model Contrat {
   dateFin       DateTime
   dureeMois     Int           @default(12) // durée souscrite : 1, 2, 3, 6 ou 12 mois
   primeAnnuelle Float
+  compagnie     String?       // compagnie partenaire avec qui le contrat est conclu
+  telephoneContact String?    // numéro de contact du client (repris du devis, pour les relances)
   statut        StatutContrat @default(actif)
   options       String[]
 

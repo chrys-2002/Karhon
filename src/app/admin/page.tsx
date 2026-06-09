@@ -29,7 +29,9 @@ import {
   Printer,
 } from "lucide-react";
 import { infoRelance } from "@/lib/contrats";
+import { PARTENAIRES } from "@/lib/partenaires";
 import DatePicker from "@/components/ui/DatePicker";
+import Select from "@/components/ui/Select";
 
 // Construit un lien WhatsApp pré-rempli (format wa.me standard).
 // Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
@@ -66,6 +68,7 @@ type DevisAdmin = {
   montantEstime: number | null;
   description: string;
   documents?: string[];
+  reponses?: Record<string, string> | null;
   derniereRelance?: string | null;
   nombreRelances?: number;
   supprimePar?: string | null;
@@ -99,6 +102,7 @@ type ContratAdmin = {
   dateFin: string;
   dureeMois: number;
   primeAnnuelle: number;
+  compagnie?: string | null;
   statut: string;
   derniereRelance?: string | null;
   nombreRelances?: number;
@@ -362,7 +366,7 @@ function LigneArchive({
   onRestaurer: () => void;
   onPurger: () => void;
 }) {
-  const TYPE_LABEL: Record<string, string> = { devis: "Devis", sinistres: "Sinistre", contrats: "Contrat" };
+  const TYPE_LABEL: Record<string, string> = { devis: "Devis", sinistres: "Sinistre", contrats: "Souscription" };
   return (
     <div className="px-6 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
       <div className="min-w-0">
@@ -420,14 +424,15 @@ function ConversionModal({
   devis: DevisAdmin;
   enCours: boolean;
   onClose: () => void;
-  onSubmit: (p: { devisId: string; dureeMois: number; primeAnnuelle: number; dateDebut: string }) => void;
+  onSubmit: (p: { devisId: string; dureeMois: number; primeAnnuelle: number; dateDebut: string; compagnie: string }) => void;
 }) {
   const aujourdhui = new Date().toISOString().split("T")[0];
   const [dureeMois, setDureeMois] = useState(12);
   const [prime, setPrime] = useState("");
   const [dateDebut, setDateDebut] = useState(aujourdhui);
+  const [compagnie, setCompagnie] = useState("");
 
-  const valide = prime !== "" && Number(prime) >= 0 && dateDebut !== "";
+  const valide = prime !== "" && Number(prime) >= 0 && dateDebut !== "" && compagnie !== "";
 
   return (
     <motion.div
@@ -449,7 +454,7 @@ function ConversionModal({
         <div className="px-6 py-5 flex items-center justify-between rounded-t-3xl" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
           <div className="flex items-center gap-2.5 text-white">
             <FileSignature size={20} />
-            <h3 className="font-bold">Convertir en contrat</h3>
+            <h3 className="font-bold">Enregistrer la souscription</h3>
           </div>
           <button type="button" onClick={onClose} className="text-white/80 hover:text-white">
             <X size={20} />
@@ -484,6 +489,15 @@ function ConversionModal({
             </div>
           </div>
 
+          <Select
+            label="Compagnie partenaire"
+            name="compagnie"
+            value={compagnie}
+            onChange={(e) => setCompagnie(e.target.value)}
+            options={PARTENAIRES.map((p) => ({ value: p, label: p }))}
+            required
+          />
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA)</label>
@@ -507,12 +521,12 @@ function ConversionModal({
             <button
               type="button"
               disabled={!valide || enCours}
-              onClick={() => onSubmit({ devisId: devis.id, dureeMois, primeAnnuelle: Number(prime), dateDebut })}
+              onClick={() => onSubmit({ devisId: devis.id, dureeMois, primeAnnuelle: Number(prime), dateDebut, compagnie })}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
             >
               {enCours ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-              Créer le contrat
+              Enregistrer la souscription
             </button>
             <button type="button" onClick={onClose} className="px-5 py-3 rounded-xl font-semibold text-sm border" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>
               Annuler
@@ -815,6 +829,7 @@ export default function AdminPage() {
     dureeMois: number;
     primeAnnuelle: number;
     dateDebut: string;
+    compagnie: string;
   }) => {
     setActionId(payload.devisId);
     try {
@@ -1003,6 +1018,19 @@ export default function AdminPage() {
                           </p>
                         )}
                         <PiecesJointes documents={d.documents} />
+                        {d.reponses && Object.keys(d.reponses).length > 0 && (
+                          <div className="mt-3 rounded-xl p-3" style={{ background: "#f8fbfb", border: "1px solid #e6f0f0" }}>
+                            <p className="text-xs font-semibold mb-1.5" style={{ color: "#1a2e5a" }}>Questionnaire</p>
+                            <dl className="grid sm:grid-cols-2 gap-x-4 gap-y-1">
+                              {Object.entries(d.reponses).map(([q, r]) => (
+                                <div key={q} className="text-xs">
+                                  <dt className="text-gray-400">{q}</dt>
+                                  <dd className="font-medium" style={{ color: "#1a2e5a" }}>{r}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </div>
+                        )}
                         {d.nombreRelances ? (
                           <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: "#2a8a8a" }}>
                             <Mail size={12} /> Relancé {d.nombreRelances} fois · dernière le {dateCourte(d.derniereRelance)}
@@ -1028,11 +1056,11 @@ export default function AdminPage() {
                         <button
                           type="button"
                           onClick={() => setConversion(d)}
-                          title="Créer un contrat à partir de ce devis"
+                          title="Enregistrer la souscription à partir de ce devis"
                           className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all hover:shadow-sm"
                           style={{ border: "1px solid #cfe3e3", color: "#1a2e5a", background: "#ffffff" }}
                         >
-                          <FileSignature size={14} style={{ color: "#2a8a8a" }} /> Convertir en contrat
+                          <FileSignature size={14} style={{ color: "#2a8a8a" }} /> Enregistrer la souscription
                         </button>
                       </div>
                     </div>
@@ -1146,13 +1174,13 @@ export default function AdminPage() {
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FileSignature size={18} style={{ color: "#2a8a8a" }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Contrats & renouvellements</h2>
+              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Souscriptions & renouvellements</h2>
             </div>
             {(() => {
               const aRelancer = contrats.filter((c) => c.statut === "actif" && infoRelance(c.dateFin, c.dureeMois).fenetreOuverte).length;
               return (
                 <span className="text-xs font-semibold px-3 py-1 rounded-full" style={aRelancer > 0 ? { background: "#fef3c7", color: "#92600a" } : { background: "#eaf4f4", color: "#2a8a8a" }}>
-                  {aRelancer > 0 ? `${aRelancer} à relancer` : `${contrats.length} contrat${contrats.length > 1 ? "s" : ""}`}
+                  {aRelancer > 0 ? `${aRelancer} à relancer` : `${contrats.length} souscription${contrats.length > 1 ? "s" : ""}`}
                 </span>
               );
             })()}
@@ -1163,8 +1191,8 @@ export default function AdminPage() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun contrat</p>
-              <p className="text-gray-400 text-sm max-w-sm">Convertissez un devis en contrat (bouton « Convertir en contrat ») pour activer les rappels de renouvellement.</p>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription</p>
+              <p className="text-gray-400 text-sm max-w-sm">Enregistrez une souscription depuis un devis (bouton « Enregistrer la souscription ») pour activer les rappels de renouvellement.</p>
             </div>
           ) : (
             <div className="divide-y divide-[#eef4f4]">
@@ -1184,6 +1212,9 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold" style={{ color: "#1a2e5a" }}>{c.produit?.nom ?? "Contrat"}</span>
                           <span className="text-xs font-mono px-2 py-0.5 rounded-md" style={{ background: "#f0f7f7", color: "#2a8a8a" }}>{c.numeroContrat}</span>
+                          {c.compagnie && (
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#eef2ff", color: "#4f46e5" }}>{c.compagnie}</span>
+                          )}
                           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize" style={stStyle}>{c.statut}</span>
                           {c.statut === "actif" && info.fenetreOuverte && (
                             <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>
@@ -1226,7 +1257,7 @@ export default function AdminPage() {
                           href={`/client/contrats/${c.id}/imprimer`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="Imprimer le contrat (traçabilité physique)"
+                          title="Imprimer le reçu de souscription (traçabilité physique)"
                           className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all hover:shadow-sm"
                           style={{ border: "1px solid #cfe3e3", color: "#1a2e5a", background: "#ffffff" }}
                         >
@@ -1236,7 +1267,7 @@ export default function AdminPage() {
                           type="button"
                           disabled={actionId === c.id}
                           onClick={() => archiver("contrats", c.id)}
-                          title="Archiver ce contrat"
+                          title="Archiver cette souscription"
                           className="inline-flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:bg-red-50 disabled:opacity-50"
                           style={{ border: "1px solid #f7caca", color: "#b42318" }}
                         >

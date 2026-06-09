@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { produitId, description, montantEstime, documents } = await req.json();
+    const { produitId, description, montantEstime, documents, reponses, telephoneContact } = await req.json();
 
     // 2) Validation des champs.
     if (!produitId || !description) {
@@ -41,7 +41,18 @@ export async function POST(req: Request) {
           .slice(0, 8)
       : [];
 
-    // 5) Crée le devis, rattaché au client connecté (auth.userId).
+    // 5) Réponses au questionnaire : on n'accepte qu'un objet simple
+    //    { question: réponse } de taille raisonnable (sécurité).
+    let reponsesValides: Record<string, string> | undefined;
+    if (reponses && typeof reponses === "object" && !Array.isArray(reponses)) {
+      const entrees = Object.entries(reponses as Record<string, unknown>)
+        .filter(([k, v]) => typeof k === "string" && (typeof v === "string" || typeof v === "number"))
+        .slice(0, 40)
+        .map(([k, v]) => [k.slice(0, 200), String(v).slice(0, 1000)] as const);
+      if (entrees.length) reponsesValides = Object.fromEntries(entrees);
+    }
+
+    // 6) Crée le devis, rattaché au client connecté (auth.userId).
     const devis = await prisma.devis.create({
       data: {
         userId: auth.userId,
@@ -49,6 +60,8 @@ export async function POST(req: Request) {
         description,
         montantEstime: typeof montantEstime === "number" ? montantEstime : null,
         documents: docsValides,
+        reponses: reponsesValides ?? undefined,
+        telephoneContact: typeof telephoneContact === "string" ? telephoneContact.slice(0, 40) : null,
         // statut "en_attente" par défaut (défini dans le schéma).
       },
       include: { produit: true },

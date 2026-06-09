@@ -42,7 +42,7 @@ export default function Select({ label, name, value, onChange, options, required
   return (
     <div className="relative w-full" ref={dropdownRef}>
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        {label} {required && <span className="text-blue-600">*</span>}
+        {label} {required && <span style={{ color: "#2a8a8a" }}>*</span>}
       </label>
       
       <motion.button

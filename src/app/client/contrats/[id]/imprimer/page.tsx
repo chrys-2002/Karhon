@@ -14,6 +14,7 @@ type Contrat = {
   dateFin: string;
   dureeMois: number;
   primeAnnuelle: number;
+  compagnie?: string | null;
   statut: string;
   options?: string[];
   produit?: { nom?: string; type?: string; garanties?: string[] };
@@ -64,6 +65,7 @@ export default function ImprimerContrat() {
   const lignes: [string, string][] = [
     ["N° de contrat", contrat.numeroContrat],
     ["Produit", contrat.produit?.nom ?? "—"],
+    ["Compagnie", contrat.compagnie ?? "—"],
     ["Durée souscrite", `${contrat.dureeMois} mois`],
     ["Date de début", fmtDate(contrat.dateDebut)],
     ["Date d'échéance", fmtDate(contrat.dateFin)],
@@ -97,8 +99,8 @@ export default function ImprimerContrat() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-white/70 uppercase tracking-wide">Attestation</p>
-              <p className="font-bold">Contrat</p>
+              <p className="text-xs text-white/70 uppercase tracking-wide">Reçu</p>
+              <p className="font-bold">de souscription</p>
             </div>
           </div>
         </div>
@@ -106,7 +108,7 @@ export default function ImprimerContrat() {
         {/* Statut */}
         <div className="px-8 pt-6">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
-            <CheckCircle2 size={13} /> Contrat actif
+            <CheckCircle2 size={13} /> Souscription active
           </span>
         </div>
 
@@ -120,7 +122,7 @@ export default function ImprimerContrat() {
 
         {/* Détails */}
         <div className="px-8 py-6">
-          <p className="text-xs uppercase tracking-wide font-semibold mb-3" style={{ color: "#2a8a8a" }}>Détails du contrat</p>
+          <p className="text-xs uppercase tracking-wide font-semibold mb-3" style={{ color: "#2a8a8a" }}>Détails de la souscription</p>
           <div className="rounded-xl border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
             {lignes.map(([k, v], i) => (
               <div key={k} className="flex items-center justify-between px-4 py-3 text-sm" style={{ background: i % 2 ? "#f8fbfb" : "#fff" }}>
@@ -145,9 +147,12 @@ export default function ImprimerContrat() {
 
         {/* Signature */}
         <div className="px-8 pb-6 flex items-end justify-between gap-6">
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-gray-400 max-w-[60%]">
             <p>Document généré le {new Date().toLocaleDateString("fr-FR")}.</p>
-            <p>Ce reçu atteste de votre souscription auprès de KARHON Assurances.</p>
+            <p>
+              Ce reçu atteste de votre souscription via KARHON Assurances, courtier.
+              Le contrat est établi par la compagnie partenaire{contrat.compagnie ? ` ${contrat.compagnie}` : ""}.
+            </p>
           </div>
           <div className="text-center">
             <div className="w-36 border-b border-gray-300 mb-1" />

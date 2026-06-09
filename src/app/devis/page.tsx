@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle, Globe, CalendarClock, Cake } from 'lucide-react';
 import BackButton from '@/components/ui/BackButton';
 import DocumentUpload from '@/components/ui/DocumentUpload';
+import FormulaireDynamique from '@/components/ui/FormulaireDynamique';
+import { formulaireDe, type Reponses } from '@/lib/formulaires';
 
 // Produits automobiles → on demande la carte grise + la visite technique.
 const PRODUITS_AUTO = ['Assurance Automobile', 'Automobile Flotte'];
@@ -171,6 +173,8 @@ export default function DevisPage() {
   const [docVisite, setDocVisite] = useState<string[]>([]);
   // Pièce jointe pour un devis voyage (copie du passeport).
   const [docPasseport, setDocPasseport] = useState<string[]>([]);
+  // Réponses au questionnaire spécifique du produit (formulaire dynamique).
+  const [reponses, setReponses] = useState<Reponses>({});
   const [formData, setFormData] = useState({
     categorie: '',
     produit: '', // contient désormais l'ID réel du produit en base (cuid)
@@ -213,8 +217,20 @@ export default function DevisPage() {
   const voyageComplet = !estVoyage || (formData.destination !== '' && formData.duree !== '' && formData.ageAssure !== '');
   // Pour l'auto, la carte grise et la visite technique sont obligatoires.
   const autoComplet = !estAuto || (docCarteGrise.length > 0 && docVisite.length > 0);
+
+  // Questionnaire spécifique au produit choisi (formulaire dynamique).
+  const champsProduit = formulaireDe(produitChoisi?.nom);
+  // Toutes les questions requises du produit doivent être renseignées.
+  const questionnaireComplet = champsProduit
+    .filter((c) => c.requis)
+    .every((c) => {
+      const v = reponses[c.id];
+      return Array.isArray(v) ? v.length > 0 : !!(v && String(v).trim());
+    });
+
   const canGoToStep3 =
-    formData.produit !== '' && formData.nom !== '' && formData.telephone !== '' && voyageComplet && autoComplet;
+    formData.produit !== '' && formData.nom !== '' && formData.telephone !== '' &&
+    voyageComplet && autoComplet && questionnaireComplet;
 
   // Envoi réel : crée un devis en base via l'API (connexion obligatoire).
   const envoyerDevis = async () => {
@@ -246,6 +262,15 @@ export default function DevisPage() {
         docPasseport.forEach((u) => documents.push(`Passeport|${u}`));
       }
 
+      // Réponses au questionnaire : on ne garde que les champs du produit
+      // courant et qui ont une valeur (libellé lisible → valeur).
+      const reponsesProduit: Record<string, string> = {};
+      for (const c of champsProduit) {
+        const v = reponses[c.id];
+        const texte = Array.isArray(v) ? v.join(', ') : (v ?? '');
+        if (texte && String(texte).trim()) reponsesProduit[c.label] = String(texte);
+      }
+
       const res = await fetch('/api/devis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -253,6 +278,8 @@ export default function DevisPage() {
           produitId: formData.produit,
           description: lignes.join('\n'),
           documents,
+          reponses: Object.keys(reponsesProduit).length ? reponsesProduit : undefined,
+          telephoneContact: formData.telephone || undefined,
         }),
       });
 
@@ -533,6 +560,25 @@ export default function DevisPage() {
                     value={docPasseport}
                     onChange={setDocPasseport}
                   />
+                </motion.div>
+              )}
+
+              {/* Questionnaire spécifique au produit (formulaire dynamique) */}
+              {champsProduit.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8 rounded-2xl p-5"
+                  style={{ background: "#fbfdfd", border: "1.5px solid #e6f0f0" }}
+                >
+                  <div className="mb-5">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck size={18} style={{ color: "#2a8a8a" }} />
+                      <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Informations pour votre {produitChoisi?.nom}</h3>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Ces précisions permettent à nos conseillers de négocier la meilleure offre auprès des compagnies partenaires.</p>
+                  </div>
+                  <FormulaireDynamique champs={champsProduit} valeurs={reponses} onChange={setReponses} />
                 </motion.div>
               )}
 

@@ -77,7 +77,7 @@ export async function POST(
     return NextResponse.json({
       contrat: maj,
       email,
-      whatsapp: { telephone: contrat.user.telephone, message: messageWhatsapp },
+      whatsapp: { telephone: contrat.telephoneContact || contrat.user.telephone, message: messageWhatsapp },
     });
   } catch (e) {
     console.error("[contrats relance]", e);

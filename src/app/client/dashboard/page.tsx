@@ -18,7 +18,13 @@ import {
 
 type Utilisateur = { nom?: string; prenom?: string; email?: string; role?: string };
 
-type Devis = { id: string; statut?: string; produit?: { nom?: string } };
+type Devis = { id: string; statut?: string; dateCreation?: string; produit?: { nom?: string } };
+
+// Date + heure lisibles (ex. "8 juin 2026 à 14:32").
+const fmtDateHeure = (iso?: string) =>
+  iso
+    ? new Date(iso).toLocaleString("fr-FR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).replace(",", " à")
+    : "";
 
 type Contrat = {
   id: string;
@@ -112,10 +118,10 @@ export default function Dashboard() {
 
   const contratsActifs = contrats.filter((c) => c.statut === "actif").length;
   const stats = [
-    { label: "Contrats actifs", value: contratsActifs, Icon: FileText, cible: "section-contrats" },
+    { label: "Souscriptions actives", value: contratsActifs, Icon: FileText, cible: "section-contrats" },
     { label: "Sinistres", value: 0, Icon: AlertTriangle, cible: "section-sinistre" },
     { label: "Devis", value: devis.length, Icon: ClipboardList, cible: "section-devis" },
-    { label: "Contrats", value: contrats.length, Icon: CalendarClock, cible: "section-contrats" },
+    { label: "Souscriptions", value: contrats.length, Icon: CalendarClock, cible: "section-contrats" },
   ];
 
   return (
@@ -175,7 +181,7 @@ export default function Dashboard() {
         {/* Mes contrats */}
         <motion.div id="section-contrats" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.2 }} className="scroll-mt-28 bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
           <div className="px-6 sm:px-8 py-5 border-b" style={{ borderColor: "#eef4f4" }}>
-            <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes contrats</h2>
+            <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes souscriptions</h2>
           </div>
 
           {contrats.length === 0 ? (
@@ -184,9 +190,9 @@ export default function Dashboard() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FolderOpen size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun contrat pour le moment</p>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription pour le moment</p>
               <p className="text-gray-400 text-sm max-w-sm mb-6">
-                Vos contrats apparaîtront ici dès qu&apos;ils seront enregistrés. Commencez par demander un devis.
+                Vos souscriptions apparaîtront ici dès qu&apos;elles seront enregistrées. Commencez par demander un devis.
               </p>
               <Link
                 href="/devis"
@@ -218,7 +224,7 @@ export default function Dashboard() {
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105"
                       style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
                     >
-                      <Printer size={14} /> Imprimer
+                      <Printer size={14} /> Imprimer le reçu
                     </Link>
                   </div>
                 </li>
@@ -246,11 +252,16 @@ export default function Dashboard() {
             <ul className="divide-y divide-[#eef4f4]">
               {devis.map((d) => (
                 <li key={d.id} className="flex items-center justify-between px-6 sm:px-8 py-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                       <ClipboardList size={18} style={{ color: "#2a8a8a" }} />
                     </div>
-                    <span className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{d.produit?.nom ?? "Produit"}</span>
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{d.produit?.nom ?? "Produit"}</p>
+                      {d.dateCreation && (
+                        <p className="text-xs text-gray-400">Demande envoyée le {fmtDateHeure(d.dateCreation)}</p>
+                      )}
+                    </div>
                   </div>
                   <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
                     {(d.statut ?? "en_attente").replace(/_/g, " ")}

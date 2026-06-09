@@ -66,6 +66,15 @@ export default function Header() {
 
   const handleLinkClick = () => setIsMenuOpen(false);
 
+  // Bouton "Mon espace" : si on est déjà sur la page cible, on remonte en haut
+  // (sinon le clic ne ferait rien). Sinon, la navigation normale s'occupe du scroll.
+  const onEspaceClick = () => {
+    setIsMenuOpen(false);
+    if (pathname === espaceHref) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   const goToHome = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     router.push("/");
@@ -159,6 +168,7 @@ export default function Header() {
               })}
               <Link
                 href={espaceHref}
+                onClick={onEspaceClick}
                 className="px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 style={{
                   background: pathname === "/client"
@@ -256,7 +266,7 @@ export default function Header() {
                   background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)",
                   boxShadow: pathname === "/client" ? "0 0 0 3px rgba(42,138,138,0.3)" : "none",
                 }}
-                onClick={handleLinkClick}
+                onClick={onEspaceClick}
               >
                 {connecte ? "Mon espace" : "Espace Client"}
               </Link>

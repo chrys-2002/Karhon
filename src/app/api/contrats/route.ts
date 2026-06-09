@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth, exigerAdmin, estGerant } from "@/lib/session";
 import { ajouterMois } from "@/lib/contrats";
+import { estPartenaireValide } from "@/lib/partenaires";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
@@ -24,12 +25,19 @@ export async function POST(req: Request) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { devisId, dureeMois, primeAnnuelle, dateDebut, options } = await req.json();
+    const { devisId, dureeMois, primeAnnuelle, dateDebut, options, compagnie } = await req.json();
 
     // 1) Validation de base.
     if (!devisId || !dureeMois || primeAnnuelle == null) {
       return NextResponse.json(
         { erreur: "Devis, durée et prime sont obligatoires." },
+        { status: 400 }
+      );
+    }
+    // La compagnie partenaire est obligatoire et doit faire partie de la liste.
+    if (!estPartenaireValide(compagnie)) {
+      return NextResponse.json(
+        { erreur: "Compagnie partenaire invalide ou manquante." },
         { status: 400 }
       );
     }
@@ -66,6 +74,8 @@ export async function POST(req: Request) {
           dateFin: fin,
           dureeMois: Number(dureeMois),
           primeAnnuelle: prime,
+          compagnie,
+          telephoneContact: devis.telephoneContact ?? null,
           options: Array.isArray(options) ? options.filter((o) => typeof o === "string").slice(0, 20) : [],
           userId: devis.userId,
           produitId: devis.produitId,
