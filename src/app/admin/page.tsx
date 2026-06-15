@@ -127,6 +127,15 @@ type JournalEntree = {
   createdAt: string;
 };
 
+type RendezVousAdmin = {
+  id: string;
+  dateHeure: string;
+  statut: string;
+  motif: string;
+  notes?: string | null;
+  user?: UserAdmin;
+};
+
 type TrimestrePoint = { label: string; clients: number; devis: number; souscriptions: number; sinistres: number };
 type Apercu = {
   clients: number;
@@ -608,7 +617,8 @@ export default function AdminPage() {
   const [archContrats, setArchContrats] = useState<ContratAdmin[]>([]);
   const [journal, setJournal] = useState<JournalEntree[]>([]);
   const [apercu, setApercu] = useState<Apercu | null>(null);
-  const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "gerant">("accueil");
+  const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "rdv" | "gerant">("accueil");
+  const [rendezVous, setRendezVous] = useState<RendezVousAdmin[]>([]);
   const [majId, setMajId] = useState<string | null>(null);
   const [majSinistreId, setMajSinistreId] = useState<string | null>(null);
   // Id en cours d'action (suppression / relance) pour afficher le spinner.
@@ -654,11 +664,13 @@ export default function AdminPage() {
       fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
       fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
       fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
+      fetch("/api/rendez-vous").then((res) => (res.ok ? res.json() : { rendezVous: [] })),
     ])
-      .then(([dDevis, dSin, dCon]) => {
+      .then(([dDevis, dSin, dCon, dRdv]) => {
         if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
         if (Array.isArray(dSin.sinistres)) setSinistres(dSin.sinistres);
         if (Array.isArray(dCon.contrats)) setContrats(dCon.contrats);
+        if (Array.isArray(dRdv.rendezVous)) setRendezVous(dRdv.rendezVous);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -729,6 +741,24 @@ export default function AdminPage() {
       }
     } finally {
       setMajSinistreId(null);
+    }
+  };
+
+  // Change le statut d'un rendez-vous via PATCH /api/rendez-vous/[id].
+  const changerStatutRdv = async (id: string, statut: string) => {
+    setActionId(id);
+    try {
+      const res = await fetch(`/api/rendez-vous/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ statut }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRendezVous((prev) => prev.map((r) => (r.id === id ? { ...r, statut: data.rendezVous.statut } : r)));
+      }
+    } finally {
+      setActionId(null);
     }
   };
 
@@ -1045,6 +1075,7 @@ export default function AdminPage() {
             { cle: "devis", label: "Devis" },
             { cle: "sinistres", label: "Sinistres" },
             { cle: "souscriptions", label: "Souscriptions" },
+            { cle: "rdv", label: "Rendez-vous" },
             ...(estGerant ? [{ cle: "gerant", label: "Espace gérant" }] : []),
           ] as const).map((t) => {
             const badge = t.cle === "devis" ? enAttente : t.cle === "sinistres" ? sinistresATraiter : 0;
@@ -1498,6 +1529,96 @@ export default function AdminPage() {
           )}
         </motion.div>
 
+        )}
+
+        {/* ── Rendez-vous demandés par les clients ── */}
+        {vue === "rdv" && (
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.2 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <CalendarClock size={18} style={{ color: "#2a8a8a" }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Rendez-vous</h2>
+            </div>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+              {rendezVous.length} demande{rendezVous.length > 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {rendezVous.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-16 px-6">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <CalendarClock size={28} style={{ color: "#2a8a8a" }} />
+              </div>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun rendez-vous demandé</p>
+              <p className="text-gray-400 text-sm max-w-sm">Les demandes de rendez-vous des clients apparaîtront ici.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-[#eef4f4]">
+              {rendezVous.map((r) => {
+                const couleur =
+                  r.statut === "confirme" ? { bg: "#dcfce7", fg: "#166534" }
+                  : r.statut === "annule" ? { bg: "#fee2e2", fg: "#991b1b" }
+                  : r.statut === "termine" ? { bg: "#eaf4f4", fg: "#2a8a8a" }
+                  : { bg: "#fef9c3", fg: "#854d0e" };
+                const quand = new Date(r.dateHeure).toLocaleString("fr-FR", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }).replace(",", " à");
+                return (
+                  <li key={r.id} className="px-6 sm:px-8 py-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{r.motif}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {r.user ? `${r.user.prenom} ${r.user.nom}` : "Client"}
+                          {r.user?.telephone ? ` · ${r.user.telephone}` : ""}
+                        </p>
+                        <p className="text-xs capitalize mt-0.5" style={{ color: "#2a8a8a" }}>{quand}</p>
+                        {r.notes && <p className="text-xs text-gray-500 mt-1 italic">« {r.notes} »</p>}
+                      </div>
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>
+                        {(r.statut ?? "en_attente").replace(/_/g, " ")}
+                      </span>
+                    </div>
+
+                    {(r.statut === "en_attente" || r.statut === "confirme") && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {r.statut === "en_attente" && (
+                          <button
+                            disabled={actionId === r.id}
+                            onClick={() => changerStatutRdv(r.id, "confirme")}
+                            className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm disabled:opacity-50"
+                            style={{ background: "linear-gradient(135deg, #16a34a, #15803d)" }}
+                          >
+                            {actionId === r.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                            Confirmer
+                          </button>
+                        )}
+                        {r.statut === "confirme" && (
+                          <button
+                            disabled={actionId === r.id}
+                            onClick={() => changerStatutRdv(r.id, "termine")}
+                            className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm disabled:opacity-50"
+                            style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
+                          >
+                            <Check size={14} /> Marquer terminé
+                          </button>
+                        )}
+                        <button
+                          disabled={actionId === r.id}
+                          onClick={() => changerStatutRdv(r.id, "annule")}
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all hover:shadow-sm disabled:opacity-50"
+                          style={{ border: "1px solid #fecaca", color: "#b91c1c", background: "#fff" }}
+                        >
+                          <X size={14} /> Annuler
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </motion.div>
         )}
 
         {/* ── ESPACE GÉRANT : archives + journal d'audit (réservé) ── */}

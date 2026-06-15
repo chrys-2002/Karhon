@@ -44,6 +44,13 @@ type Sinistre = {
   dateSurvenance?: string;
 };
 
+type RendezVous = {
+  id: string;
+  statut?: string;
+  motif?: string;
+  dateHeure?: string;
+};
+
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
@@ -53,6 +60,7 @@ export default function Dashboard() {
   const [devis, setDevis] = useState<Devis[]>([]);
   const [contrats, setContrats] = useState<Contrat[]>([]);
   const [sinistres, setSinistres] = useState<Sinistre[]>([]);
+  const [rdv, setRdv] = useState<RendezVous[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmDeco, setConfirmDeco] = useState(false);
 
@@ -85,12 +93,14 @@ export default function Dashboard() {
       fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
       fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
       fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
+      fetch("/api/rendez-vous").then((res) => (res.ok ? res.json() : { rendezVous: [] })),
     ])
-      .then(([dDevis, dCon, dSin]) => {
+      .then(([dDevis, dCon, dSin, dRdv]) => {
         if (annule) return;
         if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
         if (Array.isArray(dCon.contrats)) setContrats(dCon.contrats);
         if (Array.isArray(dSin.sinistres)) setSinistres(dSin.sinistres);
+        if (Array.isArray(dRdv.rendezVous)) setRdv(dRdv.rendezVous);
       })
       .catch(() => {/* compteurs restent à 0 */});
     return () => {
@@ -339,8 +349,65 @@ export default function Dashboard() {
           )}
         </motion.div>
 
+        {/* Mes rendez-vous */}
+        <motion.div id="section-rdv" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.29 }} className="scroll-mt-28 bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
+            <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes rendez-vous</h2>
+            <Link href="/client/rendez-vous/nouveau" className="text-sm font-semibold" style={{ color: "#2a8a8a" }}>+ Prendre rendez-vous</Link>
+          </div>
+
+          {rdv.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-12 px-6">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <CalendarClock size={24} style={{ color: "#2a8a8a" }} />
+              </div>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun rendez-vous</p>
+              <p className="text-gray-400 text-sm max-w-sm">Prenez rendez-vous avec un conseiller, vos créneaux apparaîtront ici.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-[#eef4f4]">
+              {rdv.map((r) => {
+                const statut = r.statut ?? "en_attente";
+                const couleur =
+                  statut === "confirme" ? { bg: "#dcfce7", fg: "#166534" }
+                  : statut === "annule" ? { bg: "#fee2e2", fg: "#991b1b" }
+                  : statut === "termine" ? { bg: "#eaf4f4", fg: "#2a8a8a" }
+                  : { bg: "#fef9c3", fg: "#854d0e" };
+                return (
+                  <li key={r.id} className="flex items-center justify-between px-6 sm:px-8 py-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                        <CalendarClock size={18} style={{ color: "#2a8a8a" }} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{r.motif ?? "Rendez-vous"}</p>
+                        {r.dateHeure && <p className="text-xs text-gray-400">{fmtDateHeure(r.dateHeure)}</p>}
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>
+                      {statut.replace(/_/g, " ")}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </motion.div>
+
         {/* Actions rapides */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="scroll-mt-28 grid sm:grid-cols-2 gap-4 sm:gap-6">
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="scroll-mt-28 grid sm:grid-cols-3 gap-4 sm:gap-6">
+          <Link href="/client/rendez-vous/nouveau">
+            <div className="bg-white rounded-3xl p-6 border flex items-center gap-4 transition-all hover:shadow-md hover:scale-[1.01] cursor-pointer h-full" style={{ borderColor: "#e0ecec" }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <CalendarClock size={22} style={{ color: "#2a8a8a" }} />
+              </div>
+              <div>
+                <h3 className="font-semibold" style={{ color: "#1a2e5a" }}>Prendre rendez-vous</h3>
+                <p className="text-gray-400 text-sm">Rencontrez un conseiller à votre créneau</p>
+              </div>
+            </div>
+          </Link>
+
           <Link href="/client/sinistres/nouveau">
             <div className="bg-white rounded-3xl p-6 border flex items-center gap-4 transition-all hover:shadow-md hover:scale-[1.01] cursor-pointer h-full" style={{ borderColor: "#e0ecec" }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>

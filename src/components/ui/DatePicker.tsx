@@ -14,6 +14,8 @@ type DatePickerProps = {
   max?: string;
   /** Date minimale autorisée (AAAA-MM-JJ). */
   min?: string;
+  /** Désactive les samedis et dimanches (jours non ouvrés). */
+  desactiverWeekends?: boolean;
   placeholder?: string;
 };
 
@@ -35,7 +37,7 @@ function versISO(d: Date) {
   return `${a}-${m}-${j}`;
 }
 
-export default function DatePicker({ value, onChange, max, min, placeholder = "Choisir une date" }: DatePickerProps) {
+export default function DatePicker({ value, onChange, max, min, desactiverWeekends = false, placeholder = "Choisir une date" }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   // Le panneau s'ouvre vers le haut s'il manque de place en bas (ex. en bas d'une modale).
   const [versLeHaut, setVersLeHaut] = useState(false);
@@ -79,6 +81,10 @@ export default function DatePicker({ value, onChange, max, min, placeholder = "C
   const estDesactive = (iso: string) => {
     if (max && iso > max) return true;
     if (min && iso < min) return true;
+    if (desactiverWeekends) {
+      const jour = new Date(iso + "T00:00:00").getDay(); // 0 = dimanche, 6 = samedi
+      if (jour === 0 || jour === 6) return true;
+    }
     return false;
   };
 
