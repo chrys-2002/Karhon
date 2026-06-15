@@ -46,7 +46,7 @@ export default function ClientLoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, motDePasse: formData.password }),
+        body: JSON.stringify({ identifiant: formData.email, motDePasse: formData.password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -185,7 +185,7 @@ export default function ClientLoginPage() {
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white text-gray-400 font-medium">Ou avec votre email</span>
+                <span className="px-3 bg-white text-gray-400 font-medium">{isLogin ? "Ou avec email / téléphone" : "Ou avec votre email"}</span>
               </div>
             </div>
 
@@ -230,7 +230,7 @@ export default function ClientLoginPage() {
 
               <div className="relative">
                 <Mail className="absolute left-4 top-3.5 text-gray-400" size={18} />
-                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Adresse email" required
+                <input type={isLogin ? "text" : "email"} name="email" value={formData.email} onChange={handleChange} placeholder={isLogin ? "Email ou téléphone" : "Adresse email"} required
                   className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
               </div>
               

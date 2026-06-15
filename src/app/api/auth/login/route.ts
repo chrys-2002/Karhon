@@ -1,7 +1,7 @@
 // POST /api/auth/login — Connexion d'un utilisateur existant.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifierMotDePasse, genererToken } from "@/lib/auth";
+import { verifierMotDePasse, genererToken, normaliserTelephone, estEmail } from "@/lib/auth";
 import { COOKIE_NAME, cookieOptions } from "@/lib/session";
 import { verifierLimite } from "@/lib/rateLimit";
 
@@ -16,44 +16,58 @@ export async function POST(req: Request) {
     if (!corps || typeof corps !== "object") {
       return NextResponse.json({ erreur: "Requête invalide." }, { status: 400 });
     }
-    const { email, motDePasse } = corps;
+    // Identifiant = email OU téléphone (on accepte aussi l'ancien champ "email").
+    const { identifiant, email, motDePasse } = corps;
+    const saisie = String(identifiant ?? email ?? "").trim();
 
-    if (!email || !motDePasse) {
+    if (!saisie || !motDePasse) {
       return NextResponse.json(
-        { erreur: "Email et mot de passe requis." },
+        { erreur: "Identifiant et mot de passe requis." },
         { status: 400 }
       );
     }
 
-    // Normalise l'email : minuscules + espaces retirés.
-    // Évite qu'une simple différence de casse/espace soit vue comme un mauvais identifiant.
-    const emailNormalise = String(email).trim().toLowerCase();
+    // Identité retenue (client ou personnel) → on remplit ces variables.
+    let id = "", nom = "", prenom = "", emailCompte = "";
+    let role: "client" | "agent" | "gerant" | "admin" = "client";
+    let empreinte: string | null = null;
 
-    // 1) Cherche l'utilisateur par email.
-    const user = await prisma.user.findUnique({ where: { email: emailNormalise } });
+    // 1) PERSONNEL d'abord : la connexion par email cherche dans la table Admin.
+    //    (Le personnel se connecte par email ; les clients par email ou téléphone.)
+    if (estEmail(saisie)) {
+      const admin = await prisma.admin.findUnique({ where: { email: saisie.toLowerCase() } });
+      if (admin) {
+        id = admin.id; nom = admin.nom; prenom = admin.prenom; emailCompte = admin.email;
+        role = admin.role; empreinte = admin.motDePasse;
+      }
+    }
 
-    // 2) Vérifie le mot de passe.
-    //    Message volontairement identique si email OU mot de passe faux
-    //    → on ne révèle pas si l'email existe (bonne pratique de sécurité).
-    // user.motDePasse peut être null (compte créé via Google) → pas de
-    // connexion par mot de passe possible ; message volontairement identique.
-    if (!user || !user.motDePasse || !(await verifierMotDePasse(motDePasse, user.motDePasse))) {
+    // 2) Sinon CLIENT : par email ou par téléphone (numéro normalisé).
+    if (!id) {
+      const user = estEmail(saisie)
+        ? await prisma.user.findUnique({ where: { email: saisie.toLowerCase() } })
+        : await prisma.user.findUnique({ where: { telephone: normaliserTelephone(saisie) } });
+      if (user) {
+        id = user.id; nom = user.nom; prenom = user.prenom; emailCompte = user.email;
+        role = "client"; empreinte = user.motDePasse; // User = toujours un client
+      }
+    }
+
+    // 3) Vérifie le mot de passe.
+    //    Message volontairement identique si identifiant OU mot de passe faux
+    //    → on ne révèle pas si le compte existe (anti-énumération).
+    //    `empreinte` peut être null (compte Google) → pas de connexion par mot de passe.
+    if (!id || !empreinte || !(await verifierMotDePasse(motDePasse, empreinte))) {
       return NextResponse.json(
-        { erreur: "Email ou mot de passe incorrect." },
+        { erreur: "Identifiant ou mot de passe incorrect." },
         { status: 401 }
       );
     }
 
-    // 3) Délivre le jeton dans un cookie sécurisé.
-    const token = genererToken({ userId: user.id, email: user.email, role: user.role });
+    // 4) Délivre le jeton dans un cookie sécurisé.
+    const token = genererToken({ userId: id, email: emailCompte, role });
     const res = NextResponse.json({
-      utilisateur: {
-        id: user.id,
-        nom: user.nom,
-        prenom: user.prenom,
-        email: user.email,
-        role: user.role,
-      },
+      utilisateur: { id, nom, prenom, email: emailCompte, role },
     });
     res.cookies.set(COOKIE_NAME, token, cookieOptions);
     return res;

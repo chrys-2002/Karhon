@@ -444,7 +444,7 @@ export default function ContactPage() {
                   {
                     Icon: MapPin,
                     title: 'Adresse',
-                    content: <p className="text-gray-600 text-sm">Cocody, Angré 8ème Tranche — BP V 236 Abidjan</p>,
+                    content: <p className="text-gray-600 text-sm">Rue Manglé Yves Éric Akran, Angré 8ème Tranche — Cocody, BP V 236 Abidjan</p>,
                   },
                   {
                     Icon: Clock,

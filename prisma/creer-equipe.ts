@@ -27,25 +27,24 @@ const equipe = [
 async function main() {
   for (const m of equipe) {
     const hash = await bcrypt.hash(m.motDePasse, 10);
-    await prisma.user.upsert({
+    // Le personnel vit désormais dans la table Admin (séparée des clients).
+    await prisma.admin.upsert({
       where: { email: m.email },
       update: { motDePasse: hash, role: m.role, nom: m.nom, prenom: m.prenom },
       create: {
         email: m.email,
         nom: m.nom,
         prenom: m.prenom,
-        telephone: "+225 07 87 10 39 39",
         motDePasse: hash,
         role: m.role,
       },
     });
   }
 
-  // Convertit l'ancien compte admin en gérant (compatibilité).
-  await prisma.user.updateMany({
-    where: { email: "admin@karhon.ci" },
-    data: { role: "gerant" },
-  });
+  // Nettoyage : retire de la table User les anciens comptes du personnel
+  // (qui y figuraient avant la séparation Client / Admin), pour éviter les doublons.
+  const emailsStaff = [...equipe.map((m) => m.email), "admin@karhon.ci"];
+  await prisma.user.deleteMany({ where: { email: { in: emailsStaff } } });
 
   console.log("✅ Équipe créée / mise à jour :\n");
   console.table(equipe.map((m) => ({ Identifiant: m.email, "Mot de passe": m.motDePasse, Rôle: m.role })));

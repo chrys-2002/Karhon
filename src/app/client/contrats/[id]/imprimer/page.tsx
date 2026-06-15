@@ -5,7 +5,7 @@
 // déclenche la boîte d'impression du navigateur (→ imprimer ou enregistrer en PDF).
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Printer, ArrowLeft, Loader2, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Printer, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 
 type Contrat = {
   id: string;
@@ -87,12 +87,11 @@ export default function ImprimerContrat() {
       {/* Le reçu */}
       <div id="recu" className="max-w-2xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden print:shadow-none print:rounded-none">
         {/* En-tête */}
-        <div className="px-8 py-7 text-white" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+        <div className="px-8 py-7 text-white" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
-                <ShieldCheck size={26} />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-11 w-auto" />
               <div>
                 <h1 className="text-xl font-bold leading-tight">KARHON Assurances</h1>
                 <p className="text-xs text-white/70">Cabinet de courtage — Abidjan</p>

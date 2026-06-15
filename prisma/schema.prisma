@@ -27,6 +27,13 @@ enum Role {
   admin   // ancien rôle (compatibilité) — traité comme gérant
 }
 
+// Rôles du PERSONNEL (table Admin), séparés des clients pour plus de
+// sécurité et de clarté.
+enum RoleAdmin {
+  agent
+  gerant
+}
+
 enum StatutDevis {
   en_attente
   en_cours
@@ -67,7 +74,7 @@ model User {
   nom             String
   prenom          String
   email           String       @unique
-  telephone       String?      // optionnel : non fourni lors d'une connexion Google
+  telephone       String?      @unique // unique : sert d'identifiant de connexion ; null pour les comptes Google sans numéro
   adresse         String?
   motDePasse      String?      // haché (bcrypt) ; null pour les comptes Google
   googleId        String?      @unique // identifiant Google si connexion via Google
@@ -86,6 +93,20 @@ model User {
   sinistres       Sinistre[]
 
   @@map("users")
+}
+
+// Personnel du back-office (agents + gérant), séparé des clients.
+// Un seul champ `role` distingue agent et gérant.
+model Admin {
+  id           String    @id @default(cuid())
+  nom          String
+  prenom       String
+  email        String    @unique
+  motDePasse   String    // haché (bcrypt)
+  role         RoleAdmin @default(agent)
+  dateCreation DateTime  @default(now())
+
+  @@map("admins")
 }
 
 model Produit {

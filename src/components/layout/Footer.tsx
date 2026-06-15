@@ -64,9 +64,11 @@ function ColTitle({ label }: { label: string }) {
 
 // ============= MODALE DE LOCALISATION =============
 function LocationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("KARHON Assurances Angré 8ème Tranche Abidjan")}`;
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent("Angré 8ème Tranche, Abidjan, Côte d'Ivoire")}`;
-  const embedUrl = `https://www.google.com/maps?q=${encodeURIComponent("Angré 8ème Tranche, Abidjan, Côte d'Ivoire")}&output=embed`;
+  // Siège exact : Rue Manglé Yves Éric Akran (5°24'37.4"N 3°59'01.5"W).
+  const COORDS = "5.410389,-3.98375";
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${COORDS}`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${COORDS}`;
+  const embedUrl = `https://www.google.com/maps?q=${COORDS}&output=embed`;
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
@@ -126,8 +128,8 @@ function LocationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                 <div className="flex-1">
                   <h3 className="font-bold text-sm mb-1" style={{ color: "#1a2e5a" }}>Adresse physique</h3>
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    Zone résidentielle et commerciale<br />
-                    <strong>Angré 8ème Tranche</strong><br />
+                    <strong>Rue Manglé Yves Éric Akran</strong><br />
+                    Angré 8ème Tranche — Cocody<br />
                     Abidjan, Côte d&apos;Ivoire
                   </p>
                 </div>

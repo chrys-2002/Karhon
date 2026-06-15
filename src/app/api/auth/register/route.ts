@@ -1,7 +1,7 @@
 // POST /api/auth/register — Inscription d'un nouveau client.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hacherMotDePasse, genererToken } from "@/lib/auth";
+import { hacherMotDePasse, genererToken, normaliserTelephone } from "@/lib/auth";
 import { COOKIE_NAME, cookieOptions } from "@/lib/session";
 import { verifierLimite } from "@/lib/rateLimit";
 
@@ -31,11 +31,23 @@ export async function POST(req: Request) {
     // avec la connexion : un compte = un email unique, quelle que soit la casse.
     const emailNormalise = String(email).trim().toLowerCase();
 
-    // 2) Vérifie qu'aucun compte n'existe déjà avec cet email.
-    const existant = await prisma.user.findUnique({ where: { email: emailNormalise } });
-    if (existant) {
+    // Normalise le numéro (sert d'identifiant de connexion → doit être cohérent).
+    const telNormalise = normaliserTelephone(telephone);
+    if (telNormalise.length < 8) {
       return NextResponse.json(
-        { erreur: "Un compte existe déjà avec cet email." },
+        { erreur: "Numéro de téléphone invalide." },
+        { status: 400 }
+      );
+    }
+
+    // 2) Vérifie qu'aucun compte n'existe déjà avec cet email OU ce téléphone.
+    const existant = await prisma.user.findFirst({
+      where: { OR: [{ email: emailNormalise }, { telephone: telNormalise }] },
+    });
+    if (existant) {
+      const memeTel = existant.telephone === telNormalise;
+      return NextResponse.json(
+        { erreur: memeTel ? "Un compte existe déjà avec ce numéro de téléphone." : "Un compte existe déjà avec cet email." },
         { status: 409 }
       );
     }
@@ -43,7 +55,7 @@ export async function POST(req: Request) {
     // 3) Hache le mot de passe puis crée l'utilisateur.
     const empreinte = await hacherMotDePasse(motDePasse);
     const user = await prisma.user.create({
-      data: { nom, prenom, email: emailNormalise, telephone, adresse, motDePasse: empreinte },
+      data: { nom, prenom, email: emailNormalise, telephone: telNormalise, adresse, motDePasse: empreinte },
     });
 
     // 4) Délivre un jeton et le pose dans un cookie sécurisé.

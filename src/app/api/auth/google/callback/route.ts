@@ -51,14 +51,20 @@ export async function GET(req: Request) {
         grant_type: "authorization_code",
       }),
     });
-    if (!tokenRes.ok) return echec("google_token");
+    if (!tokenRes.ok) {
+      console.error("[google callback] échange token échoué:", tokenRes.status, await tokenRes.text().catch(() => ""));
+      return echec("google_token");
+    }
     const tokenData = await tokenRes.json();
 
     // 3) Récupère le profil utilisateur.
     const profilRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: { Authorization: `Bearer ${tokenData.access_token}` },
     });
-    if (!profilRes.ok) return echec("google_profil");
+    if (!profilRes.ok) {
+      console.error("[google callback] profil échoué:", profilRes.status, await profilRes.text().catch(() => ""));
+      return echec("google_profil");
+    }
     const profil = await profilRes.json();
 
     const email = String(profil.email || "").trim().toLowerCase();

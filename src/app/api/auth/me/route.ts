@@ -10,6 +10,18 @@ export async function GET() {
     return NextResponse.json({ erreur: "Non authentifié." }, { status: 401 });
   }
 
+  // Personnel (agent/gérant) → table Admin ; client → table User.
+  if (session.role !== "client") {
+    const admin = await prisma.admin.findUnique({
+      where: { id: session.userId },
+      select: { id: true, nom: true, prenom: true, email: true, role: true, dateCreation: true },
+    });
+    if (!admin) {
+      return NextResponse.json({ erreur: "Compte introuvable." }, { status: 404 });
+    }
+    return NextResponse.json({ utilisateur: admin });
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: {

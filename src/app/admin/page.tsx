@@ -27,7 +27,11 @@ import {
   History,
   ShieldAlert,
   Printer,
+  Users,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { infoRelance } from "@/lib/contrats";
 import { PARTENAIRES } from "@/lib/partenaires";
 import DatePicker from "@/components/ui/DatePicker";
@@ -122,6 +126,55 @@ type JournalEntree = {
   auteurNom?: string | null;
   createdAt: string;
 };
+
+type TrimestrePoint = { label: string; clients: number; devis: number; souscriptions: number; sinistres: number };
+type Apercu = {
+  clients: number;
+  devisTotal: number;
+  devisParStatut: Record<string, number>;
+  contratsActifs: number;
+  echeancesProches: number;
+  sinistresTotal: number;
+  sinistresEnCours: number;
+  tauxConversion: number;
+  trimestres: TrimestrePoint[];
+};
+
+// Graphe d'évolution trimestriel : courbes lisses animées (Recharts).
+//   Tooltips au survol, légende cliquable, animation d'entrée par courbe.
+function GrapheTrimestriel({ data }: { data: TrimestrePoint[] }) {
+  const courbes = [
+    { cle: "clients", nom: "Nouveaux clients", couleur: "#1a2e5a" },
+    { cle: "devis", nom: "Devis reçus", couleur: "#2a8a8a" },
+    { cle: "souscriptions", nom: "Souscriptions", couleur: "#16a34a" },
+    { cle: "sinistres", nom: "Sinistres", couleur: "#f59e0b" },
+  ];
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <LineChart data={data} margin={{ top: 10, right: 20, left: -12, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#eef4f4" vertical={false} />
+        <XAxis dataKey="label" tick={{ fill: "#1a2e5a", fontSize: 12 }} axisLine={{ stroke: "#e0ecec" }} tickLine={false} />
+        <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e0ecec", fontSize: 13 }} />
+        <Legend wrapperStyle={{ fontSize: 12 }} />
+        {courbes.map((c) => (
+          <Line
+            key={c.cle}
+            type="monotone"
+            dataKey={c.cle}
+            name={c.nom}
+            stroke={c.couleur}
+            strokeWidth={3}
+            dot={{ r: 3, strokeWidth: 0, fill: c.couleur }}
+            activeDot={{ r: 5 }}
+            animationDuration={900}
+            animationEasing="ease-in-out"
+          />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
 
 // Affiche les pièces jointes (format "Libellé|url") en miniatures cliquables.
 function PiecesJointes({ documents }: { documents?: string[] }) {
@@ -548,11 +601,14 @@ export default function AdminPage() {
   const [contrats, setContrats] = useState<ContratAdmin[]>([]);
   // Devis en cours de conversion en contrat (ouvre la modale).
   const [conversion, setConversion] = useState<DevisAdmin | null>(null);
+  const [confirmDeco, setConfirmDeco] = useState(false);
   // Archives + journal d'audit (gérant uniquement).
   const [archDevis, setArchDevis] = useState<DevisAdmin[]>([]);
   const [archSinistres, setArchSinistres] = useState<SinistreAdmin[]>([]);
   const [archContrats, setArchContrats] = useState<ContratAdmin[]>([]);
   const [journal, setJournal] = useState<JournalEntree[]>([]);
+  const [apercu, setApercu] = useState<Apercu | null>(null);
+  const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "gerant">("accueil");
   const [majId, setMajId] = useState<string | null>(null);
   const [majSinistreId, setMajSinistreId] = useState<string | null>(null);
   // Id en cours d'action (suppression / relance) pour afficher le spinner.
@@ -608,6 +664,15 @@ export default function AdminPage() {
       .catch(() => setLoading(false));
   }, [autorise]);
 
+  // 2bis) Indicateurs et série trimestrielle (calculés côté serveur).
+  useEffect(() => {
+    if (!autorise) return;
+    fetch("/api/stats")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && typeof d.clients === "number") setApercu(d); })
+      .catch(() => {});
+  }, [autorise]);
+
   // 3) Données réservées au gérant : archives (éléments supprimés) + journal d'audit.
   useEffect(() => {
     if (!autorise || !estGerant) return;
@@ -628,7 +693,7 @@ export default function AdminPage() {
 
   const seDeconnecter = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/client");
+    router.push("/"); // retour à la page d'accueil principale
   };
 
   // Change le statut d'un devis via PATCH /api/devis/[id].
@@ -869,6 +934,10 @@ export default function AdminPage() {
   const acceptes = devis.filter((d) => d.statut === "accepte").length;
   const refuses = devis.filter((d) => d.statut === "refuse").length;
 
+  // À traiter : devis en attente (cotation) + sinistres ouverts (déclaré / en cours).
+  const sinistresATraiter = sinistres.filter((s) => s.statut === "declare" || s.statut === "en_cours").length;
+  const aTraiter = enAttente + sinistresATraiter;
+
   const stats = [
     { label: "Devis reçus", value: total, Icon: ClipboardList, filtre: "tous" },
     { label: "En attente", value: enAttente, Icon: Clock, filtre: "en_attente" },
@@ -903,14 +972,49 @@ export default function AdminPage() {
             </div>
           </div>
           <button
-            onClick={seDeconnecter}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm border transition-all hover:scale-[1.02] active:scale-95"
-            style={{ color: "#1a2e5a", borderColor: "#cfe3e3", backgroundColor: "#ffffff" }}
+            onClick={() => setConfirmDeco(true)}
+            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm border border-red-200 text-red-600 bg-white transition-all hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-lg active:scale-95"
           >
-            <LogOut size={16} style={{ color: "#2a8a8a" }} />
+            <LogOut size={16} className="transition-transform group-hover:-translate-x-0.5" />
             Se déconnecter
           </button>
         </motion.div>
+
+        {/* Alerte : éléments à traiter dès l'arrivée de l'agent */}
+        {aTraiter > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl px-5 py-4 border"
+            style={{ background: "linear-gradient(135deg, #fff7ed, #fffbeb)", borderColor: "#fed7aa" }}
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#fef3c7" }}>
+              <BellRing size={20} style={{ color: "#b45309" }} />
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <p className="font-semibold text-sm" style={{ color: "#92600a" }}>
+                {aTraiter} élément{aTraiter > 1 ? "s" : ""} à traiter
+              </p>
+              <p className="text-xs" style={{ color: "#a16207" }}>
+                {enAttente > 0 && `${enAttente} devis en attente de cotation`}
+                {enAttente > 0 && sinistresATraiter > 0 && " · "}
+                {sinistresATraiter > 0 && `${sinistresATraiter} sinistre${sinistresATraiter > 1 ? "s" : ""} à gérer`}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {enAttente > 0 && (
+                <button onClick={() => setVue("devis")} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #b45309, #d97706)" }}>
+                  Voir les devis
+                </button>
+              )}
+              {sinistresATraiter > 0 && (
+                <button onClick={() => setVue("sinistres")} className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105" style={{ background: "#fff", color: "#b45309", border: "1px solid #fed7aa" }}>
+                  Voir les sinistres
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
 
         {/* Bandeau de retour (relance / suppression) */}
         <AnimatePresence>
@@ -934,6 +1038,112 @@ export default function AdminPage() {
           )}
         </AnimatePresence>
 
+        {/* Navigation par onglets (blocs) */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {([
+            { cle: "accueil", label: "Accueil" },
+            { cle: "devis", label: "Devis" },
+            { cle: "sinistres", label: "Sinistres" },
+            { cle: "souscriptions", label: "Souscriptions" },
+            ...(estGerant ? [{ cle: "gerant", label: "Espace gérant" }] : []),
+          ] as const).map((t) => {
+            const badge = t.cle === "devis" ? enAttente : t.cle === "sinistres" ? sinistresATraiter : 0;
+            return (
+              <button
+                key={t.cle}
+                onClick={() => setVue(t.cle as typeof vue)}
+                className="relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.03] active:scale-95"
+                style={
+                  vue === t.cle
+                    ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#ffffff", boxShadow: "0 6px 18px rgba(42,138,138,0.22)" }
+                    : { background: "#ffffff", color: "#1a2e5a", border: "1px solid #e0ecec" }
+                }
+              >
+                {t.label}
+                {badge > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: "#dc2626" }}>
+                    {badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {vue === "accueil" && (<>
+        {/* Vue d'ensemble : indicateurs clés (lecture seule) */}
+        {apercu && (
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.05 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+            {/* Clients */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Clients</p>
+                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.clients}</p>
+                  <p className="text-xs text-gray-400 mt-1">inscrits</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <Users size={20} style={{ color: "#2a8a8a" }} />
+                </div>
+              </div>
+            </div>
+            {/* Devis */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Devis</p>
+                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.devisTotal}</p>
+                  <p className="text-xs text-gray-400 mt-1">{apercu.devisParStatut["en_attente"] ?? 0} en attente · {apercu.devisParStatut["accepte"] ?? 0} acceptés</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <ClipboardList size={20} style={{ color: "#2a8a8a" }} />
+                </div>
+              </div>
+            </div>
+            {/* Souscriptions actives */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Souscriptions actives</p>
+                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.contratsActifs}</p>
+                  <p className="text-xs text-gray-400 mt-1">{apercu.echeancesProches} échéance{apercu.echeancesProches > 1 ? "s" : ""} ≤ 90 j</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <FileSignature size={20} style={{ color: "#2a8a8a" }} />
+                </div>
+              </div>
+            </div>
+            {/* Sinistres + conversion */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Sinistres</p>
+                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.sinistresEnCours}</p>
+                  <p className="text-xs text-gray-400 mt-1 inline-flex items-center gap-1"><TrendingUp size={12} style={{ color: "#16a34a" }} /> {apercu.tauxConversion}% conversion</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <AlertTriangle size={20} style={{ color: "#2a8a8a" }} />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Graphe d'évolution trimestriel */}
+        {apercu && (
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8 mb-8" style={{ borderColor: "#e0ecec" }}>
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Évolution sur les 6 derniers trimestres</h2>
+            </div>
+            <GrapheTrimestriel data={apercu.trimestres} />
+          </motion.div>
+        )}
+        </>)}
+
+        {vue === "devis" && (<>
         {/* Statistiques cliquables (filtrent la liste) */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.1 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {stats.map(({ label, value, Icon, filtre: f }) => {
@@ -1071,8 +1281,11 @@ export default function AdminPage() {
           )}
         </motion.div>
 
+        </>)}
+
         {/* ── Sinistres déclarés par les clients ── */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="mt-8 bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+        {vue === "sinistres" && (
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -1167,8 +1380,11 @@ export default function AdminPage() {
           )}
         </motion.div>
 
+        )}
+
         {/* ── Contrats & rappels de renouvellement ── */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.35 }} className="mt-8 bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+        {vue === "souscriptions" && (
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.35 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -1282,8 +1498,10 @@ export default function AdminPage() {
           )}
         </motion.div>
 
+        )}
+
         {/* ── ESPACE GÉRANT : archives + journal d'audit (réservé) ── */}
-        {estGerant && (
+        {vue === "gerant" && estGerant && (
           <>
             {/* Bandeau de rôle */}
             <div className="mt-10 mb-4 flex items-center gap-2">
@@ -1394,6 +1612,50 @@ export default function AdminPage() {
             onClose={() => setConversion(null)}
             onSubmit={creerContrat}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Modale : confirmation de déconnexion */}
+      <AnimatePresence>
+        {confirmDeco && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(15,23,42,0.5)" }}
+            onClick={() => setConfirmDeco(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center"
+            >
+              <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "#fee2e2" }}>
+                <LogOut size={24} style={{ color: "#dc2626" }} />
+              </div>
+              <h3 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Se déconnecter ?</h3>
+              <p className="text-sm text-gray-500 mb-6">Vous allez quitter votre session et revenir à l&apos;accueil.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmDeco(false)}
+                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50 active:scale-95"
+                  style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={seDeconnecter}
+                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #dc2626, #b91c1c)" }}
+                >
+                  Se déconnecter
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

@@ -1,8 +1,9 @@
 "use client";
+// Tableau de bord client : souscriptions, devis et sinistres.
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import BackButton from "@/components/ui/BackButton";
 import {
   FileText,
@@ -35,6 +36,14 @@ type Contrat = {
   produit?: { nom?: string };
 };
 
+type Sinistre = {
+  id: string;
+  statut?: string;
+  typeAssurance?: string | null;
+  dateDeclaration?: string;
+  dateSurvenance?: string;
+};
+
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
@@ -43,7 +52,9 @@ export default function Dashboard() {
   const [user, setUser] = useState<Utilisateur | null>(null);
   const [devis, setDevis] = useState<Devis[]>([]);
   const [contrats, setContrats] = useState<Contrat[]>([]);
+  const [sinistres, setSinistres] = useState<Sinistre[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDeco, setConfirmDeco] = useState(false);
 
   // Récupère l'utilisateur réellement connecté via le cookie de session.
   useEffect(() => {
@@ -73,11 +84,13 @@ export default function Dashboard() {
     Promise.all([
       fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
       fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
+      fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
     ])
-      .then(([dDevis, dCon]) => {
+      .then(([dDevis, dCon, dSin]) => {
         if (annule) return;
         if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
         if (Array.isArray(dCon.contrats)) setContrats(dCon.contrats);
+        if (Array.isArray(dSin.sinistres)) setSinistres(dSin.sinistres);
       })
       .catch(() => {/* compteurs restent à 0 */});
     return () => {
@@ -88,7 +101,7 @@ export default function Dashboard() {
   // Déconnexion : efface le cookie côté serveur puis redirige.
   const seDeconnecter = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/client");
+    router.push("/"); // retour à la page d'accueil principale
   };
 
   if (loading) {
@@ -117,11 +130,19 @@ export default function Dashboard() {
   };
 
   const contratsActifs = contrats.filter((c) => c.statut === "actif").length;
+  // Échéances proches : souscriptions actives arrivant à terme dans ≤ 90 jours.
+  const dansFenetre90 = (iso?: string) => {
+    if (!iso) return false;
+    const jours = (new Date(iso).getTime() - Date.now()) / 86_400_000;
+    return jours > 0 && jours <= 90;
+  };
+  const echeancesProches = contrats.filter((c) => c.statut === "actif" && dansFenetre90(c.dateFin)).length;
+
   const stats = [
     { label: "Souscriptions actives", value: contratsActifs, Icon: FileText, cible: "section-contrats" },
-    { label: "Sinistres", value: 0, Icon: AlertTriangle, cible: "section-sinistre" },
+    { label: "Sinistres", value: sinistres.length, Icon: AlertTriangle, cible: "section-sinistres" },
     { label: "Devis", value: devis.length, Icon: ClipboardList, cible: "section-devis" },
-    { label: "Souscriptions", value: contrats.length, Icon: CalendarClock, cible: "section-contrats" },
+    { label: "Échéances proches", value: echeancesProches, Icon: CalendarClock, cible: "section-contrats" },
   ];
 
   return (
@@ -146,11 +167,10 @@ export default function Dashboard() {
             </div>
           </div>
           <button
-            onClick={seDeconnecter}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm border transition-all hover:scale-[1.02] active:scale-95"
-            style={{ color: "#1a2e5a", borderColor: "#cfe3e3", backgroundColor: "#ffffff" }}
+            onClick={() => setConfirmDeco(true)}
+            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm border border-red-200 text-red-600 bg-white transition-all hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-lg active:scale-95"
           >
-            <LogOut size={16} style={{ color: "#2a8a8a" }} />
+            <LogOut size={16} className="transition-transform group-hover:-translate-x-0.5" />
             Se déconnecter
           </button>
         </motion.div>
@@ -272,8 +292,55 @@ export default function Dashboard() {
           )}
         </motion.div>
 
+        {/* Mes sinistres */}
+        <motion.div id="section-sinistres" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.28 }} className="scroll-mt-28 bg-white rounded-3xl shadow-sm border overflow-hidden mb-8" style={{ borderColor: "#e0ecec" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
+            <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Mes sinistres</h2>
+            <Link href="/client/sinistres/nouveau" className="text-sm font-semibold" style={{ color: "#2a8a8a" }}>+ Déclarer</Link>
+          </div>
+
+          {sinistres.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-12 px-6">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <AlertTriangle size={24} style={{ color: "#2a8a8a" }} />
+              </div>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun sinistre déclaré</p>
+              <p className="text-gray-400 text-sm max-w-sm">Vos déclarations de sinistre et leur suivi apparaîtront ici.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-[#eef4f4]">
+              {sinistres.map((s) => {
+                const statut = s.statut ?? "declare";
+                const couleur =
+                  statut === "indemnise" ? { bg: "#dcfce7", fg: "#166534" }
+                  : statut === "refuse" ? { bg: "#fee2e2", fg: "#991b1b" }
+                  : statut === "en_cours" ? { bg: "#fef9c3", fg: "#854d0e" }
+                  : { bg: "#eaf4f4", fg: "#2a8a8a" };
+                return (
+                  <li key={s.id} className="flex items-center justify-between px-6 sm:px-8 py-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                        <AlertTriangle size={18} style={{ color: "#2a8a8a" }} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm capitalize" style={{ color: "#1a2e5a" }}>{s.typeAssurance ?? "Sinistre"}</p>
+                        {s.dateDeclaration && (
+                          <p className="text-xs text-gray-400">Déclaré le {fmtDateHeure(s.dateDeclaration)}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>
+                      {statut.replace(/_/g, " ")}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </motion.div>
+
         {/* Actions rapides */}
-        <motion.div id="section-sinistre" initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="scroll-mt-28 grid sm:grid-cols-2 gap-4 sm:gap-6">
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="scroll-mt-28 grid sm:grid-cols-2 gap-4 sm:gap-6">
           <Link href="/client/sinistres/nouveau">
             <div className="bg-white rounded-3xl p-6 border flex items-center gap-4 transition-all hover:shadow-md hover:scale-[1.01] cursor-pointer h-full" style={{ borderColor: "#e0ecec" }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -300,6 +367,50 @@ export default function Dashboard() {
         </motion.div>
 
       </div>
+
+      {/* Modale : confirmation de déconnexion */}
+      <AnimatePresence>
+        {confirmDeco && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(15,23,42,0.5)" }}
+            onClick={() => setConfirmDeco(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center"
+            >
+              <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "#fee2e2" }}>
+                <LogOut size={24} style={{ color: "#dc2626" }} />
+              </div>
+              <h3 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Se déconnecter ?</h3>
+              <p className="text-sm text-gray-500 mb-6">Vous allez quitter votre espace et revenir à l&apos;accueil.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmDeco(false)}
+                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50 active:scale-95"
+                  style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={seDeconnecter}
+                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #dc2626, #b91c1c)" }}
+                >
+                  Se déconnecter
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

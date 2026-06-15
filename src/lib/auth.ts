@@ -45,6 +45,22 @@ export async function verifierMotDePasse(
   return bcrypt.compare(motDePasse, empreinte);
 }
 
+// ── Téléphone ────────────────────────────────────────────────
+
+// Normalise un numéro pour un stockage/recherche cohérents :
+// retire espaces et séparateurs, et l'indicatif Côte d'Ivoire (+225 / 225).
+// Ainsi « +225 05 46 17 51 85 » et « 0546175185 » donnent le même résultat.
+export function normaliserTelephone(tel: string): string {
+  let chiffres = String(tel).replace(/\D/g, ""); // chiffres uniquement
+  if (chiffres.startsWith("225")) chiffres = chiffres.slice(3);
+  return chiffres;
+}
+
+// Détecte si un identifiant ressemble à un email (sinon : téléphone).
+export function estEmail(valeur: string): boolean {
+  return valeur.includes("@");
+}
+
 // ── Jetons JWT ───────────────────────────────────────────────
 
 // Crée un jeton signé contenant l'identité de l'utilisateur.

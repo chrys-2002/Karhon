@@ -15,30 +15,28 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const ADMIN_EMAIL = "admin@karhon.ci";
+const ADMIN_EMAIL = "gerant@karhon.ci";
 const ADMIN_PASSWORD = "AdMin#2020";
 
 async function main() {
-  // 1) Liste les admins existants pour vérifier quel email est réellement en base.
-  const admins = await prisma.user.findMany({
-    where: { role: "admin" },
-    select: { email: true, nom: true, prenom: true },
+  // 1) Liste le personnel existant (table Admin) pour vérifier les emails.
+  const admins = await prisma.admin.findMany({
+    select: { email: true, nom: true, prenom: true, role: true },
   });
-  console.log("Comptes admin en base :");
+  console.log("Comptes du personnel en base (table Admin) :");
   console.table(admins);
 
-  // 2) Réinitialise (ou crée) le compte admin avec un mot de passe connu.
+  // 2) Réinitialise (ou crée) un compte gérant avec un mot de passe connu.
   const motDePasse = await bcrypt.hash(ADMIN_PASSWORD, 10);
-  await prisma.user.upsert({
+  await prisma.admin.upsert({
     where: { email: ADMIN_EMAIL },
-    update: { motDePasse, role: "admin" },
+    update: { motDePasse, role: "gerant" },
     create: {
       nom: "KARHON",
-      prenom: "Admin",
+      prenom: "Gérant",
       email: ADMIN_EMAIL,
-      telephone: "+225 07 87 10 39 39",
       motDePasse,
-      role: "admin",
+      role: "gerant",
     },
   });
 

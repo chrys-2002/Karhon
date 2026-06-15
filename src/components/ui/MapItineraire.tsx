@@ -16,10 +16,11 @@ import { MapPin, Navigation, LocateFixed, Loader2, AlertTriangle, ExternalLink }
 // les coordonnées exactes (clic droit sur Google Maps → copier).
 // ─────────────────────────────────────────────────────────────
 const OFFICE = {
-  lat: 5.3960,
-  lng: -3.9850,
+  // Point exact du siège (5°24'37.4"N 3°59'01.5"W), Rue Manglé Yves Éric Akran.
+  lat: 5.410389,
+  lng: -3.98375,
   label: "KARHON Assurances",
-  adresse: "Cocody, Angré 8ème Tranche — BP V 236 Abidjan",
+  adresse: "Rue Manglé Yves Éric Akran, Angré 8ème Tranche — Cocody, Abidjan",
 };
 
 const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
