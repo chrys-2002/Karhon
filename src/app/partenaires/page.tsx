@@ -41,8 +41,9 @@ export default function PartenairesPage() {
             Nos compagnies partenaires
           </h1>
           <p className="text-gray-500 max-w-2xl mx-auto">
-            En tant que courtier, <b>KARHON</b> négocie pour vous auprès des plus grandes compagnies du marché ivoirien.
-            Voici leur classement réel par chiffre d&apos;affaires (branche non-vie), leurs atouts et leur positionnement tarifaire.
+            En tant que courtier,{" "}
+            <strong style={{ color: "#1a2e5a" }}>KARHON</strong>{" "}
+            négocie pour vous auprès des plus grandes compagnies du marché ivoirien. Voici leur classement réel par chiffre d&apos;affaires (branche non-vie), leurs atouts et leur positionnement tarifaire.
           </p>
         </motion.div>
 
