@@ -19,7 +19,15 @@ import {
 
 type Utilisateur = { nom?: string; prenom?: string; email?: string; role?: string };
 
-type Devis = { id: string; statut?: string; dateCreation?: string; produit?: { nom?: string } };
+type Proposition = {
+  id: string;
+  compagnie: string;
+  documents: string[];
+  prime?: number | null;
+  message?: string | null;
+  choisie: boolean;
+};
+type Devis = { id: string; statut?: string; dateCreation?: string; produit?: { nom?: string }; propositions?: Proposition[] };
 
 // Date + heure lisibles (ex. "8 juin 2026 à 14:32").
 const fmtDateHeure = (iso?: string) =>
@@ -107,6 +115,20 @@ export default function Dashboard() {
       annule = true;
     };
   }, []);
+
+  // Le client choisit une proposition (compagnie) pour son devis.
+  const choisirOffre = async (devisId: string, propId: string) => {
+    const res = await fetch(`/api/propositions/${propId}/choisir`, { method: "POST" });
+    if (res.ok) {
+      setDevis((prev) =>
+        prev.map((d) =>
+          d.id === devisId
+            ? { ...d, statut: "accepte", propositions: d.propositions?.map((p) => ({ ...p, choisie: p.id === propId })) }
+            : d
+        )
+      );
+    }
+  };
 
   // Déconnexion : efface le cookie côté serveur puis redirige.
   const seDeconnecter = async () => {
@@ -280,24 +302,74 @@ export default function Dashboard() {
             </div>
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
-              {devis.map((d) => (
-                <li key={d.id} className="flex items-center justify-between px-6 sm:px-8 py-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-                      <ClipboardList size={18} style={{ color: "#2a8a8a" }} />
+              {devis.map((d) => {
+                const props = d.propositions ?? [];
+                const choisie = props.find((p) => p.choisie);
+                return (
+                  <li key={d.id} className="px-6 sm:px-8 py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                          <ClipboardList size={18} style={{ color: "#2a8a8a" }} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{d.produit?.nom ?? "Produit"}</p>
+                          {d.dateCreation && (
+                            <p className="text-xs text-gray-400">Demande envoyée le {fmtDateHeure(d.dateCreation)}</p>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+                        {(d.statut ?? "en_attente").replace(/_/g, " ")}
+                      </span>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm" style={{ color: "#1a2e5a" }}>{d.produit?.nom ?? "Produit"}</p>
-                      {d.dateCreation && (
-                        <p className="text-xs text-gray-400">Demande envoyée le {fmtDateHeure(d.dateCreation)}</p>
-                      )}
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
-                    {(d.statut ?? "en_attente").replace(/_/g, " ")}
-                  </span>
-                </li>
-              ))}
+
+                    {/* Propositions des compagnies (cotations) */}
+                    {props.length > 0 && (
+                      <div className="mt-3 ml-0 sm:ml-13 rounded-2xl p-3 sm:p-4" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
+                        <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#2a8a8a" }}>
+                          {choisie ? "Offre choisie" : "Comparez les offres et choisissez"}
+                        </p>
+                        <ul className="space-y-2">
+                          {props.map((p) => (
+                            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 bg-white rounded-xl px-3 py-2.5 border" style={{ borderColor: p.choisie ? "#16a34a" : "#e0ecec" }}>
+                              <div className="min-w-0">
+                                <p className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>
+                                  {p.compagnie}
+                                  {typeof p.prime === "number" && <span className="text-gray-500 font-normal"> · {p.prime.toLocaleString("fr-FR")} FCFA</span>}
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {p.documents.map((doc) => {
+                                    const [lbl, url] = doc.split("|");
+                                    return (
+                                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "#2a8a8a" }}>
+                                        <FileText size={12} /> {lbl || "Fiche PDF"}
+                                      </a>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                              {p.choisie ? (
+                                <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
+                                  ✓ Choisie
+                                </span>
+                              ) : !choisie ? (
+                                <button
+                                  onClick={() => choisirOffre(d.id, p.id)}
+                                  className="text-xs font-semibold px-3.5 py-2 rounded-xl text-white transition-all hover:scale-105"
+                                  style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                                >
+                                  Choisir cette offre
+                                </button>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </motion.div>

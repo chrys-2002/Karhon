@@ -30,12 +30,14 @@ import {
   Users,
   TrendingUp,
   BarChart3,
+  MessageCircle,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { infoRelance } from "@/lib/contrats";
 import { PARTENAIRES } from "@/lib/partenaires";
 import DatePicker from "@/components/ui/DatePicker";
 import Select from "@/components/ui/Select";
+import DocumentUpload from "@/components/ui/DocumentUpload";
 
 // Construit un lien WhatsApp pré-rempli (format wa.me standard).
 // Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
@@ -65,6 +67,15 @@ function dateCourte(iso?: string | null): string {
 
 type UserAdmin = { nom?: string; prenom?: string; email?: string; telephone?: string };
 
+type PropositionAdmin = {
+  id: string;
+  compagnie: string;
+  documents: string[];
+  prime?: number | null;
+  message?: string | null;
+  choisie: boolean;
+};
+
 type DevisAdmin = {
   id: string;
   dateCreation: string;
@@ -73,12 +84,14 @@ type DevisAdmin = {
   description: string;
   documents?: string[];
   reponses?: Record<string, string> | null;
+  telephoneContact?: string | null;
   derniereRelance?: string | null;
   nombreRelances?: number;
   supprimePar?: string | null;
   supprimeLe?: string | null;
   produit?: { nom?: string; type?: string };
   user?: UserAdmin;
+  propositions?: PropositionAdmin[];
 };
 
 type SinistreAdmin = {
@@ -611,6 +624,13 @@ export default function AdminPage() {
   // Devis en cours de conversion en contrat (ouvre la modale).
   const [conversion, setConversion] = useState<DevisAdmin | null>(null);
   const [confirmDeco, setConfirmDeco] = useState(false);
+  // Envoi d'une proposition (cotation) sur un devis.
+  const [propPour, setPropPour] = useState<DevisAdmin | null>(null);
+  const [propCompagnie, setPropCompagnie] = useState("");
+  const [propDocs, setPropDocs] = useState<string[]>([]);
+  const [propPrime, setPropPrime] = useState("");
+  const [propMessage, setPropMessage] = useState("");
+  const [propEnvoi, setPropEnvoi] = useState(false);
   // Archives + journal d'audit (gérant uniquement).
   const [archDevis, setArchDevis] = useState<DevisAdmin[]>([]);
   const [archSinistres, setArchSinistres] = useState<SinistreAdmin[]>([]);
@@ -706,6 +726,64 @@ export default function AdminPage() {
   const seDeconnecter = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/"); // retour à la page d'accueil principale
+  };
+
+  // Ouvre/ferme la fenêtre d'envoi de proposition.
+  const ouvrirProposition = (d: DevisAdmin) => {
+    setPropPour(d); setPropCompagnie(""); setPropDocs([]); setPropPrime(""); setPropMessage("");
+  };
+
+  // Envoie une proposition (cotation) d'une compagnie pour le devis sélectionné.
+  const envoyerProposition = async () => {
+    if (!propPour || !propCompagnie || propDocs.length === 0) {
+      setNotif({ type: "warn", texte: "Choisissez une compagnie et joignez la fiche PDF." });
+      return;
+    }
+    setPropEnvoi(true);
+    try {
+      const res = await fetch(`/api/devis/${propPour.id}/propositions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          compagnie: propCompagnie,
+          documents: propDocs,
+          prime: propPrime ? Number(propPrime) : undefined,
+          message: propMessage,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Envoi impossible." }); return; }
+      // Ajoute la proposition au devis localement + statut "envoye".
+      setDevis((prev) => prev.map((d) => d.id === propPour.id
+        ? { ...d, statut: "envoye", propositions: [...(d.propositions ?? []), data.proposition] }
+        : d));
+      setNotif({ type: "ok", texte: `Proposition ${propCompagnie} envoyée au client.` });
+      setPropPour(null);
+    } finally {
+      setPropEnvoi(false);
+    }
+  };
+
+  // Envoie une proposition au client via WhatsApp (message + lien vers la fiche).
+  const propositionWhatsApp = async (d: DevisAdmin, p: PropositionAdmin) => {
+    const prenom = d.user?.prenom ?? "";
+    const lienFiche = (p.documents[0] ?? "").split("|")[1] ?? "";
+    const message =
+      `Bonjour ${prenom},\n\n` +
+      `Voici notre proposition d'assurance ${d.produit?.nom ?? ""} avec ${p.compagnie}` +
+      (typeof p.prime === "number" ? ` — prime : ${p.prime.toLocaleString("fr-FR")} FCFA` : "") + ".\n" +
+      (lienFiche ? `Consultez la fiche détaillée : ${lienFiche}\n` : "") +
+      (p.message ? `\n${p.message}\n` : "") +
+      `\nÀ votre disposition,\n` +
+      `KARHON Assurances — Cabinet de courtage, Abidjan\n` +
+      `Tel : +2250787103939 / +2250576367272`;
+
+    const tel = d.telephoneContact || d.user?.telephone;
+    const lien = lienWhatsApp(tel, message);
+    if (!lien) { afficherNotif("warn", "Aucun numéro de téléphone pour ce client."); return; }
+    try { await navigator.clipboard.writeText(message); } catch { /* presse-papier bloqué */ }
+    window.open(lien, "_blank", "noopener,noreferrer");
+    afficherNotif("ok", "WhatsApp ouvert — si le texte ne s'affiche pas, collez-le avec Ctrl+V.");
   };
 
   // Change le statut d'un devis via PATCH /api/devis/[id].
@@ -964,9 +1042,10 @@ export default function AdminPage() {
   const acceptes = devis.filter((d) => d.statut === "accepte").length;
   const refuses = devis.filter((d) => d.statut === "refuse").length;
 
-  // À traiter : devis en attente (cotation) + sinistres ouverts (déclaré / en cours).
+  // À traiter : devis en attente (cotation) + sinistres ouverts + choix client à poursuivre.
   const sinistresATraiter = sinistres.filter((s) => s.statut === "declare" || s.statut === "en_cours").length;
-  const aTraiter = enAttente + sinistresATraiter;
+  const choixATraiter = devis.filter((d) => d.propositions?.some((p) => p.choisie)).length;
+  const aTraiter = enAttente + sinistresATraiter + choixATraiter;
 
   const stats = [
     { label: "Devis reçus", value: total, Icon: ClipboardList, filtre: "tous" },
@@ -1026,13 +1105,15 @@ export default function AdminPage() {
                 {aTraiter} élément{aTraiter > 1 ? "s" : ""} à traiter
               </p>
               <p className="text-xs" style={{ color: "#a16207" }}>
-                {enAttente > 0 && `${enAttente} devis en attente de cotation`}
-                {enAttente > 0 && sinistresATraiter > 0 && " · "}
-                {sinistresATraiter > 0 && `${sinistresATraiter} sinistre${sinistresATraiter > 1 ? "s" : ""} à gérer`}
+                {[
+                  enAttente > 0 && `${enAttente} devis en attente de cotation`,
+                  choixATraiter > 0 && `${choixATraiter} choix client à poursuivre`,
+                  sinistresATraiter > 0 && `${sinistresATraiter} sinistre${sinistresATraiter > 1 ? "s" : ""} à gérer`,
+                ].filter(Boolean).join(" · ")}
               </p>
             </div>
             <div className="flex gap-2">
-              {enAttente > 0 && (
+              {(enAttente > 0 || choixATraiter > 0) && (
                 <button onClick={() => setVue("devis")} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #b45309, #d97706)" }}>
                   Voir les devis
                 </button>
@@ -1277,6 +1358,37 @@ export default function AdminPage() {
                             <Mail size={12} /> Relancé {d.nombreRelances} fois · dernière le {dateCourte(d.derniereRelance)}
                           </p>
                         ) : null}
+
+                        {/* Propositions envoyées + choix du client */}
+                        {d.propositions && d.propositions.length > 0 && (
+                          <div className="mt-3 rounded-xl p-3" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
+                            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#2a8a8a" }}>
+                              Propositions envoyées ({d.propositions.length})
+                            </p>
+                            <ul className="space-y-1.5">
+                              {d.propositions.map((p) => (
+                                <li key={p.id} className="flex flex-wrap items-center gap-2 text-xs">
+                                  <span className="font-semibold" style={{ color: "#1a2e5a" }}>{p.compagnie}</span>
+                                  {typeof p.prime === "number" && <span className="text-gray-500">· {p.prime.toLocaleString("fr-FR")} FCFA</span>}
+                                  {p.choisie && (
+                                    <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
+                                      ✓ Choisie par le client
+                                    </span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => propositionWhatsApp(d, p)}
+                                    title="Envoyer cette proposition au client par WhatsApp"
+                                    className="inline-flex items-center gap-1 font-semibold px-2.5 py-1 rounded-lg text-white transition-all hover:scale-105"
+                                    style={{ background: "#25D366" }}
+                                  >
+                                    <MessageCircle size={12} /> WhatsApp
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
 
                       {/* Actions : statut + relance + suppression */}
@@ -1294,6 +1406,15 @@ export default function AdminPage() {
                           onRelance={() => relancer("devis", d.id)}
                           onSupprimer={() => archiver("devis", d.id)}
                         />
+                        <button
+                          type="button"
+                          onClick={() => ouvrirProposition(d)}
+                          title="Envoyer une proposition (cotation) d'une compagnie"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm"
+                          style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                        >
+                          <Send size={14} /> Envoyer une proposition
+                        </button>
                         <button
                           type="button"
                           onClick={() => setConversion(d)}
@@ -1733,6 +1854,70 @@ export default function AdminPage() {
             onClose={() => setConversion(null)}
             onSubmit={creerContrat}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Modale : envoyer une proposition (cotation) */}
+      <AnimatePresence>
+        {propPour && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+            style={{ background: "rgba(15,23,42,0.5)" }}
+            onClick={() => setPropPour(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl shadow-2xl max-w-lg w-full my-8"
+            >
+              <div className="px-7 py-5 text-white rounded-t-3xl flex items-center justify-between" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                <div>
+                  <h3 className="font-bold">Envoyer une proposition</h3>
+                  <p className="text-xs text-white/70">{propPour.produit?.nom} · {propPour.user?.prenom} {propPour.user?.nom}</p>
+                </div>
+                <button onClick={() => setPropPour(null)}><X size={20} /></button>
+              </div>
+
+              <div className="p-7 space-y-5">
+                <Select
+                  label="Compagnie partenaire" name="compagnie" value={propCompagnie} required
+                  onChange={(e) => setPropCompagnie(e.target.value)}
+                  options={PARTENAIRES.map((c) => ({ value: c, label: c }))}
+                />
+                <DocumentUpload
+                  label="Fiche de la compagnie (PDF)"
+                  value={propDocs}
+                  onChange={setPropDocs}
+                  required
+                  hint="PDF ou image — obligatoire."
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prime proposée (FCFA, optionnel)</label>
+                  <input
+                    type="number" value={propPrime} onChange={(e) => setPropPrime(e.target.value)} placeholder="ex. 120000"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
+                  <textarea
+                    value={propMessage} onChange={(e) => setPropMessage(e.target.value)} rows={2} placeholder="Note pour le client…"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm resize-none"
+                  />
+                </div>
+                <div className="flex gap-3 pt-1">
+                  <button onClick={() => setPropPour(null)} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}>
+                    Annuler
+                  </button>
+                  <button onClick={envoyerProposition} disabled={propEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                    {propEnvoi ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    Envoyer au client
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 

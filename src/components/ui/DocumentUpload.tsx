@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, Camera, X, FileImage, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { UploadCloud, Camera, X, FileImage, Loader2, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
 // DocumentUpload — champ d'upload d'images premium (KARHON).
@@ -25,7 +25,7 @@ type Props = {
   max?: number;                    // nombre de fichiers autorisés (défaut 1)
 };
 
-const TYPES_OK = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+const TYPES_OK = ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"];
 const TAILLE_MAX = 8 * 1024 * 1024; // 8 Mo
 
 export default function DocumentUpload({
@@ -49,7 +49,7 @@ export default function DocumentUpload({
 
     // Validation côté client (le serveur revérifie de toute façon).
     if (!TYPES_OK.includes(file.type)) {
-      setErreur("Format non accepté. Utilisez une image PNG ou JPG.");
+      setErreur("Format non accepté. Utilisez un PDF ou une image (PNG/JPG).");
       return;
     }
     if (file.size > TAILLE_MAX) {
@@ -99,7 +99,7 @@ export default function DocumentUpload({
       {hint && <p className="text-xs text-gray-400 -mt-1 mb-2">{hint}</p>}
 
       {/* Inputs cachés : un pour la galerie/fichiers, un pour la caméra arrière. */}
-      <input ref={inputFichier} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={onSelection} />
+      <input ref={inputFichier} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" hidden onChange={onSelection} />
       <input ref={inputCamera} type="file" accept="image/png,image/jpeg,image/webp" capture="environment" hidden onChange={onSelection} />
 
       {/* Miniatures des fichiers déjà envoyés */}
@@ -113,8 +113,14 @@ export default function DocumentUpload({
             className="flex items-center gap-3 mb-2 rounded-xl p-2.5"
             style={{ backgroundColor: "#f0f7f7", border: "1px solid #d8ebeb" }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt={label} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+            {url.toLowerCase().includes(".pdf") ? (
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#eaf4f4" }}>
+                <FileText size={20} style={{ color: "#2a8a8a" }} />
+              </div>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={url} alt={label} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+            )}
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <CheckCircle2 size={15} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
               <span className="text-xs text-gray-600 truncate">Document envoyé</span>

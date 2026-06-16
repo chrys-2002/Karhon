@@ -103,6 +103,7 @@ export async function GET(req: Request) {
         user: estStaff
           ? { select: { nom: true, prenom: true, email: true, telephone: true } }
           : false,
+        propositions: { orderBy: { dateEnvoi: "asc" } },
       },
     });
 
