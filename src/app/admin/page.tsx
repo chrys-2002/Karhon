@@ -49,7 +49,7 @@ function lienWhatsApp(telephone: string | undefined, message: string): string | 
 // Date courte lisible (ex. "5 juin 2026").
 function dateCourte(iso?: string | null): string {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric" });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1235,7 +1235,7 @@ export default function AdminPage() {
               {devisAffiches.map((d) => {
                 const st = infoStatut(d.statut);
                 const date = new Date(d.dateCreation).toLocaleDateString("fr-FR", {
-                  day: "2-digit", month: "short", year: "numeric",
+                  timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric",
                 });
                 return (
                   <div key={d.id} className="px-6 sm:px-8 py-5">
@@ -1342,10 +1342,10 @@ export default function AdminPage() {
               {sinistres.map((s) => {
                 const st = infoStatutSinistre(s.statut);
                 const dateDecl = new Date(s.dateDeclaration).toLocaleDateString("fr-FR", {
-                  day: "2-digit", month: "short", year: "numeric",
+                  timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric",
                 });
                 const dateSurv = new Date(s.dateSurvenance).toLocaleDateString("fr-FR", {
-                  day: "2-digit", month: "short", year: "numeric",
+                  timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric",
                 });
                 return (
                   <div key={s.id} className="px-6 sm:px-8 py-5">
@@ -1562,7 +1562,7 @@ export default function AdminPage() {
                   : r.statut === "annule" ? { bg: "#fee2e2", fg: "#991b1b" }
                   : r.statut === "termine" ? { bg: "#eaf4f4", fg: "#2a8a8a" }
                   : { bg: "#fef9c3", fg: "#854d0e" };
-                const quand = new Date(r.dateHeure).toLocaleString("fr-FR", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }).replace(",", " à");
+                const quand = new Date(r.dateHeure).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }).replace(",", " à");
                 return (
                   <li key={r.id} className="px-6 sm:px-8 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1711,7 +1711,7 @@ export default function AdminPage() {
                           <span className="text-sm text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
                         </div>
                         <p className="text-xs text-gray-400">
-                          par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
                     );

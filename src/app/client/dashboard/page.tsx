@@ -24,7 +24,7 @@ type Devis = { id: string; statut?: string; dateCreation?: string; produit?: { n
 // Date + heure lisibles (ex. "8 juin 2026 à 14:32").
 const fmtDateHeure = (iso?: string) =>
   iso
-    ? new Date(iso).toLocaleString("fr-FR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).replace(",", " à")
+    ? new Date(iso).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).replace(",", " à")
     : "";
 
 type Contrat = {
@@ -52,7 +52,7 @@ type RendezVous = {
 };
 
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 export default function Dashboard() {
   const router = useRouter();

@@ -87,7 +87,7 @@ export async function GET(req: Request) {
         select: { dateHeure: true },
       });
       const creneauxPris = pris.map((p) =>
-        new Date(p.dateHeure).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+        new Date(p.dateHeure).toLocaleTimeString("fr-FR", { timeZone: "Africa/Abidjan", hour: "2-digit", minute: "2-digit" })
       );
       return NextResponse.json({ creneauxPris });
     }

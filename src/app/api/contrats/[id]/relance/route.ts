@@ -31,7 +31,7 @@ export async function POST(
     }
 
     const finFr = new Date(contrat.dateFin).toLocaleDateString("fr-FR", {
-      day: "2-digit", month: "long", year: "numeric",
+      timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric",
     });
     const { joursRestants } = infoRelance(contrat.dateFin, contrat.dureeMois);
     const produit = contrat.produit?.nom ?? "votre contrat";

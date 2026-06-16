@@ -52,7 +52,7 @@ export async function GET(req: Request) {
       }
 
       const finFr = new Date(c.dateFin).toLocaleDateString("fr-FR", {
-        day: "2-digit", month: "long", year: "numeric",
+        timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric",
       });
       const sujet = `le renouvellement de votre contrat ${c.produit?.nom ?? ""} (n° ${c.numeroContrat})`.trim();
       const corps =

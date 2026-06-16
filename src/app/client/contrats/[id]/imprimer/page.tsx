@@ -22,7 +22,7 @@ type Contrat = {
 };
 
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "—";
 
 export default function ImprimerContrat() {
   const { id } = useParams<{ id: string }>();
@@ -147,7 +147,7 @@ export default function ImprimerContrat() {
         {/* Signature */}
         <div className="px-8 pb-6 flex items-end justify-between gap-6">
           <div className="text-xs text-gray-400 max-w-[60%]">
-            <p>Document généré le {new Date().toLocaleDateString("fr-FR")}.</p>
+            <p>Document généré le {new Date().toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan" })}.</p>
             <p>
               Ce reçu atteste de votre souscription via KARHON Assurances, courtier.
               Le contrat est établi par la compagnie partenaire{contrat.compagnie ? ` ${contrat.compagnie}` : ""}.
