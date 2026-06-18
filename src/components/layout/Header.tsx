@@ -12,6 +12,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [connecte, setConnecte] = useState(false);
   const [role, setRole] = useState<string | null>(null);
+  const [confirmDeco, setConfirmDeco] = useState(false);
 
   const isHomePage = pathname === "/";
 
@@ -79,6 +80,16 @@ export default function Header() {
     window.scrollTo({ top: 0, behavior: "smooth" });
     router.push("/");
     setIsMenuOpen(false);
+  };
+
+  // Déconnexion : efface le cookie, met à jour l'état et revient à l'accueil.
+  const seDeconnecter = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setConnecte(false);
+    setRole(null);
+    setConfirmDeco(false);
+    setIsMenuOpen(false);
+    router.push("/");
   };
 
   const transparent = isHomePage && !scrolled;
@@ -271,6 +282,54 @@ export default function Header() {
               >
                 {connecte ? "Mon espace" : "Espace Client"}
               </Link>
+
+              {connecte && (
+                <button
+                  onClick={() => { setIsMenuOpen(false); setConfirmDeco(true); }}
+                  className="mt-3 block w-full text-center py-3 rounded-xl font-semibold border transition-all active:scale-95"
+                  style={{ color: "#dc2626", borderColor: "#fecaca", backgroundColor: "#ffffff" }}
+                >
+                  Se déconnecter
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale : confirmation de déconnexion */}
+      {confirmDeco && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4"
+          style={{ background: "rgba(15,23,42,0.5)" }}
+          onClick={() => setConfirmDeco(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center"
+          >
+            <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "#fee2e2" }}>
+              <svg className="w-6 h-6" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Se déconnecter ?</h3>
+            <p className="text-sm text-gray-500 mb-6">Vous allez quitter votre session et revenir à l&apos;accueil.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDeco(false)}
+                className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50 active:scale-95"
+                style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={seDeconnecter}
+                className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-95"
+                style={{ background: "linear-gradient(135deg, #dc2626, #b91c1c)" }}
+              >
+                Se déconnecter
+              </button>
             </div>
           </div>
         </div>
