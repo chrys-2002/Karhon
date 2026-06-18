@@ -1,70 +1,79 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShieldAlert, CalendarDays, Clock, MapPin, FileText, Send, Phone, CheckCircle2, Car, Home, HeartPulse, Plane, Scale, Truck, Store, Briefcase, Anchor, Landmark, Flower2 } from "lucide-react";
+import { ShieldAlert, CalendarDays, Clock, MapPin, FileText, Send, Phone, CheckCircle2, Car, FolderOpen, ArrowRight } from "lucide-react";
 import Select from "@/components/ui/Select";
 import DatePicker from "@/components/ui/DatePicker";
 import DocumentUpload from "@/components/ui/DocumentUpload";
 import BackButton from "@/components/ui/BackButton";
 
-// Types pour lesquels on demande les pièces du véhicule.
-const TYPES_AUTO = ["auto", "flotte"];
-
-// Gamme des assurances pouvant faire l'objet d'une déclaration de sinistre.
-const contrats = [
-  { value: "auto", label: "Assurance Auto", desc: "Particulier", Icon: Car },
-  { value: "habitation", label: "Assurance Habitation", desc: "Multirisque", Icon: Home },
-  { value: "sante", label: "Assurance Santé", desc: "Frais médicaux", Icon: HeartPulse },
-  { value: "accident", label: "Individuelle Accident", desc: "Dommages corporels", Icon: ShieldAlert },
-  { value: "voyage", label: "Assurance Voyage", desc: "Multirisque voyage", Icon: Plane },
-  { value: "rc", label: "Responsabilité Civile", desc: "Particulier", Icon: Scale },
-  { value: "flotte", label: "Flotte Automobile", desc: "Professionnel", Icon: Truck },
-  { value: "multirisque-pro", label: "Multirisque Professionnelle", desc: "Professionnel", Icon: Store },
-  { value: "rc-pro", label: "RC Professionnelle", desc: "Professionnel", Icon: Briefcase },
-  { value: "maritime", label: "Assurance Maritime", desc: "Transport / Marchandises", Icon: Anchor },
-  { value: "emprunteur", label: "Vie Emprunteur", desc: "Protection de prêt", Icon: Landmark },
-  { value: "funeraire", label: "Assistance Funéraire", desc: "Prévoyance", Icon: Flower2 },
-];
+type Souscription = {
+  id: string;
+  numeroContrat: string;
+  statut?: string;
+  produit?: { nom?: string; type?: string };
+};
 
 // Date du jour au format AAAA-MM-JJ (pour interdire les dates futures).
 const aujourdhui = new Date().toISOString().split("T")[0];
 
 export default function NouveauSinistre() {
   const router = useRouter();
+  const [souscriptions, setSouscriptions] = useState<Souscription[]>([]);
+  const [chargement, setChargement] = useState(true);
   const [formData, setFormData] = useState({ contratId: "", date: "", heure: "", lieu: "", description: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [envoye, setEnvoye] = useState(false);
   const [erreur, setErreur] = useState("");
 
+  // Charge les souscriptions ACTIVES du client (un sinistre se déclare dessus).
+  useEffect(() => {
+    fetch("/api/contrats")
+      .then((res) => (res.ok ? res.json() : { contrats: [] }))
+      .then((data) => {
+        const actives = (Array.isArray(data.contrats) ? data.contrats : []).filter(
+          (c: Souscription) => c.statut === "actif"
+        );
+        setSouscriptions(actives);
+      })
+      .catch(() => {})
+      .finally(() => setChargement(false));
+  }, []);
+
   // Documents du véhicule (uniquement pour un sinistre automobile).
   const [docs, setDocs] = useState({
-    carteVehicule: [] as string[],   // pièce afférente au véhicule
+    faits: [] as string[],           // photos des faits du sinistre (tous types)
+    carteVehicule: [] as string[],
     permis: [] as string[],
     carteGrise: [] as string[],
     visiteTechnique: [] as string[],
-    dommages: [] as string[],        // photos des dommages (plusieurs)
+    dommages: [] as string[],
   });
   const setDoc = (cle: keyof typeof docs, urls: string[]) =>
     setDocs((prev) => ({ ...prev, [cle]: urls }));
 
-  const estAuto = TYPES_AUTO.includes(formData.contratId);
+  // Souscription sélectionnée + détection auto (d'après le nom du produit).
+  const contratSel = souscriptions.find((c) => c.id === formData.contratId);
+  const nomProduit = (contratSel?.produit?.nom ?? "").toLowerCase();
+  const estAuto = nomProduit.includes("auto") || nomProduit.includes("flotte");
 
   const setChamp = (name: string, value: string) =>
     setFormData((prev) => ({ ...prev, [name]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.contratId || !formData.date || !formData.description) return;
+    if (!formData.contratId || !formData.date || !formData.heure || !formData.lieu.trim() || !formData.description.trim()) {
+      setErreur("Merci de renseigner la souscription, la date, l'heure, le lieu et les circonstances.");
+      return;
+    }
     setErreur("");
     setIsSubmitting(true);
 
-    // Libellé lisible du type d'assurance choisi (ex. "Assurance Auto").
-    const typeAssurance =
-      contrats.find((c) => c.value === formData.contratId)?.label ?? formData.contratId;
-
-    // Construit la liste des pièces jointes au format "Libellé|url".
     const documents: string[] = [];
+    // Photos des faits du sinistre (tous types de sinistre).
+    docs.faits.forEach((u, i) => documents.push(`Photo du sinistre ${i + 1}|${u}`));
     if (estAuto) {
       docs.carteVehicule.forEach((u) => documents.push(`Pièce du véhicule|${u}`));
       docs.permis.forEach((u) => documents.push(`Permis de conduire|${u}`));
@@ -78,7 +87,8 @@ export default function NouveauSinistre() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          typeAssurance,
+          contratId: formData.contratId,
+          typeAssurance: contratSel?.produit?.nom,
           dateSurvenance: formData.date,
           heureSurvenance: formData.heure || undefined,
           lieu: formData.lieu || undefined,
@@ -87,11 +97,7 @@ export default function NouveauSinistre() {
         }),
       });
 
-      if (res.status === 401) {
-        // Session expirée → on renvoie vers la connexion.
-        router.push("/client");
-        return;
-      }
+      if (res.status === 401) { router.push("/client"); return; }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setErreur(data.erreur || "Une erreur est survenue. Veuillez réessayer.");
@@ -140,7 +146,6 @@ export default function NouveauSinistre() {
     <div className="min-h-screen pt-28 pb-16 px-4" style={{ backgroundColor: "#f5fbfb" }}>
       <div className="max-w-2xl mx-auto">
 
-        {/* Bouton retour */}
         <div className="mb-6">
           <BackButton label="Retour" />
         </div>
@@ -151,7 +156,6 @@ export default function NouveauSinistre() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="bg-white rounded-3xl shadow-xl overflow-hidden"
         >
-          {/* En-tête coloré */}
           <div className="relative px-8 py-8" style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
@@ -159,20 +163,41 @@ export default function NouveauSinistre() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Déclaration de sinistre</h1>
-                <p className="text-white/60 text-sm mt-1">Nous vous accompagnons jusqu&apos;à l&apos;indemnisation.</p>
+                <p className="text-white/60 text-sm mt-1">Un sinistre se déclare sur l&apos;une de vos souscriptions.</p>
               </div>
             </div>
           </div>
 
-          {/* Corps du formulaire */}
+          {/* Cas : aucune souscription active → on ne peut pas déclarer. */}
+          {!chargement && souscriptions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-16 px-8">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <FolderOpen size={28} style={{ color: "#2a8a8a" }} />
+              </div>
+              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription active</p>
+              <p className="text-gray-500 text-sm max-w-sm mb-6">
+                Un sinistre ne peut être déclaré que sur une souscription existante. Demandez d&apos;abord un devis pour souscrire.
+              </p>
+              <Link
+                href="/devis"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.02]"
+                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+              >
+                Demander un devis <ArrowRight size={16} />
+              </Link>
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
 
             <Select
-              label="Contrat concerné"
+              label="Souscription concernée"
               name="contratId"
               value={formData.contratId}
               onChange={(e) => setChamp(e.target.name, e.target.value)}
-              options={contrats}
+              options={souscriptions.map((c) => ({
+                value: c.id,
+                label: `${c.produit?.nom ?? "Souscription"} — N° ${c.numeroContrat}`,
+              }))}
               required
             />
 
@@ -181,18 +206,15 @@ export default function NouveauSinistre() {
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                   <CalendarDays size={15} style={{ color: "#2a8a8a" }} /> Date du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
                 </label>
-                <DatePicker
-                  value={formData.date}
-                  onChange={(v) => setChamp("date", v)}
-                  max={aujourdhui}
-                />
+                <DatePicker value={formData.date} onChange={(v) => setChamp("date", v)} max={aujourdhui} />
               </div>
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Clock size={15} style={{ color: "#2a8a8a" }} /> Heure <span className="text-gray-400 font-normal">(facultatif)</span>
+                  <Clock size={15} style={{ color: "#2a8a8a" }} /> Heure <span style={{ color: "#2a8a8a" }}>*</span>
                 </label>
                 <input
                   type="time"
+                  required
                   value={formData.heure}
                   onChange={(e) => setChamp("heure", e.target.value)}
                   className="w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none"
@@ -205,10 +227,11 @@ export default function NouveauSinistre() {
 
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <MapPin size={15} style={{ color: "#2a8a8a" }} /> Lieu du sinistre <span className="text-gray-400 font-normal">(facultatif)</span>
+                <MapPin size={15} style={{ color: "#2a8a8a" }} /> Lieu du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
               </label>
               <input
                 type="text"
+                required
                 placeholder="Ex. Boulevard de Marseille, Marcory, Abidjan"
                 value={formData.lieu}
                 onChange={(e) => setChamp("lieu", e.target.value)}
@@ -236,7 +259,25 @@ export default function NouveauSinistre() {
               />
             </div>
 
-            {/* Pièces justificatives — affichées uniquement pour un sinistre automobile */}
+            {/* Photos du sinistre — disponibles pour tous les types */}
+            <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: "#fbfdfd", border: "1px solid #e6f0f0" }}>
+              <div className="flex items-center gap-2">
+                <FileText size={16} style={{ color: "#2a8a8a" }} />
+                <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Photos du sinistre</h3>
+              </div>
+              <p className="text-xs text-gray-500 -mt-1">
+                Montrez les faits en images (PDF ou photos). Cela aide nos équipes à traiter votre dossier plus vite.
+              </p>
+              <DocumentUpload
+                label="Photos / preuves du sinistre"
+                hint="Vous pouvez ajouter plusieurs fichiers."
+                value={docs.faits}
+                onChange={(u) => setDoc("faits", u)}
+                max={6}
+              />
+            </div>
+
+            {/* Pièces du véhicule — uniquement pour une souscription auto/flotte */}
             {estAuto && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -249,55 +290,30 @@ export default function NouveauSinistre() {
                   <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Pièces du véhicule</h3>
                 </div>
                 <p className="text-xs text-gray-500 -mt-3">
-                  Photographiez ou importez vos documents (PNG ou JPG). Cela accélère le traitement de votre dossier.
+                  Photographiez ou importez vos documents (PDF ou image). Cela accélère le traitement de votre dossier.
                 </p>
 
-                <DocumentUpload
-                  label="Pièce afférente au véhicule"
-                  value={docs.carteVehicule}
-                  onChange={(u) => setDoc("carteVehicule", u)}
-                />
-                <DocumentUpload
-                  label="Permis de conduire"
-                  value={docs.permis}
-                  onChange={(u) => setDoc("permis", u)}
-                />
-                <DocumentUpload
-                  label="Carte grise du véhicule"
-                  value={docs.carteGrise}
-                  onChange={(u) => setDoc("carteGrise", u)}
-                />
-                <DocumentUpload
-                  label="Visite technique"
-                  value={docs.visiteTechnique}
-                  onChange={(u) => setDoc("visiteTechnique", u)}
-                />
-                <DocumentUpload
-                  label="Photos des dommages"
-                  hint="Vous pouvez ajouter plusieurs photos."
-                  value={docs.dommages}
-                  onChange={(u) => setDoc("dommages", u)}
-                  max={6}
-                />
+                <DocumentUpload label="Pièce afférente au véhicule" value={docs.carteVehicule} onChange={(u) => setDoc("carteVehicule", u)} />
+                <DocumentUpload label="Permis de conduire" value={docs.permis} onChange={(u) => setDoc("permis", u)} />
+                <DocumentUpload label="Carte grise du véhicule" value={docs.carteGrise} onChange={(u) => setDoc("carteGrise", u)} />
+                <DocumentUpload label="Visite technique" value={docs.visiteTechnique} onChange={(u) => setDoc("visiteTechnique", u)} />
+                <DocumentUpload label="Photos des dommages" hint="Vous pouvez ajouter plusieurs photos." value={docs.dommages} onChange={(u) => setDoc("dommages", u)} max={6} />
               </motion.div>
             )}
 
-            {/* Encart d'urgence */}
             <div className="flex items-start gap-3 rounded-2xl p-4" style={{ backgroundColor: "#f0f7f7" }}>
               <Phone size={18} style={{ color: "#2a8a8a" }} className="flex-shrink-0 mt-0.5" />
               <p className="text-xs text-gray-600 leading-relaxed">
-                Pour un sinistre urgent, contactez-nous directement au <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span> ou <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span>. Nous vous accompagnons dans toutes vos démarches.
+                Pour un sinistre urgent, contactez-nous directement au <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span> ou <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span>.
               </p>
             </div>
 
-            {/* Message d'erreur éventuel */}
             {erreur && (
               <div className="rounded-2xl px-4 py-3 text-sm font-medium" style={{ backgroundColor: "#fdecec", color: "#b42318", border: "1px solid #f7caca" }}>
                 {erreur}
               </div>
             )}
 
-            {/* Actions */}
             <div className="flex gap-3 pt-2">
               <motion.button
                 type="submit"
@@ -319,6 +335,7 @@ export default function NouveauSinistre() {
               </button>
             </div>
           </form>
+          )}
         </motion.div>
       </div>
     </div>

@@ -14,12 +14,26 @@ export async function POST(req: Request) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { typeAssurance, dateSurvenance, heureSurvenance, lieu, description, montantEstime, documents } = await req.json();
+    const { typeAssurance, contratId, dateSurvenance, heureSurvenance, lieu, description, montantEstime, documents } = await req.json();
 
     // 2) Validation des champs obligatoires.
-    if (!typeAssurance || !dateSurvenance || !description) {
+    //    Un sinistre se déclare TOUJOURS sur une souscription existante,
+    //    avec la date, l'heure, le lieu et les circonstances.
+    if (!contratId || !dateSurvenance || !heureSurvenance || !lieu || !description) {
       return NextResponse.json(
-        { erreur: "Le type d'assurance, la date et la description sont obligatoires." },
+        { erreur: "La souscription, la date, l'heure, le lieu et les circonstances sont obligatoires." },
+        { status: 400 }
+      );
+    }
+
+    // 2bis) La souscription doit exister ET appartenir au client connecté.
+    const contrat = await prisma.contrat.findFirst({
+      where: { id: String(contratId), userId: auth.userId, supprime: false },
+      include: { produit: { select: { nom: true } } },
+    });
+    if (!contrat) {
+      return NextResponse.json(
+        { erreur: "Souscription introuvable ou ne vous appartenant pas." },
         { status: 400 }
       );
     }
@@ -45,11 +59,15 @@ export async function POST(req: Request) {
           .slice(0, 12)
       : [];
 
-    // 5) Crée le sinistre, rattaché au client connecté (auth.userId).
+    // 5) Crée le sinistre, rattaché au client connecté ET à sa souscription.
     const sinistre = await prisma.sinistre.create({
       data: {
         userId: auth.userId,
-        typeAssurance: String(typeAssurance),
+        contratId: contrat.id,
+        // À défaut, on déduit le type d'assurance du produit de la souscription.
+        typeAssurance: typeof typeAssurance === "string" && typeAssurance.trim()
+          ? typeAssurance
+          : (contrat.produit?.nom ?? null),
         dateSurvenance: date,
         heureSurvenance: typeof heureSurvenance === "string" ? heureSurvenance.slice(0, 5) : null,
         lieu: typeof lieu === "string" ? lieu.slice(0, 200) : null,

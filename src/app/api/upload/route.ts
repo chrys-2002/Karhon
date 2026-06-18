@@ -1,52 +1,51 @@
-// Route /api/upload — génère un jeton sécurisé pour l'upload direct vers Vercel Blob.
+// Route /api/upload — upload « serveur » (simple et fiable).
 //
-// Fonctionnement (upload « client ») :
-//   1) Le navigateur appelle upload() de @vercel/blob/client, qui ping cette route.
-//   2) onBeforeGenerateToken vérifie que l'utilisateur est connecté et impose
-//      les types d'images autorisés + une taille maximale.
-//   3) Le navigateur envoie ensuite le fichier DIRECTEMENT à Vercel Blob
-//      (sans passer par cette fonction serverless → pas de limite de 4,5 Mo).
+// Le navigateur envoie le fichier (multipart) à cette route, qui l'upload
+// elle-même vers Vercel Blob avec put(). Plus de jeton client à générer,
+// plus de callback, plus de CORS : juste BLOB_READ_WRITE_TOKEN côté serveur.
 //
 // Sécurité :
-//   - Connexion obligatoire (exigerAuth) : un anonyme ne peut pas uploader.
-//   - Seules les images PNG / JPG / WEBP sont acceptées.
-//   - Taille bornée (8 Mo) pour éviter les abus.
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+//   - Connexion obligatoire (exigerAuth).
+//   - Types autorisés : images (PNG/JPG/WEBP) + PDF.
+//   - Taille bornée à 4 Mo (limite de requête serverless ~4,5 Mo ;
+//     les images sont compressées côté navigateur avant l'envoi).
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { exigerAuth } from "@/lib/session";
 
+const TYPES_OK = ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"];
+const TAILLE_MAX = 4 * 1024 * 1024; // 4 Mo
+
 export async function POST(req: Request): Promise<NextResponse> {
-  const body = (await req.json()) as HandleUploadBody;
+  const auth = await exigerAuth();
+  if (auth instanceof NextResponse) return auth;
 
   try {
-    const resultat = await handleUpload({
-      body,
-      request: req,
-      // Appelé AVANT de délivrer le jeton d'upload.
-      onBeforeGenerateToken: async () => {
-        const auth = await exigerAuth();
-        if (auth instanceof NextResponse) {
-          // Non connecté → on refuse l'upload.
-          throw new Error("Connexion requise pour envoyer un document.");
-        }
-        return {
-          allowedContentTypes: ["image/png", "image/jpeg", "image/jpg", "image/webp"],
-          maximumSizeInBytes: 8 * 1024 * 1024, // 8 Mo
-          // On garde une trace du propriétaire dans le jeton.
-          tokenPayload: JSON.stringify({ userId: auth.userId }),
-        };
-      },
-      // Appelé une fois le fichier réellement stocké (côté Vercel).
-      onUploadCompleted: async () => {
-        // Rien de spécial ici : l'URL est renvoyée au client par upload().
-      },
+    const form = await req.formData();
+    const file = form.get("file");
+
+    if (!(file instanceof File)) {
+      return NextResponse.json({ erreur: "Aucun fichier reçu." }, { status: 400 });
+    }
+    if (!TYPES_OK.includes(file.type)) {
+      return NextResponse.json({ erreur: "Format non accepté (PDF ou image)." }, { status: 400 });
+    }
+    if (file.size > TAILLE_MAX) {
+      return NextResponse.json({ erreur: "Fichier trop volumineux (4 Mo maximum)." }, { status: 400 });
+    }
+
+    // Upload vers Vercel Blob (suffixe aléatoire → pas d'écrasement).
+    const blob = await put(file.name, file, {
+      access: "public",
+      addRandomSuffix: true,
     });
 
-    return NextResponse.json(resultat);
+    return NextResponse.json({ url: blob.url });
   } catch (e) {
+    console.error("[upload]", e);
     return NextResponse.json(
-      { erreur: (e as Error).message || "Upload impossible." },
-      { status: 400 }
+      { erreur: "Upload impossible. Réessayez." },
+      { status: 500 }
     );
   }
 }

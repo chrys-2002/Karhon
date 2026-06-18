@@ -1,6 +1,5 @@
 "use client";
 import { useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadCloud, Camera, X, FileImage, Loader2, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 
@@ -26,7 +25,67 @@ type Props = {
 };
 
 const TYPES_OK = ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"];
-const TAILLE_MAX = 8 * 1024 * 1024; // 8 Mo
+const TAILLE_MAX = 4 * 1024 * 1024; // 4 Mo (limite serveur)
+
+// Compresse/redimensionne une image côté navigateur (les PDF passent tels quels).
+// → envois beaucoup plus rapides, surtout sur mobile / connexion lente.
+async function compresserImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) return file; // PDF : inchangé
+  try {
+    const dataUrl: string = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result as string);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+    const img: HTMLImageElement = await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = rej;
+      i.src = dataUrl;
+    });
+    const MAXDIM = 1600;
+    let { width, height } = img;
+    if (width > MAXDIM || height > MAXDIM) {
+      const ratio = Math.min(MAXDIM / width, MAXDIM / height);
+      width = Math.round(width * ratio);
+      height = Math.round(height * ratio);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d")?.drawImage(img, 0, 0, width, height);
+    const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/jpeg", 0.8));
+    if (!blob) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+  } catch {
+    return file; // en cas de souci, on envoie l'original
+  }
+}
+
+// Envoie le fichier à /api/upload (multipart) avec suivi de progression.
+function envoyerFichier(file: File, onProgress: (pct: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const form = new FormData();
+    form.append("file", file);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/upload");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300 && data.url) resolve(data.url as string);
+        else reject(new Error(data.erreur || "Échec de l'envoi."));
+      } catch {
+        reject(new Error("Réponse invalide du serveur."));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Échec réseau pendant l'envoi."));
+    xhr.send(form);
+  });
+}
 
 export default function DocumentUpload({
   label,
@@ -52,23 +111,19 @@ export default function DocumentUpload({
       setErreur("Format non accepté. Utilisez un PDF ou une image (PNG/JPG).");
       return;
     }
-    if (file.size > TAILLE_MAX) {
-      setErreur("Fichier trop volumineux (8 Mo maximum).");
-      return;
-    }
 
     setEnCours(true);
     setProgression(0);
     try {
-      const blob = await upload(file.name, file, {
-        access: "public",
-        handleUploadUrl: "/api/upload",
-        onUploadProgress: (p) => {
-          const pct = p.percentage ?? (p.total ? (p.loaded / p.total) * 100 : 0);
-          setProgression(Math.round(pct));
-        },
-      });
-      onChange([...value, blob.url]);
+      // 1) Compression (images) → fichier léger ; les PDF restent intacts.
+      const prepare = await compresserImage(file);
+      if (prepare.size > TAILLE_MAX) {
+        setErreur("Fichier trop volumineux (4 Mo maximum).");
+        return;
+      }
+      // 2) Envoi au serveur, qui l'upload vers Vercel Blob.
+      const url = await envoyerFichier(prepare, (pct) => setProgression(pct));
+      onChange([...value, url]);
     } catch (e) {
       setErreur((e as Error).message || "Échec de l'envoi. Réessayez.");
     } finally {
