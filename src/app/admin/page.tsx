@@ -1074,6 +1074,17 @@ export default function AdminPage() {
     if (Array.isArray(dC.contrats)) setContrats(dC.contrats);
   };
 
+  // Rafraîchissement automatique : recharge les données actives toutes les 30 s
+  // (uniquement quand l'onglet est visible, pour ne pas solliciter inutilement).
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      rechargerActifs();
+    }, 30000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Recharge les ARCHIVES + le journal (gérant).
   const rechargerArchives = async () => {
     if (!estGerant) return;

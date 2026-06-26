@@ -14,7 +14,7 @@ import { verifierLimite } from "@/lib/rateLimit";
 // En développement, une valeur par défaut permet de tester ; en production,
 // si le code n'est pas configuré, la connexion est refusée (fermeture sûre).
 const CODE_ATTENDU =
-  process.env.STAFF_ACCESS_CODE ?? (process.env.NODE_ENV !== "production" ? "equipe-karhon" : "");
+  (process.env.STAFF_ACCESS_CODE ?? (process.env.NODE_ENV !== "production" ? "equipe-karhon" : "")).trim();
 
 export async function POST(req: Request) {
   // Anti-brute-force : 5 tentatives par minute et par IP (plus strict que le public).
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     }
     const email = String(corps.email ?? "").trim().toLowerCase();
     const motDePasse = String(corps.motDePasse ?? "");
-    const code = String(corps.code ?? "");
+    const code = String(corps.code ?? "").trim();
 
     if (!email || !motDePasse || !code) {
       return NextResponse.json({ erreur: "E-mail, mot de passe et code d'accès requis." }, { status: 400 });
