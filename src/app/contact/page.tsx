@@ -392,7 +392,7 @@ export default function ContactPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl font-bold mb-4" style={{ color: '#1a2e5a' }}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1a2e5a' }}>
             Contactez KARHON Assurances
           </h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">

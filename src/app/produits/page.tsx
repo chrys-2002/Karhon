@@ -283,7 +283,7 @@ export default function ProduitsPage() {
         </div>
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Nos Solutions d&apos;Assurance</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Nos Solutions d&apos;Assurance</h1>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
             Des protections sur mesure adaptées à vos besoins personnels et professionnels
           </p>

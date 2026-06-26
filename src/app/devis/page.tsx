@@ -322,7 +322,7 @@ export default function DevisPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Obtenez votre Cotation Gratuite</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Obtenez votre Cotation Gratuite</h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             Remplissez ce formulaire en 3 étapes. Un conseiller{" "}
             <strong style={{ color: "#1a2e5a" }}>KARHON Assurances</strong>{" "}

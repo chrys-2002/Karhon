@@ -25,7 +25,7 @@ export default function AproposPage() {
           <BackButton label="Retour" />
         </div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4" style={{ color: "#1a2e5a" }}>KARHON Assurances</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4" style={{ color: "#1a2e5a" }}>KARHON Assurances</h1>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto md:whitespace-nowrap mb-6">
             Votre interlocuteur unique, neutre et indépendant en assurance en Côte d&apos;Ivoire.
           </p>
