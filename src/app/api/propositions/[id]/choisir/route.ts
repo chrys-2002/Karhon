@@ -1,15 +1,14 @@
 // Route /api/propositions/[id]/choisir
-//   POST → le client choisit cette proposition (compagnie) pour son devis.
-//          Marque la proposition comme choisie, notifie le personnel (email),
-//          et passe le devis en "accepté". L'agent poursuit ensuite jusqu'à
-//          la souscription (après paiement).
+//   POST → le client choisit cette proposition pour sa cotation et indique son
+//          mode de paiement (chèque / Wave / Orange Money). La cotation passe en
+//          "choisi" (en attente de paiement). Le rédacteur enverra ensuite le
+//          lien de paiement, confirmera le paiement, puis validera la souscription.
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth } from "@/lib/session";
-import { envoyerEmail } from "@/lib/email";
+import { notifierAgents } from "@/lib/notifications";
 
-// Adresse de notification du personnel KARHON.
-const EMAIL_STAFF = "infos@karhonassurance.com";
+const MODES: Record<string, string> = { cheque: "Chèque", wave: "Wave", orange_money: "Orange Money" };
 
 export async function POST(
   req: Request,
@@ -20,6 +19,11 @@ export async function POST(
 
   try {
     const { id } = await params;
+    const corps = await req.json().catch(() => ({}));
+    const mode = typeof corps?.modePaiement === "string" && MODES[corps.modePaiement] ? corps.modePaiement : null;
+    if (!mode) {
+      return NextResponse.json({ erreur: "Choisissez un mode de paiement." }, { status: 400 });
+    }
 
     // Récupère la proposition + son devis (+ client) pour vérifier la propriété.
     const proposition = await prisma.proposition.findUnique({
@@ -46,17 +50,21 @@ export async function POST(
       data: { choisie: true, dateChoix: new Date() },
     });
 
-    // Le devis passe en "accepté" (le client a fait son choix).
-    await prisma.devis.update({ where: { id: proposition.devisId }, data: { statut: "accepte" } });
+    // La cotation passe en "choisi" (offre retenue, en attente de paiement).
+    await prisma.devis.update({
+      where: { id: proposition.devisId },
+      data: { statut: "choisi", modePaiement: mode },
+    });
 
-    // Notifie le personnel par email (best-effort : on continue si échec).
+    // Notifie le personnel (in-app + e-mail, best-effort).
     const c = proposition.devis.user;
-    await envoyerEmail({
-      to: EMAIL_STAFF,
-      subject: `KARHON — Choix client : ${proposition.compagnie}`,
-      html: `<p>Le client <strong>${c.prenom} ${c.nom}</strong> (${c.email}) a choisi la compagnie <strong>${proposition.compagnie}</strong> pour son devis ${proposition.devis.produit?.nom ?? ""}.</p>
-             <p>Merci de poursuivre la cotation jusqu'à la souscription (après paiement).</p>`,
-    }).catch(() => {});
+    const offre = proposition.compagnie || "une offre";
+    await notifierAgents({
+      type: "choix",
+      titre: `Choix client : ${offre} (${MODES[mode]})`,
+      message: `${c.prenom} ${c.nom} (${c.email}) a choisi ${offre} pour sa cotation ${proposition.devis.produit?.nom ?? ""}, paiement par ${MODES[mode]}. ${mode === "cheque" ? "Confirmez la réception du chèque" : "Envoyez le lien de paiement"} puis validez la souscription.`,
+      lien: "/admin",
+    });
 
     return NextResponse.json({ proposition: maj });
   } catch (e) {

@@ -6,6 +6,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerStaff, exigerGerant } from "@/lib/session";
 import { journaliser } from "@/lib/audit";
+import { notifierClient } from "@/lib/notifications";
+
+// Libellés clients lisibles pour chaque statut de sinistre.
+const LABEL_STATUT_SINISTRE: Record<string, string> = {
+  declare: "déclaré",
+  en_cours: "en cours de traitement",
+  indemnise: "indemnisé",
+  refuse: "refusé",
+};
 
 const STATUTS_VALIDES = ["declare", "en_cours", "indemnise", "refuse"] as const;
 type StatutSinistre = (typeof STATUTS_VALIDES)[number];
@@ -53,6 +62,17 @@ export async function PATCH(
       data: { statut: statut as StatutSinistre },
       include: { user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
     });
+
+    // Prévient le client du changement de statut (in-app + e-mail).
+    await notifierClient({
+      userId: existant.userId,
+      email: sinistre.user?.email,
+      type: "statut",
+      titre: "Mise à jour de votre sinistre",
+      message: `Votre sinistre (${sinistre.typeAssurance ?? "assurance"}) est désormais : ${LABEL_STATUT_SINISTRE[statut] ?? statut}.`,
+      onglet: "sinistres",
+    });
+
     return NextResponse.json({ sinistre });
   } catch (e) {
     console.error("[sinistres PATCH]", e);

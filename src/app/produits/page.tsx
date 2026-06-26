@@ -263,7 +263,7 @@ const pourquoi = [
   { Icon: Target, titre: "Interlocuteur Unique", desc: "Gestion personnalisée" },
   { Icon: Scale, titre: "Neutre & Indépendant", desc: "Dans votre intérêt" },
   { Icon: BadgeDollarSign, titre: "Sans Honoraires", desc: "Services gratuits" },
-  { Icon: Zap, titre: "Devis Gratuit", desc: "Étude sur-mesure" },
+  { Icon: Zap, titre: "Cotation Gratuite", desc: "Étude sur-mesure" },
 ];
 
 export default function ProduitsPage() {
@@ -623,7 +623,7 @@ export default function ProduitsPage() {
                   className="flex-1 text-white py-4 rounded-2xl font-semibold transition-all shadow-lg hover:scale-105 text-sm flex items-center justify-center gap-2"
                   style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
                 >
-                  Demander un devis gratuit
+                  Demander une cotation gratuite
                   <ArrowRight size={16} />
                 </button>
               </div>

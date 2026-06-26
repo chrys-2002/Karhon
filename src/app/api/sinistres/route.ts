@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth, estGerant } from "@/lib/session";
+import { notifierAgents } from "@/lib/notifications";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
@@ -76,6 +77,16 @@ export async function POST(req: Request) {
         documents: docsValides,
         // statut "declare" par défaut (défini dans le schéma).
       },
+      include: { user: { select: { nom: true, prenom: true } } },
+    });
+
+    // Prévient le personnel (in-app + e-mail).
+    const nomClient = `${sinistre.user?.prenom ?? ""} ${sinistre.user?.nom ?? ""}`.trim() || "Un client";
+    await notifierAgents({
+      type: "sinistre",
+      titre: "Nouvelle déclaration de sinistre",
+      message: `${nomClient} a déclaré un sinistre (${sinistre.typeAssurance ?? "assurance"}) sur le contrat ${contrat.numeroContrat}.`,
+      lien: "/admin",
     });
 
     return NextResponse.json({ sinistre }, { status: 201 });

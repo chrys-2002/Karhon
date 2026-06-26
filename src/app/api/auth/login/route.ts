@@ -27,30 +27,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // Identité retenue (client ou personnel) → on remplit ces variables.
+    // Cette page n'authentifie QUE des CLIENTS. Le personnel (table Admin) ne se
+    // connecte plus ici : il dispose d'une page d'accès dédiée (mesure de sécurité).
     let id = "", nom = "", prenom = "", emailCompte = "";
-    let role: "client" | "agent" | "gerant" | "admin" = "client";
     let empreinte: string | null = null;
 
-    // 1) PERSONNEL d'abord : la connexion par email cherche dans la table Admin.
-    //    (Le personnel se connecte par email ; les clients par email ou téléphone.)
-    if (estEmail(saisie)) {
-      const admin = await prisma.admin.findUnique({ where: { email: saisie.toLowerCase() } });
-      if (admin) {
-        id = admin.id; nom = admin.nom; prenom = admin.prenom; emailCompte = admin.email;
-        role = admin.role; empreinte = admin.motDePasse;
-      }
-    }
-
-    // 2) Sinon CLIENT : par email ou par téléphone (numéro normalisé).
-    if (!id) {
-      const user = estEmail(saisie)
-        ? await prisma.user.findUnique({ where: { email: saisie.toLowerCase() } })
-        : await prisma.user.findUnique({ where: { telephone: normaliserTelephone(saisie) } });
-      if (user) {
-        id = user.id; nom = user.nom; prenom = user.prenom; emailCompte = user.email;
-        role = "client"; empreinte = user.motDePasse; // User = toujours un client
-      }
+    // CLIENT : par email ou par téléphone (numéro normalisé).
+    const user = estEmail(saisie)
+      ? await prisma.user.findUnique({ where: { email: saisie.toLowerCase() } })
+      : await prisma.user.findUnique({ where: { telephone: normaliserTelephone(saisie) } });
+    if (user) {
+      id = user.id; nom = user.nom; prenom = user.prenom; emailCompte = user.email;
+      empreinte = user.motDePasse; // User = toujours un client
     }
 
     // 3) Vérifie le mot de passe.
@@ -64,10 +52,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4) Délivre le jeton dans un cookie sécurisé.
-    const token = genererToken({ userId: id, email: emailCompte, role });
+    // 4) Délivre le jeton dans un cookie sécurisé (rôle client uniquement).
+    const token = genererToken({ userId: id, email: emailCompte, role: "client" });
     const res = NextResponse.json({
-      utilisateur: { id, nom, prenom, email: emailCompte, role },
+      utilisateur: { id, nom, prenom, email: emailCompte, role: "client" },
     });
     res.cookies.set(COOKIE_NAME, token, cookieOptions);
     return res;

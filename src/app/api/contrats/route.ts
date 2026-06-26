@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // 1) Validation de base.
     if (!devisId || !dureeMois || primeAnnuelle == null) {
       return NextResponse.json(
-        { erreur: "Devis, durée et prime sont obligatoires." },
+        { erreur: "Cotation, durée et prime sont obligatoires." },
         { status: 400 }
       );
     }
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     // 2) Le devis doit exister (on récupère client + produit).
     const devis = await prisma.devis.findUnique({ where: { id: devisId } });
     if (!devis) {
-      return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
+      return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     }
 
     // 3) Dates : début (fourni ou aujourd'hui) → fin = début + durée.
@@ -74,6 +74,8 @@ export async function POST(req: Request) {
           dateFin: fin,
           dureeMois: Number(dureeMois),
           primeAnnuelle: prime,
+          // Catégorie héritée automatiquement de la demande de devis du client.
+          segment: devis.segment ?? "particulier",
           compagnie,
           telephoneContact: devis.telephoneContact ?? null,
           options: Array.isArray(options) ? options.filter((o) => typeof o === "string").slice(0, 20) : [],

@@ -90,7 +90,7 @@ const GARANTIES = [
 
 // ── Étapes pour souscrire ────────────────────────────────────
 const ETAPES = [
-  { Icon: FileText, titre: "1. Demande de devis", texte: "Remplissez le formulaire en ligne ou appelez-nous. C'est gratuit et sans engagement." },
+  { Icon: FileText, titre: "1. Demande de cotation", texte: "Remplissez le formulaire en ligne ou appelez-nous. C'est gratuit et sans engagement." },
   { Icon: PhoneCall, titre: "2. Conseil personnalisé", texte: "Un conseiller analyse votre besoin et vous propose la meilleure offre du marché." },
   { Icon: FileSignature, titre: "3. Souscription", texte: "Vous choisissez votre formule et la durée (1 à 12 mois). Nous gérons les démarches." },
   { Icon: BadgeCheck, titre: "4. Suivi & rappels", texte: "Vous êtes couvert. Nous vous accompagnons et vous relançons avant chaque échéance." },
@@ -126,7 +126,7 @@ export default function ConseillerPage() {
               Trouver mon assurance <ArrowRight size={18} />
             </a>
             <Link href="/devis" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-gray-50" style={{ color: "#1a2e5a", border: "1.5px solid #e0ecec" }}>
-              Devis gratuit
+              Cotation gratuite
             </Link>
           </div>
         </motion.div>
@@ -229,7 +229,7 @@ export default function ConseillerPage() {
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-3" style={{ color: "#1a2e5a" }}>Souscrire, c&apos;est simple et rapide</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">4 étapes, du devis gratuit à votre contrat.</p>
+          <p className="text-gray-500 max-w-2xl mx-auto">4 étapes, de la cotation gratuite à votre contrat.</p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {ETAPES.map((e, i) => (
@@ -263,10 +263,10 @@ export default function ConseillerPage() {
       <section className="px-4 pb-24">
         <div className="max-w-4xl mx-auto rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
           <h2 className="text-3xl font-bold text-white mb-4">Prêt à être bien protégé ?</h2>
-          <p className="text-white/80 max-w-xl mx-auto mb-8">Obtenez votre devis gratuit en quelques minutes, ou appelez un conseiller dès maintenant.</p>
+          <p className="text-white/80 max-w-xl mx-auto mb-8">Obtenez votre cotation gratuite en quelques minutes, ou appelez un conseiller dès maintenant.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/devis" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:scale-105" style={{ background: "#fff", color: "#1a2e5a" }}>
-              Demander un devis gratuit <ArrowRight size={18} />
+              Demander une cotation gratuite <ArrowRight size={18} />
             </Link>
             <a href="tel:+2250787103939" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-white/10" style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)" }}>
               <Phone size={17} /> +225 07 87 10 39 39
@@ -353,7 +353,7 @@ function Diagnostic() {
                 <p className="text-gray-600 max-w-md mx-auto leading-relaxed mb-8">{reco.texte}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Link href="/devis" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
-                    Demander un devis gratuit <ArrowRight size={18} />
+                    Demander une cotation gratuite <ArrowRight size={18} />
                   </Link>
                   <button onClick={reset} className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-gray-50" style={{ border: "1.5px solid #e0ecec", color: "#1a2e5a" }}>
                     <RotateCcw size={16} /> Recommencer

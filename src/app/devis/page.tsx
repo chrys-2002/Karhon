@@ -214,7 +214,7 @@ export default function DevisPage() {
 
   const canGoToStep2 = formData.categorie !== '';
   // Pour un voyage, destination, durée et âge sont requis.
-  const voyageComplet = !estVoyage || (formData.destination !== '' && formData.duree !== '' && formData.ageAssure !== '');
+  const voyageComplet = !estVoyage || (formData.destination !== '' && formData.duree !== '' && formData.ageAssure !== '' && docPasseport.length > 0);
   // Pour l'auto, la carte grise et la visite technique sont obligatoires.
   const autoComplet = !estAuto || (docCarteGrise.length > 0 && docVisite.length > 0);
 
@@ -271,6 +271,11 @@ export default function DevisPage() {
         if (texte && String(texte).trim()) reponsesProduit[c.label] = String(texte);
       }
 
+      // Catégorie de souscription déduite AUTOMATIQUEMENT du choix du client
+      // (étape 1) : « Professionnelles » → professionnel (flotte) ; sinon
+      // particulier (les assurances Vie relèvent de l'usage personnel).
+      const segment = formData.categorie === 'professionnelles' ? 'professionnel' : 'particulier';
+
       const res = await fetch('/api/devis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -280,6 +285,7 @@ export default function DevisPage() {
           documents,
           reponses: Object.keys(reponsesProduit).length ? reponsesProduit : undefined,
           telephoneContact: formData.telephone || undefined,
+          segment,
         }),
       });
 
@@ -316,7 +322,7 @@ export default function DevisPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Obtenez votre Devis Gratuit</h1>
+          <h1 className="text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>Obtenez votre Cotation Gratuite</h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             Remplissez ce formulaire en 3 étapes. Un conseiller{" "}
             <strong style={{ color: "#1a2e5a" }}>KARHON Assurances</strong>{" "}
@@ -477,7 +483,7 @@ export default function DevisPage() {
                       <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Documents du véhicule</h3>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      Joignez votre carte grise et votre visite technique (PNG ou JPG). Vous pouvez les prendre en photo depuis votre mobile.
+                      Joignez votre carte grise et votre visite technique (PDF ou image). Vous pouvez les prendre en photo depuis votre mobile.
                     </p>
                   </div>
                   <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} required />
@@ -559,6 +565,7 @@ export default function DevisPage() {
                     hint="Photographiez ou importez la page principale de votre passeport (PNG ou JPG)."
                     value={docPasseport}
                     onChange={setDocPasseport}
+                    required
                   />
                 </motion.div>
               )}
@@ -755,7 +762,7 @@ export default function DevisPage() {
                   <Phone size={18} /> Appeler maintenant
                 </a>
                 <a href="/client/dashboard" className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all hover:scale-105" style={{ border: "2px solid #2a8a8a", color: "#2a8a8a" }}>
-                  Voir mes devis
+                  Voir mes cotations
                 </a>
               </div>
             </motion.div>

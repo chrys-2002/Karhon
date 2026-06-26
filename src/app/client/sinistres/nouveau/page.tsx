@@ -176,14 +176,14 @@ export default function NouveauSinistre() {
               </div>
               <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription active</p>
               <p className="text-gray-500 text-sm max-w-sm mb-6">
-                Un sinistre ne peut être déclaré que sur une souscription existante. Demandez d&apos;abord un devis pour souscrire.
+                Un sinistre ne peut être déclaré que sur une souscription existante. Demandez d&apos;abord une cotation pour souscrire.
               </p>
               <Link
                 href="/devis"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.02]"
                 style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
               >
-                Demander un devis <ArrowRight size={16} />
+                Demander une cotation <ArrowRight size={16} />
               </Link>
             </div>
           ) : (

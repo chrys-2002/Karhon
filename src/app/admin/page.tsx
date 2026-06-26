@@ -1,10 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ShieldCheck,
-  LogOut,
   ClipboardList,
   Clock,
   CheckCircle2,
@@ -31,13 +29,29 @@ import {
   TrendingUp,
   BarChart3,
   MessageCircle,
+  Building2,
+  Trophy,
+  User,
+  Truck,
+  ArrowRight,
+  ArrowLeft,
+  Search,
+  MessagesSquare,
+  FileText,
+  ImageOff,
+  Plus,
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 import { infoRelance } from "@/lib/contrats";
 import { PARTENAIRES } from "@/lib/partenaires";
 import DatePicker from "@/components/ui/DatePicker";
 import Select from "@/components/ui/Select";
 import DocumentUpload from "@/components/ui/DocumentUpload";
+import FiltreTri from "@/components/ui/FiltreTri";
+import MenuCategorie from "@/components/ui/MenuCategorie";
+import MessagesAdmin from "@/components/messages/MessagesAdmin";
+import SignalerDocument from "@/components/messages/SignalerDocument";
+import DashboardShell, { type NavItem } from "@/components/ui/DashboardShell";
 
 // Construit un lien WhatsApp pré-rempli (format wa.me standard).
 // Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
@@ -52,6 +66,14 @@ function lienWhatsApp(telephone: string | undefined, message: string): string | 
 function dateCourte(iso?: string | null): string {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric" });
+}
+
+// Date + heure lisibles (ex. "5 juin 2026 à 14:32").
+function dateHeure(iso?: string | null): string {
+  if (!iso) return "";
+  return new Date(iso)
+    .toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    .replace(",", " à");
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -78,6 +100,7 @@ type PropositionAdmin = {
 
 type DevisAdmin = {
   id: string;
+  userId?: string;
   dateCreation: string;
   statut: string;
   montantEstime: number | null;
@@ -85,6 +108,9 @@ type DevisAdmin = {
   documents?: string[];
   reponses?: Record<string, string> | null;
   telephoneContact?: string | null;
+  modePaiement?: string | null;
+  montantAPayer?: number | null;
+  lienPaiement?: string | null;
   derniereRelance?: string | null;
   nombreRelances?: number;
   supprimePar?: string | null;
@@ -96,6 +122,7 @@ type DevisAdmin = {
 
 type SinistreAdmin = {
   id: string;
+  userId?: string;
   dateDeclaration: string;
   dateSurvenance: string;
   heureSurvenance: string | null;
@@ -119,6 +146,7 @@ type ContratAdmin = {
   dateFin: string;
   dureeMois: number;
   primeAnnuelle: number;
+  segment?: string | null;
   compagnie?: string | null;
   statut: string;
   derniereRelance?: string | null;
@@ -167,7 +195,7 @@ type Apercu = {
 function GrapheTrimestriel({ data }: { data: TrimestrePoint[] }) {
   const courbes = [
     { cle: "clients", nom: "Nouveaux clients", couleur: "#1a2e5a" },
-    { cle: "devis", nom: "Devis reçus", couleur: "#2a8a8a" },
+    { cle: "devis", nom: "Cotations reçues", couleur: "#2a8a8a" },
     { cle: "souscriptions", nom: "Souscriptions", couleur: "#16a34a" },
     { cle: "sinistres", nom: "Sinistres", couleur: "#f59e0b" },
   ];
@@ -198,40 +226,95 @@ function GrapheTrimestriel({ data }: { data: TrimestrePoint[] }) {
   );
 }
 
-// Affiche les pièces jointes (format "Libellé|url") en miniatures cliquables.
+// Galerie des pièces jointes (format "Libellé|url") : grande image, slider
+// (suivante / précédente) et IMAGE PAR DÉFAUT quand il n'y a aucune pièce.
 function PiecesJointes({ documents }: { documents?: string[] }) {
-  if (!documents || documents.length === 0) return null;
-  return (
-    <div className="mt-3">
-      <p className="text-xs font-semibold mb-2" style={{ color: "#1a2e5a" }}>
-        Pièces jointes ({documents.length})
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {documents.map((doc, i) => {
+  const [i, setI] = useState(0);
+  const items =
+    documents && documents.length > 0
+      ? documents.map((doc) => {
           const sep = doc.indexOf("|");
-          const libelle = sep > 0 ? doc.slice(0, sep) : "Document";
-          const url = sep > 0 ? doc.slice(sep + 1) : doc;
-          return (
-            <a
-              key={i}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block w-24"
-              title={libelle}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={libelle}
-                className="w-24 h-20 rounded-xl object-cover border transition-all group-hover:shadow-md"
-                style={{ borderColor: "#e0ecec" }}
-              />
-              <span className="block text-[11px] text-gray-500 mt-1 truncate">{libelle}</span>
-            </a>
-          );
-        })}
+          return { libelle: sep > 0 ? doc.slice(0, sep) : "Document", url: sep > 0 ? doc.slice(sep + 1) : doc, defaut: false };
+        })
+      : [{ libelle: "Aucune pièce jointe", url: "", defaut: true }];
+  const idx = Math.min(i, items.length - 1);
+  const courant = items[idx];
+  const estPdf = !courant.defaut && courant.url.toLowerCase().includes(".pdf");
+  const aller = (d: number) => setI((p) => (p + d + items.length) % items.length);
+  const [apercu, setApercu] = useState<{ url: string; pdf: boolean } | null>(null);
+
+  return (
+    <div className="w-full flex-1 flex flex-col min-h-[240px]">
+      <p className="text-xs font-semibold mb-2" style={{ color: "#1a2e5a" }}>
+        Pièces jointes{documents?.length ? ` (${documents.length})` : ""}
+      </p>
+      <div className="relative rounded-2xl overflow-hidden border flex-1 min-h-[200px]" style={{ borderColor: "#e0ecec", background: "linear-gradient(135deg, #eef6f6, #ffffff)" }}>
+        {courant.defaut ? (
+          <>
+            <div className="absolute inset-0 pointer-events-none opacity-60" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, #cfe6e6 1px, transparent 0)", backgroundSize: "16px 16px" }} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-4">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)", color: "#ffffff" }}>
+                <ImageOff size={38} strokeWidth={1.5} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "#1a2e5a" }}>Aucune pièce jointe</p>
+                <p className="text-xs text-gray-400 mt-0.5">Le client n&apos;a transmis aucun document</p>
+              </div>
+            </div>
+          </>
+        ) : estPdf ? (
+          <button type="button" onClick={() => setApercu({ url: courant.url, pdf: true })} className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ color: "#2a8a8a" }}>
+            <FileText size={48} strokeWidth={1.5} />
+            <span className="text-sm font-medium">Aperçu du PDF</span>
+          </button>
+        ) : (
+          <button type="button" onClick={() => setApercu({ url: courant.url, pdf: false })} className="absolute inset-0 block cursor-zoom-in" title="Agrandir">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={courant.url} alt={courant.libelle} className="w-full h-full object-cover" />
+          </button>
+        )}
+
+        {items.length > 1 && (
+          <>
+            <button type="button" onClick={() => aller(-1)} aria-label="Précédente" className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow flex items-center justify-center transition-transform hover:scale-110" style={{ color: "#1a2e5a" }}>
+              <ArrowLeft size={16} />
+            </button>
+            <button type="button" onClick={() => aller(1)} aria-label="Suivante" className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow flex items-center justify-center transition-transform hover:scale-110" style={{ color: "#1a2e5a" }}>
+              <ArrowRight size={16} />
+            </button>
+            <span className="absolute bottom-2 right-2 text-[11px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: "rgba(15,23,42,0.6)" }}>
+              {idx + 1} / {items.length}
+            </span>
+          </>
+        )}
       </div>
+
+      <p className="text-[11px] text-gray-500 mt-1.5 truncate">{courant.libelle}</p>
+
+      {items.length > 1 && (
+        <div className="flex gap-1.5 mt-2">
+          {items.map((_, k) => (
+            <button key={k} type="button" onClick={() => setI(k)} aria-label={`Image ${k + 1}`} className="h-1.5 rounded-full transition-all" style={{ width: k === idx ? 18 : 6, background: k === idx ? "#2a8a8a" : "#cfe0e0" }} />
+          ))}
+        </div>
+      )}
+
+      {/* Aperçu en superposition (reste sur la même page, pas de redirection) */}
+      {apercu && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-8" style={{ background: "rgba(10,18,30,0.82)" }} onClick={() => setApercu(null)}>
+          <button type="button" onClick={() => setApercu(null)} aria-label="Fermer" className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors">
+            <X size={20} />
+          </button>
+          <div className="w-full max-w-4xl max-h-[90vh] flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            {apercu.pdf ? (
+              <iframe src={apercu.url} title="Aperçu du document" className="w-full h-[85vh] rounded-2xl bg-white shadow-2xl" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={apercu.url} alt="Aperçu" className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl" />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -243,9 +326,14 @@ const STATUTS: StatutInfo[] = [
   { value: "en_attente", label: "En attente", couleur: "#92600a", fond: "#fef3c7" },
   { value: "en_cours", label: "En cours", couleur: "#1e40af", fond: "#dbeafe" },
   { value: "envoye", label: "Envoyé", couleur: "#5b21b6", fond: "#ede9fe" },
-  { value: "accepte", label: "Accepté", couleur: "#166534", fond: "#dcfce7" },
+  { value: "choisi", label: "Offre choisie · à encaisser", couleur: "#9a3412", fond: "#ffedd5" },
+  { value: "paye", label: "Payé · à valider", couleur: "#0e7490", fond: "#cffafe" },
+  { value: "accepte", label: "Souscrit", couleur: "#166534", fond: "#dcfce7" },
   { value: "refuse", label: "Refusé", couleur: "#991b1b", fond: "#fee2e2" },
 ];
+
+// Libellés lisibles des modes de paiement.
+const MODE_LABEL: Record<string, string> = { cheque: "Chèque", wave: "Wave", orange_money: "Orange Money" };
 
 // Libellés + couleurs des statuts de sinistre (alignés sur l'enum StatutSinistre).
 const STATUTS_SINISTRE: StatutInfo[] = [
@@ -428,6 +516,7 @@ function LigneArchive({
   sousTitre,
   par,
   le,
+  dateEnvoi,
   enCours,
   onRestaurer,
   onPurger,
@@ -437,11 +526,12 @@ function LigneArchive({
   sousTitre: string;
   par?: string | null;
   le?: string | null;
+  dateEnvoi?: string | null;
   enCours: boolean;
   onRestaurer: () => void;
   onPurger: () => void;
 }) {
-  const TYPE_LABEL: Record<string, string> = { devis: "Devis", sinistres: "Sinistre", contrats: "Souscription" };
+  const TYPE_LABEL: Record<string, string> = { devis: "Cotation", sinistres: "Sinistre", contrats: "Souscription" };
   return (
     <div className="px-6 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
       <div className="min-w-0">
@@ -452,8 +542,11 @@ function LigneArchive({
           <span className="font-semibold" style={{ color: "#1a2e5a" }}>{titre}</span>
         </div>
         <p className="text-sm text-gray-500 mt-0.5">{sousTitre}</p>
+        {dateEnvoi && (
+          <p className="text-xs text-gray-400 mt-0.5">Envoyé le {dateHeure(dateEnvoi)}</p>
+        )}
         <p className="text-xs mt-0.5" style={{ color: "#b42318" }}>
-          Archivé par <strong>{par ?? "—"}</strong>{le ? ` le ${dateCourte(le)}` : ""}
+          Archivé par <strong>{par ?? "—"}</strong>{le ? ` le ${dateHeure(le)}` : ""}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -617,28 +710,106 @@ export default function AdminPage() {
   const router = useRouter();
   const [autorise, setAutorise] = useState(false);
   const [estGerant, setEstGerant] = useState(false);
+  const [profil, setProfil] = useState<{ nom?: string; prenom?: string; email?: string; role?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [devis, setDevis] = useState<DevisAdmin[]>([]);
   const [sinistres, setSinistres] = useState<SinistreAdmin[]>([]);
   const [contrats, setContrats] = useState<ContratAdmin[]>([]);
   // Devis en cours de conversion en contrat (ouvre la modale).
   const [conversion, setConversion] = useState<DevisAdmin | null>(null);
-  const [confirmDeco, setConfirmDeco] = useState(false);
-  // Envoi d'une proposition (cotation) sur un devis.
+  // Envoi de propositions (cotations) sur un devis — on peut en envoyer plusieurs.
+  type PropLigne = { compagnie: string; docs: string[]; prime: string; message: string };
+  const propVide = (): PropLigne => ({ compagnie: "", docs: [], prime: "", message: "" });
   const [propPour, setPropPour] = useState<DevisAdmin | null>(null);
-  const [propCompagnie, setPropCompagnie] = useState("");
-  const [propDocs, setPropDocs] = useState<string[]>([]);
-  const [propPrime, setPropPrime] = useState("");
-  const [propMessage, setPropMessage] = useState("");
+  const [propProps, setPropProps] = useState<PropLigne[]>([propVide()]);
   const [propEnvoi, setPropEnvoi] = useState(false);
+  const majProp = (i: number, champ: keyof PropLigne, valeur: string | string[]) =>
+    setPropProps((arr) => arr.map((p, k) => (k === i ? ({ ...p, [champ]: valeur } as PropLigne) : p)));
   // Archives + journal d'audit (gérant uniquement).
   const [archDevis, setArchDevis] = useState<DevisAdmin[]>([]);
   const [archSinistres, setArchSinistres] = useState<SinistreAdmin[]>([]);
   const [archContrats, setArchContrats] = useState<ContratAdmin[]>([]);
   const [journal, setJournal] = useState<JournalEntree[]>([]);
   const [apercu, setApercu] = useState<Apercu | null>(null);
-  const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "rdv" | "gerant">("accueil");
+  const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "compagnies" | "messages" | "rdv" | "gerant">("accueil");
+  const [messagesNonLus, setMessagesNonLus] = useState(0);
+  const [convCible, setConvCible] = useState<string | null>(null); // conversation à ouvrir (clic notif)
+  const [archRecherche, setArchRecherche] = useState("");
+  const [archTri, setArchTri] = useState("date");
+  const [archSens, setArchSens] = useState<"asc" | "desc">("desc");
+  const [archPeriode, setArchPeriode] = useState("tout");
   const [rendezVous, setRendezVous] = useState<RendezVousAdmin[]>([]);
+  const [recherche, setRecherche] = useState("");
+  const [triChamp, setTriChamp] = useState<string>("date");
+  const [triSens, setTriSens] = useState<"asc" | "desc">("desc");
+  const [periode, setPeriode] = useState<string>("tout");
+  // Souscriptions : catégorie ouverte (null = on affiche les cartes de catégories).
+  const [categorieVue, setCategorieVue] = useState<string | null>(null);
+  // Réinitialise tri + période + catégorie quand on change d'onglet.
+  // La conversation ciblée n'est gardée que sur l'onglet Messages.
+  useEffect(() => { setTriChamp("date"); setTriSens("desc"); setPeriode("tout"); setCategorieVue(null); if (vue !== "messages") setConvCible(null); }, [vue]);
+
+  // Au chargement (clic notif / lien e-mail), ouvre l'onglet et l'élément ciblés (?onglet=…&ref=…).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const o = params.get("onglet");
+    const ref = params.get("ref");
+    if (o) setVue(o as typeof vue);
+    if (ref) setConvCible(ref);
+  }, []);
+
+  // ── Journal d'audit : recherche + filtre + pagination CÔTÉ SERVEUR ──
+  const JOURNAL_TAILLE = 20;
+  const [journalQ, setJournalQ] = useState("");
+  const [journalAction, setJournalAction] = useState(""); // "" | archivage | restauration | purge
+  const [journalPage, setJournalPage] = useState(1);
+  const [journalTotal, setJournalTotal] = useState(0);
+  const [journalChargement, setJournalChargement] = useState(false);
+  const [journalTri, setJournalTri] = useState("date");
+  const [journalSens, setJournalSens] = useState<"asc" | "desc">("desc");
+  const [journalPeriode, setJournalPeriode] = useState("tout");
+
+  const chargerJournal = useCallback(async () => {
+    if (!estGerant) return;
+    setJournalChargement(true);
+    try {
+      const params = new URLSearchParams({ page: String(journalPage), pageSize: String(JOURNAL_TAILLE), tri: journalTri, sens: journalSens, periode: journalPeriode });
+      if (journalQ.trim()) params.set("q", journalQ.trim());
+      if (journalAction) params.set("action", journalAction);
+      const r = await fetch(`/api/journal?${params.toString()}`);
+      const d = r.ok ? await r.json() : { entrees: [], total: 0 };
+      setJournal(Array.isArray(d.entrees) ? d.entrees : []);
+      setJournalTotal(typeof d.total === "number" ? d.total : 0);
+    } catch {
+      setJournal([]); setJournalTotal(0);
+    } finally {
+      setJournalChargement(false);
+    }
+  }, [estGerant, journalPage, journalQ, journalAction, journalTri, journalSens, journalPeriode]);
+
+  // Recharge le journal quand on ouvre l'onglet gérant ou qu'un critère change
+  // (la saisie est « débouncée » pour ne pas requêter à chaque frappe).
+  useEffect(() => {
+    if (vue !== "gerant" || !estGerant) return;
+    const t = setTimeout(() => { chargerJournal(); }, 250);
+    return () => clearTimeout(t);
+  }, [vue, estGerant, chargerJournal]);
+
+  // Revient à la page 1 quand la recherche, le filtre, le tri ou la période change.
+  useEffect(() => { setJournalPage(1); }, [journalQ, journalAction, journalTri, journalSens, journalPeriode]);
+
+  // Compteur de messages non lus (pour la pastille de l'onglet Messages).
+  useEffect(() => {
+    if (!autorise) return;
+    let stop = false;
+    const charger = () => fetch("/api/messages?count=1")
+      .then((r) => (r.ok ? r.json() : { nonLus: 0 }))
+      .then((d) => { if (!stop) setMessagesNonLus(d.nonLus ?? 0); })
+      .catch(() => {});
+    charger();
+    const t = setInterval(charger, 30000);
+    return () => { stop = true; clearInterval(t); };
+  }, [autorise, vue]);
   const [majId, setMajId] = useState<string | null>(null);
   const [majSinistreId, setMajSinistreId] = useState<string | null>(null);
   // Id en cours d'action (suppression / relance) pour afficher le spinner.
@@ -664,6 +835,7 @@ export default function AdminPage() {
         const role = data.utilisateur?.role;
         if (["agent", "gerant", "admin"].includes(role)) {
           setAutorise(true);
+          setProfil(data.utilisateur ?? null);
           setEstGerant(["gerant", "admin"].includes(role)); // admin = ancien rôle, traité comme gérant
         } else {
           router.push("/client/dashboard"); // client connecté → son espace
@@ -705,20 +877,19 @@ export default function AdminPage() {
       .catch(() => {});
   }, [autorise]);
 
-  // 3) Données réservées au gérant : archives (éléments supprimés) + journal d'audit.
+  // 3) Données réservées au gérant : archives (éléments supprimés).
+  //    Le journal d'audit est chargé séparément (recherche + pagination serveur).
   useEffect(() => {
     if (!autorise || !estGerant) return;
     Promise.all([
       fetch("/api/devis?archives=1").then((r) => (r.ok ? r.json() : { devis: [] })),
       fetch("/api/sinistres?archives=1").then((r) => (r.ok ? r.json() : { sinistres: [] })),
       fetch("/api/contrats?archives=1").then((r) => (r.ok ? r.json() : { contrats: [] })),
-      fetch("/api/journal").then((r) => (r.ok ? r.json() : { entrees: [] })),
     ])
-      .then(([dD, dS, dC, dJ]) => {
+      .then(([dD, dS, dC]) => {
         if (Array.isArray(dD.devis)) setArchDevis(dD.devis);
         if (Array.isArray(dS.sinistres)) setArchSinistres(dS.sinistres);
         if (Array.isArray(dC.contrats)) setArchContrats(dC.contrats);
-        if (Array.isArray(dJ.entrees)) setJournal(dJ.entrees);
       })
       .catch(() => {});
   }, [autorise, estGerant]);
@@ -728,15 +899,18 @@ export default function AdminPage() {
     router.push("/"); // retour à la page d'accueil principale
   };
 
-  // Ouvre/ferme la fenêtre d'envoi de proposition.
+  // Ouvre la fenêtre d'envoi de propositions (repart d'une proposition vide).
   const ouvrirProposition = (d: DevisAdmin) => {
-    setPropPour(d); setPropCompagnie(""); setPropDocs([]); setPropPrime(""); setPropMessage("");
+    setPropPour(d); setPropProps([propVide()]);
   };
 
-  // Envoie une proposition (cotation) d'une compagnie pour le devis sélectionné.
+  // Envoie UNE OU PLUSIEURS propositions pour le devis sélectionné.
   const envoyerProposition = async () => {
-    if (!propPour || !propCompagnie || propDocs.length === 0) {
-      setNotif({ type: "warn", texte: "Choisissez une compagnie et joignez la fiche PDF." });
+    if (!propPour) return;
+    // Validation : chaque proposition doit avoir au moins une fiche de cotation.
+    const valides = propProps.filter((p) => p.docs.length > 0);
+    if (valides.length === 0) {
+      setNotif({ type: "warn", texte: "Joignez au moins une fiche de cotation (PDF)." });
       return;
     }
     setPropEnvoi(true);
@@ -745,23 +919,71 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          compagnie: propCompagnie,
-          documents: propDocs,
-          prime: propPrime ? Number(propPrime) : undefined,
-          message: propMessage,
+          propositions: valides.map((p) => ({
+            compagnie: p.compagnie.trim(),
+            documents: p.docs.map((u, k) => `${p.docs.length > 1 ? `Cotation ${k + 1}` : "Cotation"}|${u}`),
+            prime: p.prime ? Number(p.prime) : undefined,
+            message: p.message,
+          })),
         }),
       });
       const data = await res.json();
       if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Envoi impossible." }); return; }
-      // Ajoute la proposition au devis localement + statut "envoye".
-      setDevis((prev) => prev.map((d) => d.id === propPour.id
-        ? { ...d, statut: "envoye", propositions: [...(d.propositions ?? []), data.proposition] }
-        : d));
-      setNotif({ type: "ok", texte: `Proposition ${propCompagnie} envoyée au client.` });
+      // Le devis passe en "envoyé" ; on recharge pour récupérer les propositions créées.
+      setDevis((prev) => prev.map((d) => d.id === propPour.id ? { ...d, statut: "envoye" } : d));
+      rechargerActifs();
+      setNotif({ type: "ok", texte: `${data.nombre ?? valides.length} proposition(s) envoyée(s) au client.` });
       setPropPour(null);
+    } catch {
+      setNotif({ type: "err", texte: "Erreur réseau lors de l'envoi." });
     } finally {
       setPropEnvoi(false);
     }
+  };
+
+  // ── Encaissement : montant à régler + lien de paiement + confirmation ──
+  const [lienInputs, setLienInputs] = useState<Record<string, string>>({});
+  const [montantInputs, setMontantInputs] = useState<Record<string, string>>({});
+  const [paieId, setPaieId] = useState<string | null>(null);
+
+  const communiquerMontant = async (d: DevisAdmin) => {
+    const montant = (montantInputs[d.id] ?? "").trim();
+    if (!montant || Number(montant) < 0) { setNotif({ type: "warn", texte: "Saisissez le montant à régler." }); return; }
+    setPaieId(d.id);
+    try {
+      const res = await fetch(`/api/devis/${d.id}/paiement`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ montant: Number(montant) }) });
+      const data = await res.json();
+      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
+      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, montantAPayer: Number(montant) } : x)));
+      setNotif({ type: "ok", texte: "Montant communiqué au client." });
+    } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
+    finally { setPaieId(null); }
+  };
+
+  const envoyerLienPaiement = async (d: DevisAdmin) => {
+    const lien = (lienInputs[d.id] ?? "").trim();
+    if (!/^https?:\/\//i.test(lien)) { setNotif({ type: "warn", texte: "Saisissez un lien valide (https://…)." }); return; }
+    setPaieId(d.id);
+    try {
+      const res = await fetch(`/api/devis/${d.id}/paiement`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lien }) });
+      const data = await res.json();
+      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
+      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, lienPaiement: lien } : x)));
+      setNotif({ type: "ok", texte: "Lien de paiement envoyé au client." });
+    } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
+    finally { setPaieId(null); }
+  };
+
+  const confirmerPaiement = async (d: DevisAdmin) => {
+    setPaieId(d.id);
+    try {
+      const res = await fetch(`/api/devis/${d.id}/paiement`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmer: true }) });
+      const data = await res.json();
+      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
+      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, statut: "paye" } : x)));
+      setNotif({ type: "ok", texte: "Paiement confirmé. Vous pouvez valider la souscription." });
+    } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
+    finally { setPaieId(null); }
   };
 
   // Envoie une proposition au client via WhatsApp (message + lien vers la fiche).
@@ -770,7 +992,7 @@ export default function AdminPage() {
     const lienFiche = (p.documents[0] ?? "").split("|")[1] ?? "";
     const message =
       `Bonjour ${prenom},\n\n` +
-      `Voici notre proposition d'assurance ${d.produit?.nom ?? ""} avec ${p.compagnie}` +
+      `Voici notre proposition de cotation pour ${d.produit?.nom ?? ""}${p.compagnie ? ` (${p.compagnie})` : ""}` +
       (typeof p.prime === "number" ? ` — prime : ${p.prime.toLocaleString("fr-FR")} FCFA` : "") + ".\n" +
       (lienFiche ? `Consultez la fiche détaillée : ${lienFiche}\n` : "") +
       (p.message ? `\n${p.message}\n` : "") +
@@ -855,16 +1077,15 @@ export default function AdminPage() {
   // Recharge les ARCHIVES + le journal (gérant).
   const rechargerArchives = async () => {
     if (!estGerant) return;
-    const [dD, dS, dC, dJ] = await Promise.all([
+    const [dD, dS, dC] = await Promise.all([
       fetch("/api/devis?archives=1").then((r) => (r.ok ? r.json() : { devis: [] })),
       fetch("/api/sinistres?archives=1").then((r) => (r.ok ? r.json() : { sinistres: [] })),
       fetch("/api/contrats?archives=1").then((r) => (r.ok ? r.json() : { contrats: [] })),
-      fetch("/api/journal").then((r) => (r.ok ? r.json() : { entrees: [] })),
     ]);
     if (Array.isArray(dD.devis)) setArchDevis(dD.devis);
     if (Array.isArray(dS.sinistres)) setArchSinistres(dS.sinistres);
     if (Array.isArray(dC.contrats)) setArchContrats(dC.contrats);
-    if (Array.isArray(dJ.entrees)) setJournal(dJ.entrees);
+    chargerJournal();
   };
 
   // ── ARCHIVER (suppression douce) — disponible pour tout le personnel ──
@@ -1028,6 +1249,27 @@ export default function AdminPage() {
     }
   };
 
+  // Re-catégorise une souscription existante (particulier / professionnel / transport).
+  const changerSegment = async (id: string, segment: string) => {
+    // Mise à jour optimiste (l'UI réagit tout de suite).
+    setContrats((prev) => prev.map((c) => (c.id === id ? { ...c, segment } : c)));
+    try {
+      const res = await fetch(`/api/contrats/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ segment }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        afficherNotif("err", data.erreur || "Changement de catégorie impossible.");
+      } else {
+        afficherNotif("ok", "Catégorie mise à jour.");
+      }
+    } catch {
+      afficherNotif("err", "Erreur réseau lors du changement de catégorie.");
+    }
+  };
+
   if (loading || !autorise) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8fbfb" }}>
@@ -1042,52 +1284,273 @@ export default function AdminPage() {
   const acceptes = devis.filter((d) => d.statut === "accepte").length;
   const refuses = devis.filter((d) => d.statut === "refuse").length;
 
-  // À traiter : devis en attente (cotation) + sinistres ouverts + choix client à poursuivre.
+  // Devis RESTANT à traiter : tout devis pas encore réglé (ni accepté, ni refusé).
+  // La pastille reste tant que tous les devis ne sont pas réglés.
+  const devisATraiter = devis.filter((d) => !["accepte", "refuse"].includes(d.statut)).length;
+  // À traiter : devis non réglés + sinistres ouverts + choix client à poursuivre.
   const sinistresATraiter = sinistres.filter((s) => s.statut === "declare" || s.statut === "en_cours").length;
   const choixATraiter = devis.filter((d) => d.propositions?.some((p) => p.choisie)).length;
-  const aTraiter = enAttente + sinistresATraiter + choixATraiter;
+  const aTraiter = devisATraiter + sinistresATraiter + choixATraiter;
+
+  // Analyse du comportement client vis-à-vis des compagnies : à partir des
+  // propositions envoyées (sollicitations) et de celles réellement choisies.
+  const compagniesStats = (() => {
+    const map = new Map<string, { envoyees: number; choisies: number }>();
+    for (const d of devis) {
+      for (const p of d.propositions ?? []) {
+        // On n'agrège que les propositions rattachées à une compagnie nommée.
+        if (!p.compagnie) continue;
+        const e = map.get(p.compagnie) ?? { envoyees: 0, choisies: 0 };
+        e.envoyees++;
+        if (p.choisie) e.choisies++;
+        map.set(p.compagnie, e);
+      }
+    }
+    return Array.from(map.entries())
+      .map(([nom, v]) => ({ nom, envoyees: v.envoyees, choisies: v.choisies, taux: v.envoyees ? Math.round((v.choisies / v.envoyees) * 100) : 0 }))
+      .sort((a, b) => b.choisies - a.choisies || b.envoyees - a.envoyees);
+  })();
+  const totalSollicitations = compagniesStats.reduce((s, c) => s + c.envoyees, 0);
+  const totalChoix = compagniesStats.reduce((s, c) => s + c.choisies, 0);
 
   const stats = [
-    { label: "Devis reçus", value: total, Icon: ClipboardList, filtre: "tous" },
+    { label: "Cotations reçues", value: total, Icon: ClipboardList, filtre: "tous" },
     { label: "En attente", value: enAttente, Icon: Clock, filtre: "en_attente" },
     { label: "Acceptés", value: acceptes, Icon: CheckCircle2, filtre: "accepte" },
     { label: "Refusés", value: refuses, Icon: XCircle, filtre: "refuse" },
   ];
 
-  // Liste affichée selon le filtre actif.
-  const devisAffiches = filtre === "tous" ? devis : devis.filter((d) => d.statut === filtre);
-  const titreListe = filtre === "tous" ? "Toutes les demandes" : `Devis « ${infoStatut(filtre).label} »`;
+  // ── Recherche transversale (nom / email / téléphone / produit…) ──
+  const norm = (s: unknown) =>
+    String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const q = norm(recherche.trim());
+  // Recherche "intelligente" : on découpe la requête en mots et CHAQUE mot doit
+  // se retrouver dans l'un des champs (multi-termes, ordre libre, sans accents).
+  const termes = q.split(/\s+/).filter(Boolean);
+  const correspond = (...champs: unknown[]) => {
+    if (termes.length === 0) return true;
+    const foin = norm(champs.join(" "));
+    return termes.every((t) => foin.includes(t));
+  };
+
+  // ── Filtre par période (sur une date donnée) ──
+  // La Côte d'Ivoire est à UTC : le calendrier UTC correspond au calendrier local.
+  const dansPeriodeVal = (iso: string | null | undefined, p: string) => {
+    if (p === "tout") return true;
+    if (!iso) return false;
+    const t = new Date(iso).getTime();
+    if (Number.isNaN(t)) return false;
+    const now = new Date();
+    const debutJour = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    if (p === "aujourdhui") return t >= debutJour;
+    if (p === "hier") return t >= debutJour - 86_400_000 && t < debutJour;
+    if (p === "semaine") {
+      const jour = now.getUTCDay() || 7; // lundi = 1 … dimanche = 7
+      return t >= debutJour - (jour - 1) * 86_400_000;
+    }
+    if (p === "mois") {
+      const d = new Date(iso);
+      return d.getUTCFullYear() === now.getUTCFullYear() && d.getUTCMonth() === now.getUTCMonth();
+    }
+    if (p === "annee") return new Date(iso).getUTCFullYear() === now.getUTCFullYear();
+    return true;
+  };
+  const dansPeriode = (iso?: string | null) => dansPeriodeVal(iso, periode);
+
+  // ── Tri générique (selon triChamp / triSens) ──
+  const sensMul = triSens === "asc" ? 1 : -1;
+  const trier = <T,>(arr: T[], cle: (x: T) => string) =>
+    arr.slice().sort((a, b) => {
+      const va = cle(a), vb = cle(b);
+      return (va < vb ? -1 : va > vb ? 1 : 0) * sensMul;
+    });
+
+  // Clés de tri par type de liste (champ inconnu → tri par date).
+  const cleDevis = (d: DevisAdmin) =>
+    (({ nom: norm(`${d.user?.nom ?? ""} ${d.user?.prenom ?? ""}`), email: norm(d.user?.email), telephone: norm(d.user?.telephone), type: norm(d.produit?.nom), statut: norm(d.statut) }) as Record<string, string>)[triChamp] ?? (d.dateCreation ?? "");
+  const cleSinistre = (s: SinistreAdmin) =>
+    (({ nom: norm(`${s.user?.nom ?? ""} ${s.user?.prenom ?? ""}`), email: norm(s.user?.email), telephone: norm(s.user?.telephone), type: norm(s.typeAssurance), statut: norm(s.statut) }) as Record<string, string>)[triChamp] ?? (s.dateDeclaration ?? "");
+  const cleContrat = (c: ContratAdmin) =>
+    (({ nom: norm(`${c.user?.nom ?? ""} ${c.user?.prenom ?? ""}`), email: norm(c.user?.email), numero: norm(c.numeroContrat), compagnie: norm(c.compagnie), statut: norm(c.statut) }) as Record<string, string>)[triChamp] ?? (c.dateDebut ?? "");
+
+  // Liste affichée : filtre par statut + recherche + tri.
+  const devisAffiches = trier(
+    (filtre === "tous" ? devis : devis.filter((d) => d.statut === filtre))
+      .filter((d) => dansPeriode(d.dateCreation) && correspond(d.user?.nom, d.user?.prenom, d.user?.email, d.user?.telephone, d.produit?.nom, d.produit?.type, d.statut, d.description)),
+    cleDevis
+  );
+  const titreListe = filtre === "tous" ? "Toutes les demandes" : `Cotations « ${infoStatut(filtre).label} »`;
+
+  // Recherche + tri pour les autres sections.
+  const sinistresAffiches = trier(
+    sinistres.filter((s) => dansPeriode(s.dateDeclaration) && correspond(s.user?.nom, s.user?.prenom, s.user?.email, s.user?.telephone, s.typeAssurance, s.statut, s.lieu, s.description)),
+    cleSinistre
+  );
+  const contratsAffiches = trier(
+    contrats.filter((c) => dansPeriode(c.dateDebut) && correspond(c.user?.nom, c.user?.prenom, c.user?.email, c.user?.telephone, c.produit?.nom, c.numeroContrat, c.compagnie, c.statut)),
+    cleContrat
+  );
+  // Recherche dédiée aux ARCHIVES (multi-mots, indépendante de la barre globale).
+  const termesArch = norm(archRecherche.trim()).split(/\s+/).filter(Boolean);
+  const matchArch = (...champs: unknown[]) => termesArch.length === 0 || termesArch.every((t) => norm(champs.join(" ")).includes(t));
+  const archDevisAffiches = archDevis.filter((d) =>
+    matchArch(d.user?.nom, d.user?.prenom, d.user?.email, d.user?.telephone, d.produit?.nom, d.statut, d.description));
+  const archSinistresAffiches = archSinistres.filter((s) =>
+    matchArch(s.user?.nom, s.user?.prenom, s.user?.email, s.user?.telephone, s.typeAssurance, s.lieu, s.statut, s.description));
+  const archContratsAffiches = archContrats.filter((c) =>
+    matchArch(c.user?.nom, c.user?.prenom, c.user?.email, c.user?.telephone, c.produit?.nom, c.numeroContrat, c.compagnie, c.statut));
+  const totalArchives = archDevis.length + archSinistres.length + archContrats.length;
+  // Liste d'archives fusionnée (3 types), filtrée par période puis triée.
+  const archivesListe = [
+    ...archDevisAffiches.map((d) => ({ kind: "devis" as const, id: d.id, titre: d.produit?.nom ?? "Cotation", sousTitre: `${d.user?.prenom ?? ""} ${d.user?.nom ?? ""} · ${d.user?.email ?? ""}`, nom: norm(`${d.user?.nom ?? ""} ${d.user?.prenom ?? ""}`), email: norm(d.user?.email), par: d.supprimePar, le: d.supprimeLe, dateEnvoi: d.dateCreation })),
+    ...archSinistresAffiches.map((s) => ({ kind: "sinistres" as const, id: s.id, titre: s.typeAssurance ?? "Sinistre", sousTitre: `${s.user?.prenom ?? ""} ${s.user?.nom ?? ""} · ${s.user?.email ?? ""}`, nom: norm(`${s.user?.nom ?? ""} ${s.user?.prenom ?? ""}`), email: norm(s.user?.email), par: s.supprimePar, le: s.supprimeLe, dateEnvoi: s.dateDeclaration })),
+    ...archContratsAffiches.map((c) => ({ kind: "contrats" as const, id: c.id, titre: `${c.produit?.nom ?? "Contrat"} (${c.numeroContrat})`, sousTitre: `${c.user?.prenom ?? ""} ${c.user?.nom ?? ""} · ${c.user?.email ?? ""}`, nom: norm(`${c.user?.nom ?? ""} ${c.user?.prenom ?? ""}`), email: norm(c.user?.email), par: c.supprimePar, le: c.supprimeLe, dateEnvoi: c.dateDebut })),
+  ].filter((a) => dansPeriodeVal(a.dateEnvoi, archPeriode));
+  const cleArch = (a: (typeof archivesListe)[number]) =>
+    archTri === "nom" ? a.nom : archTri === "email" ? a.email : archTri === "type" ? a.kind : archTri === "archivage" ? (a.le ?? "") : (a.dateEnvoi ?? "");
+  const archivesTriees = archivesListe.slice().sort((x, y) => {
+    const vx = cleArch(x), vy = cleArch(y);
+    return (vx < vy ? -1 : vx > vy ? 1 : 0) * (archSens === "asc" ? 1 : -1);
+  });
+  const totalArchivesAffiches = archivesTriees.length;
+
+  // ── Recherche-raccourci GLOBALE (transversale à tous les onglets) ──
+  // Quoi qu'on tape, on retrouve les éléments correspondants du client, où
+  // qu'on soit dans le back-office. Résultats groupés et cliquables.
+  const rechercheActive = recherche.trim().length > 0;
+  const resDevis = rechercheActive ? devis.filter((d) => correspond(d.user?.nom, d.user?.prenom, d.user?.email, d.user?.telephone, d.produit?.nom, d.produit?.type, d.statut, d.description)).slice(0, 6) : [];
+  const resSinistres = rechercheActive ? sinistres.filter((s) => correspond(s.user?.nom, s.user?.prenom, s.user?.email, s.user?.telephone, s.typeAssurance, s.statut, s.lieu, s.description)).slice(0, 6) : [];
+  const resContrats = rechercheActive ? contrats.filter((c) => correspond(c.user?.nom, c.user?.prenom, c.user?.email, c.user?.telephone, c.produit?.nom, c.numeroContrat, c.compagnie, c.statut)).slice(0, 6) : [];
+  const resRdv = rechercheActive ? rendezVous.filter((r) => correspond(r.user?.nom, r.user?.prenom, r.user?.email, r.user?.telephone, r.motif)).slice(0, 6) : [];
+  const totalRecherche = resDevis.length + resSinistres.length + resContrats.length + resRdv.length;
+  // Navigue vers l'élément trouvé puis referme la recherche.
+  const ouvrirResultat = (cible: typeof vue, contrat?: ContratAdmin) => {
+    if (cible === "devis") setFiltre("tous");
+    if (cible === "souscriptions" && contrat) setCategorieVue(contrat.segment === "professionnel" || contrat.segment === "transport" ? contrat.segment : "particulier");
+    setVue(cible);
+    setRecherche("");
+  };
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  return (
-    <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  const navItems: NavItem[] = [
+    { cle: "accueil", label: "Accueil", Icon: BarChart3 },
+    { cle: "devis", label: "Cotations", Icon: ClipboardList, badge: devisATraiter },
+    { cle: "sinistres", label: "Sinistres", Icon: AlertTriangle, badge: sinistresATraiter },
+    { cle: "souscriptions", label: "Souscriptions", Icon: FileSignature },
+    { cle: "compagnies", label: "Compagnies", Icon: Building2 },
+    { cle: "messages", label: "Messages", Icon: MessagesSquare, badge: messagesNonLus },
+    { cle: "rdv", label: "Rendez-vous", Icon: CalendarClock },
+    ...(estGerant ? [{ cle: "gerant", label: "Espace gérant", Icon: ShieldAlert }] : []),
+  ];
+  const titresVue: Record<string, { t: string; s: string }> = {
+    accueil: { t: "Vue d'ensemble", s: "Indicateurs clés et évolution de l'activité" },
+    devis: { t: "Cotations", s: "Demandes de cotation des clients" },
+    sinistres: { t: "Sinistres", s: "Déclarations et suivi des dossiers" },
+    souscriptions: { t: "Souscriptions", s: "Contrats actifs et renouvellements" },
+    compagnies: { t: "Compagnies", s: "Comportement clients " },
+    messages: { t: "Messages", s: "Échanges avec les clients · signalement de documents" },
+    rdv: { t: "Rendez-vous", s: "Créneaux demandés par les clients" },
+    gerant: { t: "Espace gérant", s: "Archives et journal d'audit" },
+  };
+  const infoVue = titresVue[vue] ?? titresVue.accueil;
 
-        {/* En-tête */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} className="flex flex-wrap items-center justify-between gap-4 mb-10">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
-              <ShieldCheck size={26} />
+  return (
+    <DashboardShell
+      marque="Espace administrateur"
+      items={navItems}
+      actif={vue}
+      onNaviger={(c, ref) => { setVue(c as typeof vue); if (ref) setConvCible(ref); }}
+      titre={infoVue.t}
+      sousTitre={infoVue.s}
+      user={profil ?? undefined}
+      onLogout={seDeconnecter}
+      recherche={{ value: recherche, onChange: setRecherche, placeholder: "Rechercher un client, une cotation, un contrat, un sinistre…" }}
+    >
+
+        {/* ── Recherche-raccourci globale : résultats transversaux ── */}
+        {rechercheActive && (
+          <>
+            <div className="fixed inset-x-0 bottom-0 top-[116px] md:top-16 z-40" onClick={() => setRecherche("")} />
+            <div className="fixed left-1/2 -translate-x-1/2 top-[124px] md:top-[72px] z-50 w-[min(720px,calc(100vw-1.5rem))]">
+              <div className="bg-white rounded-2xl shadow-2xl border overflow-hidden" style={{ borderColor: "#e6f0f0" }}>
+                <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ borderColor: "#eef4f4" }}>
+                  <p className="text-xs font-semibold text-gray-500">
+                    {totalRecherche} résultat{totalRecherche > 1 ? "s" : ""} pour « {recherche.trim()} »
+                  </p>
+                  <button onClick={() => setRecherche("")} className="text-gray-400 hover:text-gray-600" aria-label="Fermer"><X size={15} /></button>
+                </div>
+                <div className="max-h-[70vh] overflow-y-auto">
+                  {totalRecherche === 0 ? (
+                    <div className="py-10 text-center text-sm text-gray-400">Aucun résultat. Vérifie l&apos;orthographe ou essaie un autre terme.</div>
+                  ) : (
+                    <>
+                      {resContrats.length > 0 && (
+                        <div>
+                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Souscriptions</p>
+                          {resContrats.map((c) => (
+                            <button key={c.id} onClick={() => ouvrirResultat("souscriptions", c)} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
+                              <FileSignature size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
+                              <span className="min-w-0 flex-1">
+                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{c.user?.prenom} {c.user?.nom} — {c.produit?.nom ?? "Contrat"}</span>
+                                <span className="text-xs text-gray-400 block truncate">{c.numeroContrat} · {c.compagnie ?? "—"} · {c.user?.email}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {resDevis.length > 0 && (
+                        <div className="border-t" style={{ borderColor: "#f3f8f8" }}>
+                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Cotations</p>
+                          {resDevis.map((d) => (
+                            <button key={d.id} onClick={() => ouvrirResultat("devis")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
+                              <ClipboardList size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
+                              <span className="min-w-0 flex-1">
+                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{d.user?.prenom} {d.user?.nom} — {d.produit?.nom ?? "Produit"}</span>
+                                <span className="text-xs text-gray-400 block truncate">{d.statut.replace(/_/g, " ")} · {d.user?.email}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {resSinistres.length > 0 && (
+                        <div className="border-t" style={{ borderColor: "#f3f8f8" }}>
+                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Sinistres</p>
+                          {resSinistres.map((s) => (
+                            <button key={s.id} onClick={() => ouvrirResultat("sinistres")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
+                              <AlertTriangle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
+                              <span className="min-w-0 flex-1">
+                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{s.user?.prenom} {s.user?.nom} — {s.typeAssurance ?? "Sinistre"}</span>
+                                <span className="text-xs text-gray-400 block truncate">{s.statut.replace(/_/g, " ")} · {s.user?.email}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {resRdv.length > 0 && (
+                        <div className="border-t" style={{ borderColor: "#f3f8f8" }}>
+                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Rendez-vous</p>
+                          {resRdv.map((r) => (
+                            <button key={r.id} onClick={() => ouvrirResultat("rdv")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
+                              <CalendarClock size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
+                              <span className="min-w-0 flex-1">
+                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{r.user?.prenom} {r.user?.nom} — {r.motif}</span>
+                                <span className="text-xs text-gray-400 block truncate">{r.user?.email}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: "#1a2e5a" }}>
-                Back-office administrateur
-              </h1>
-              <p className="text-gray-500 text-sm mt-0.5">Gestion des devis et des sinistres clients</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setConfirmDeco(true)}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm border border-red-200 text-red-600 bg-white transition-all hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-lg active:scale-95"
-          >
-            <LogOut size={16} className="transition-transform group-hover:-translate-x-0.5" />
-            Se déconnecter
-          </button>
-        </motion.div>
+          </>
+        )}
 
         {/* Alerte : éléments à traiter dès l'arrivée de l'agent */}
         {aTraiter > 0 && (
@@ -1106,16 +1569,16 @@ export default function AdminPage() {
               </p>
               <p className="text-xs" style={{ color: "#a16207" }}>
                 {[
-                  enAttente > 0 && `${enAttente} devis en attente de cotation`,
+                  devisATraiter > 0 && `${devisATraiter} cotation${devisATraiter > 1 ? "s" : ""} à traiter`,
                   choixATraiter > 0 && `${choixATraiter} choix client à poursuivre`,
                   sinistresATraiter > 0 && `${sinistresATraiter} sinistre${sinistresATraiter > 1 ? "s" : ""} à gérer`,
                 ].filter(Boolean).join(" · ")}
               </p>
             </div>
             <div className="flex gap-2">
-              {(enAttente > 0 || choixATraiter > 0) && (
+              {(devisATraiter > 0 || choixATraiter > 0) && (
                 <button onClick={() => setVue("devis")} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #b45309, #d97706)" }}>
-                  Voir les devis
+                  Voir les cotations
                 </button>
               )}
               {sinistresATraiter > 0 && (
@@ -1149,39 +1612,6 @@ export default function AdminPage() {
           )}
         </AnimatePresence>
 
-        {/* Navigation par onglets (blocs) */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {([
-            { cle: "accueil", label: "Accueil" },
-            { cle: "devis", label: "Devis" },
-            { cle: "sinistres", label: "Sinistres" },
-            { cle: "souscriptions", label: "Souscriptions" },
-            { cle: "rdv", label: "Rendez-vous" },
-            ...(estGerant ? [{ cle: "gerant", label: "Espace gérant" }] : []),
-          ] as const).map((t) => {
-            const badge = t.cle === "devis" ? enAttente : t.cle === "sinistres" ? sinistresATraiter : 0;
-            return (
-              <button
-                key={t.cle}
-                onClick={() => setVue(t.cle as typeof vue)}
-                className="relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.03] active:scale-95"
-                style={
-                  vue === t.cle
-                    ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#ffffff", boxShadow: "0 6px 18px rgba(42,138,138,0.22)" }
-                    : { background: "#ffffff", color: "#1a2e5a", border: "1px solid #e0ecec" }
-                }
-              >
-                {t.label}
-                {badge > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: "#dc2626" }}>
-                    {badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
         {vue === "accueil" && (<>
         {/* Vue d'ensemble : indicateurs clés (lecture seule) */}
         {apercu && (
@@ -1203,7 +1633,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-gray-400 text-xs uppercase tracking-wide">Devis</p>
+                  <p className="text-gray-400 text-xs uppercase tracking-wide">Cotations</p>
                   <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.devisTotal}</p>
                   <p className="text-xs text-gray-400 mt-1">{apercu.devisParStatut["en_attente"] ?? 0} en attente · {apercu.devisParStatut["accepte"] ?? 0} acceptés</p>
                 </div>
@@ -1241,16 +1671,84 @@ export default function AdminPage() {
           </motion.div>
         )}
 
-        {/* Graphe d'évolution trimestriel */}
+        {/* Graphes : évolution (courbe) + répartition des devis (donut) */}
         {apercu && (
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8 mb-8" style={{ borderColor: "#e0ecec" }}>
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-                <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
+                </div>
+                <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Évolution sur les 6 derniers trimestres</h2>
               </div>
-              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Évolution sur les 6 derniers trimestres</h2>
+              <GrapheTrimestriel data={apercu.trimestres} />
+            </motion.div>
+
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.12 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+              <h2 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Répartition des cotations</h2>
+              <p className="text-xs text-gray-400 mb-3">Par statut</p>
+              {(() => {
+                const palette: Record<string, string> = { en_attente: "#f59e0b", accepte: "#16a34a", refuse: "#dc2626", en_cours: "#2a8a8a" };
+                const labels: Record<string, string> = { en_attente: "En attente", accepte: "Acceptés", refuse: "Refusés", en_cours: "En cours" };
+                const data = Object.entries(apercu.devisParStatut)
+                  .filter(([, v]) => v > 0)
+                  .map(([k, v]) => ({ nom: labels[k] ?? k.replace(/_/g, " "), valeur: v, couleur: palette[k] ?? "#1a2e5a" }));
+                const totalD = data.reduce((s, x) => s + x.valeur, 0);
+                if (totalD === 0) return <div className="h-[200px] flex items-center justify-center text-sm text-gray-400">Aucune cotation pour l&apos;instant.</div>;
+                return (
+                  <>
+                    <div className="h-[180px] relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={data} dataKey="valeur" nameKey="nom" cx="50%" cy="50%" innerRadius={52} outerRadius={76} paddingAngle={3} stroke="none" animationDuration={900}>
+                            {data.map((e) => <Cell key={e.nom} fill={e.couleur} />)}
+                          </Pie>
+                          <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e6f0f0", fontSize: 12 }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{totalD}</span>
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">cotations</span>
+                      </div>
+                    </div>
+                    <ul className="mt-3 space-y-1.5">
+                      {data.map((e) => (
+                        <li key={e.nom} className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-2 text-gray-600"><span className="w-2.5 h-2.5 rounded-full" style={{ background: e.couleur }} /> {e.nom}</span>
+                          <span className="font-bold" style={{ color: "#1a2e5a" }}>{e.valeur}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                );
+              })()}
+            </motion.div>
+          </div>
+        )}
+
+        {/* Teaser : compagnies préférées des clients */}
+        {compagniesStats.length > 0 && (
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.16 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+            <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fef3c7, #fde9d2)" }}>
+                  <Trophy size={18} style={{ color: "#b45309" }} />
+                </div>
+                <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Compagnies préférées des clients</h2>
+              </div>
+              <button onClick={() => setVue("compagnies")} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>
+                Tout voir →
+              </button>
             </div>
-            <GrapheTrimestriel data={apercu.trimestres} />
+            <ul className="divide-y divide-[#eef4f4]">
+              {compagniesStats.slice(0, 3).map((c, i) => (
+                <li key={c.nom} className="px-6 sm:px-8 py-3.5 flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
+                  <span className="flex-1 font-medium text-sm" style={{ color: "#1a2e5a" }}>{c.nom}</span>
+                  <span className="text-xs text-gray-500">{c.choisies} choisie{c.choisies > 1 ? "s" : ""} · {c.taux}%</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         )}
         </>)}
@@ -1290,11 +1788,29 @@ export default function AdminPage() {
 
         {/* Liste des devis */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.2 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
             <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>{titreListe}</h2>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
-              {devisAffiches.length} résultat{devisAffiches.length > 1 ? "s" : ""}
-            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <FiltreTri
+                options={[
+                  { value: "date", label: "Date de création" },
+                  { value: "nom", label: "Nom" },
+                  { value: "email", label: "Email" },
+                  { value: "telephone", label: "Téléphone" },
+                  { value: "type", label: "Type d'assurance" },
+                  { value: "statut", label: "Statut" },
+                ]}
+                champ={triChamp}
+                sens={triSens}
+                periode={periode}
+                onChamp={setTriChamp}
+                onSens={() => setTriSens((s) => (s === "asc" ? "desc" : "asc"))}
+                onPeriode={setPeriode}
+              />
+              <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+                {devisAffiches.length} résultat{devisAffiches.length > 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
 
           {devisAffiches.length === 0 ? (
@@ -1303,25 +1819,25 @@ export default function AdminPage() {
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
               </div>
               <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>
-                {filtre === "tous" ? "Aucune demande pour le moment" : "Aucun devis dans cette catégorie"}
+                {filtre === "tous" ? "Aucune demande pour le moment" : "Aucune cotation dans cette catégorie"}
               </p>
               <p className="text-gray-400 text-sm max-w-sm">
                 {filtre === "tous"
-                  ? "Les demandes de devis envoyées par les clients apparaîtront ici."
+                  ? "Les demandes de cotation envoyées par les clients apparaîtront ici."
                   : "Essayez un autre filtre en cliquant sur une autre carte."}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#eef4f4]">
+            <div className="p-4 sm:p-5 space-y-4" style={{ background: "#f6fafa" }}>
               {devisAffiches.map((d) => {
                 const st = infoStatut(d.statut);
-                const date = new Date(d.dateCreation).toLocaleDateString("fr-FR", {
-                  timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric",
-                });
+                const date = new Date(d.dateCreation).toLocaleString("fr-FR", {
+                  timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+                }).replace(",", " à");
                 return (
-                  <div key={d.id} className="px-6 sm:px-8 py-5">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div className="min-w-0">
+                  <div key={d.id} className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md" style={{ borderColor: "#e6f0f0" }}>
+                    <div className="flex flex-wrap items-stretch gap-4">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold" style={{ color: "#1a2e5a" }}>
                             {d.produit?.nom ?? "Produit"}
@@ -1339,11 +1855,10 @@ export default function AdminPage() {
                             {d.description}
                           </p>
                         )}
-                        <PiecesJointes documents={d.documents} />
                         {d.reponses && Object.keys(d.reponses).length > 0 && (
                           <div className="mt-3 rounded-xl p-3" style={{ background: "#f8fbfb", border: "1px solid #e6f0f0" }}>
                             <p className="text-xs font-semibold mb-1.5" style={{ color: "#1a2e5a" }}>Questionnaire</p>
-                            <dl className="grid sm:grid-cols-2 gap-x-4 gap-y-1">
+                            <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5">
                               {Object.entries(d.reponses).map(([q, r]) => (
                                 <div key={q} className="text-xs">
                                   <dt className="text-gray-400">{q}</dt>
@@ -1365,34 +1880,110 @@ export default function AdminPage() {
                             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#2a8a8a" }}>
                               Propositions envoyées ({d.propositions.length})
                             </p>
-                            <ul className="space-y-1.5">
-                              {d.propositions.map((p) => (
-                                <li key={p.id} className="flex flex-wrap items-center gap-2 text-xs">
-                                  <span className="font-semibold" style={{ color: "#1a2e5a" }}>{p.compagnie}</span>
-                                  {typeof p.prime === "number" && <span className="text-gray-500">· {p.prime.toLocaleString("fr-FR")} FCFA</span>}
-                                  {p.choisie && (
-                                    <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
-                                      ✓ Choisie par le client
-                                    </span>
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => propositionWhatsApp(d, p)}
-                                    title="Envoyer cette proposition au client par WhatsApp"
-                                    className="inline-flex items-center gap-1 font-semibold px-2.5 py-1 rounded-lg text-white transition-all hover:scale-105"
-                                    style={{ background: "#25D366" }}
-                                  >
-                                    <MessageCircle size={12} /> WhatsApp
-                                  </button>
+                            <ul className="space-y-2">
+                              {d.propositions.map((p, pi) => (
+                                <li key={p.id} className="text-xs bg-white rounded-lg px-2.5 py-2 border" style={{ borderColor: p.choisie ? "#16a34a" : "#eef4f4" }}>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-semibold" style={{ color: "#1a2e5a" }}>Cotation {pi + 1}</span>
+                                    {typeof p.prime === "number" && <span className="text-gray-500">· {p.prime.toLocaleString("fr-FR")} FCFA</span>}
+                                    {p.choisie && (
+                                      <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
+                                        ✓ Choisie par le client
+                                      </span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => propositionWhatsApp(d, p)}
+                                      title="Envoyer cette proposition au client par WhatsApp"
+                                      className="inline-flex items-center gap-1 font-semibold px-2.5 py-1 rounded-lg text-white transition-all hover:scale-105 ml-auto"
+                                      style={{ background: "#25D366" }}
+                                    >
+                                      <MessageCircle size={12} /> WhatsApp
+                                    </button>
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                    {p.documents.map((doc) => {
+                                      const [lbl, url] = doc.split("|");
+                                      return (
+                                        <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium px-2.5 py-1 rounded-lg" style={{ color: "#2a8a8a", background: "#eaf4f4" }}>
+                                          <FileText size={12} /> Lire {lbl || "la cotation"}
+                                        </a>
+                                      );
+                                    })}
+                                    {p.compagnie && (
+                                      <span className="inline-flex items-center font-bold px-2.5 py-1 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
+                                        {p.compagnie}
+                                      </span>
+                                    )}
+                                  </div>
                                 </li>
                               ))}
                             </ul>
                           </div>
                         )}
+
+                        {/* Encaissement : visible une fois que le client a choisi une offre */}
+                        {(d.statut === "choisi" || d.statut === "paye") && (
+                          <div className="mt-3 rounded-xl p-3" style={{ background: "#fffaf0", border: "1px solid #fed7aa" }}>
+                            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#9a3412" }}>
+                              Encaissement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
+                            </p>
+                            {/* Montant (prime) à communiquer au client */}
+                            <div className="flex flex-wrap gap-2 items-center mb-2">
+                              <input
+                                type="number"
+                                value={montantInputs[d.id] ?? (d.montantAPayer != null ? String(d.montantAPayer) : "")}
+                                onChange={(e) => setMontantInputs((s) => ({ ...s, [d.id]: e.target.value }))}
+                                placeholder="Montant à régler (FCFA)"
+                                className="flex-1 min-w-[160px] px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                                style={{ borderColor: "#e0ecec" }}
+                              />
+                              <button type="button" onClick={() => communiquerMontant(d)} disabled={paieId === d.id}
+                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "#9a3412" }}>
+                                <Send size={13} /> {d.montantAPayer != null ? "Mettre à jour" : "Communiquer le montant"}
+                              </button>
+                            </div>
+                            {d.modePaiement && d.modePaiement !== "cheque" && (
+                              <div className="flex flex-wrap gap-2 items-center mb-2">
+                                <input
+                                  value={lienInputs[d.id] ?? d.lienPaiement ?? ""}
+                                  onChange={(e) => setLienInputs((s) => ({ ...s, [d.id]: e.target.value }))}
+                                  placeholder="Lien de paiement (https://pay.wave.com/…)"
+                                  className="flex-1 min-w-[180px] px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                                  style={{ borderColor: "#e0ecec" }}
+                                />
+                                <button type="button" onClick={() => envoyerLienPaiement(d)} disabled={paieId === d.id}
+                                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                                  <Send size={13} /> {d.lienPaiement ? "Mettre à jour" : "Envoyer le lien"}
+                                </button>
+                              </div>
+                            )}
+                            {d.statut === "choisi" ? (
+                              <button type="button" onClick={() => confirmerPaiement(d)} disabled={paieId === d.id}
+                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "#16a34a" }}>
+                                {paieId === d.id ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />} Confirmer le paiement reçu
+                              </button>
+                            ) : (
+                              <p className="text-xs font-semibold" style={{ color: "#0e7490" }}>
+                                Paiement confirmé — validez la souscription (bouton « Enregistrer la souscription »).
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Galerie : colonne centrale qui remplit l'espace en hauteur */}
+                      <div className="w-full sm:w-72 lg:w-80 flex flex-col">
+                        <PiecesJointes documents={d.documents} />
+                        {(d.documents?.length ?? 0) > 0 && (
+                          <div className="mt-2">
+                            <SignalerDocument userId={d.userId} documents={d.documents} contexte="devis" contexteId={d.id} />
+                          </div>
+                        )}
                       </div>
 
                       {/* Actions : statut + relance + suppression */}
-                      <div className="flex flex-col items-end gap-2">
+                      <div className="flex flex-col items-end gap-2 shrink-0">
                         <div className="flex items-center gap-2">
                           {majId === d.id && <Loader2 className="animate-spin" size={16} style={{ color: "#2a8a8a" }} />}
                           <StatutDropdown
@@ -1418,7 +2009,7 @@ export default function AdminPage() {
                         <button
                           type="button"
                           onClick={() => setConversion(d)}
-                          title="Enregistrer la souscription à partir de ce devis"
+                          title="Enregistrer la souscription à partir de cette cotation"
                           className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all hover:shadow-sm"
                           style={{ border: "1px solid #cfe3e3", color: "#1a2e5a", background: "#ffffff" }}
                         >
@@ -1438,19 +2029,37 @@ export default function AdminPage() {
         {/* ── Sinistres déclarés par les clients ── */}
         {vue === "sinistres" && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.3 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <AlertTriangle size={18} style={{ color: "#2a8a8a" }} />
               </div>
               <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Sinistres déclarés</h2>
             </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
-              {sinistres.length} déclaration{sinistres.length > 1 ? "s" : ""}
-            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <FiltreTri
+                options={[
+                  { value: "date", label: "Date de déclaration" },
+                  { value: "nom", label: "Nom" },
+                  { value: "email", label: "Email" },
+                  { value: "telephone", label: "Téléphone" },
+                  { value: "type", label: "Type d'assurance" },
+                  { value: "statut", label: "Statut" },
+                ]}
+                champ={triChamp}
+                sens={triSens}
+                periode={periode}
+                onChamp={setTriChamp}
+                onSens={() => setTriSens((s) => (s === "asc" ? "desc" : "asc"))}
+                onPeriode={setPeriode}
+              />
+              <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+                {sinistresAffiches.length} déclaration{sinistresAffiches.length > 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
 
-          {sinistres.length === 0 ? (
+          {sinistresAffiches.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-16 px-6">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
@@ -1460,7 +2069,7 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="divide-y divide-[#eef4f4]">
-              {sinistres.map((s) => {
+              {sinistresAffiches.map((s) => {
                 const st = infoStatutSinistre(s.statut);
                 const dateDecl = new Date(s.dateDeclaration).toLocaleDateString("fr-FR", {
                   timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric",
@@ -1500,6 +2109,11 @@ export default function AdminPage() {
                           </p>
                         )}
                         <PiecesJointes documents={s.documents} />
+                        {(s.documents?.length ?? 0) > 0 && (
+                          <div className="mt-2">
+                            <SignalerDocument userId={s.userId} documents={s.documents} contexte="sinistre" contexteId={s.id} />
+                          </div>
+                        )}
                         {s.nombreRelances ? (
                           <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: "#2a8a8a" }}>
                             <Mail size={12} /> Relancé {s.nombreRelances} fois · dernière le {dateCourte(s.derniereRelance)}
@@ -1537,34 +2151,89 @@ export default function AdminPage() {
         {/* ── Contrats & rappels de renouvellement ── */}
         {vue === "souscriptions" && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.35 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-          <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+          <div className="px-6 sm:px-8 py-5 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FileSignature size={18} style={{ color: "#2a8a8a" }} />
               </div>
               <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Souscriptions & renouvellements</h2>
             </div>
-            {(() => {
-              const aRelancer = contrats.filter((c) => c.statut === "actif" && infoRelance(c.dateFin, c.dureeMois).fenetreOuverte).length;
-              return (
-                <span className="text-xs font-semibold px-3 py-1 rounded-full" style={aRelancer > 0 ? { background: "#fef3c7", color: "#92600a" } : { background: "#eaf4f4", color: "#2a8a8a" }}>
-                  {aRelancer > 0 ? `${aRelancer} à relancer` : `${contrats.length} souscription${contrats.length > 1 ? "s" : ""}`}
-                </span>
-              );
-            })()}
+            {categorieVue !== null && (
+            <div className="flex flex-wrap items-center gap-3">
+              <FiltreTri
+                options={[
+                  { value: "date", label: "Date de début" },
+                  { value: "nom", label: "Nom" },
+                  { value: "email", label: "Email" },
+                  { value: "numero", label: "N° de contrat" },
+                  { value: "compagnie", label: "Compagnie" },
+                  { value: "statut", label: "Statut" },
+                ]}
+                champ={triChamp}
+                sens={triSens}
+                periode={periode}
+                onChamp={setTriChamp}
+                onSens={() => setTriSens((s) => (s === "asc" ? "desc" : "asc"))}
+                onPeriode={setPeriode}
+              />
+              {(() => {
+                const aRelancer = contrats.filter((c) => c.statut === "actif" && infoRelance(c.dateFin, c.dureeMois).fenetreOuverte).length;
+                return (
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full" style={aRelancer > 0 ? { background: "#fef3c7", color: "#92600a" } : { background: "#eaf4f4", color: "#2a8a8a" }}>
+                    {aRelancer > 0 ? `${aRelancer} à relancer` : `${contratsAffiches.length} souscription${contratsAffiches.length > 1 ? "s" : ""}`}
+                  </span>
+                );
+              })()}
+            </div>
+            )}
           </div>
 
-          {contrats.length === 0 ? (
+          {contratsAffiches.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-16 px-6">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
               </div>
               <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription</p>
-              <p className="text-gray-400 text-sm max-w-sm">Enregistrez une souscription depuis un devis (bouton « Enregistrer la souscription ») pour activer les rappels de renouvellement.</p>
+              <p className="text-gray-400 text-sm max-w-sm">Enregistrez une souscription depuis une cotation (bouton « Enregistrer la souscription ») pour activer les rappels de renouvellement.</p>
+            </div>
+          ) : categorieVue === null ? (
+            <div className="p-5 sm:p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { cle: "particulier", label: "Particulier", desc: "Usage personnel", Icon: User, couleur: "#2a8a8a" },
+                { cle: "professionnel", label: "Professionnel", desc: "Flotte / pack auto", Icon: Building2, couleur: "#b45309" },
+                { cle: "transport", label: "Transport pro", desc: "Taxi, marchandises, VTC", Icon: Truck, couleur: "#7c3aed" },
+              ].map((cat) => {
+                const n = contratsAffiches.filter((c) => (c.segment === "professionnel" || c.segment === "transport" ? c.segment : "particulier") === cat.cle).length;
+                return (
+                  <button key={cat.cle} type="button" onClick={() => setCategorieVue(cat.cle)} className="text-left rounded-2xl border p-5 transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]" style={{ borderColor: "#e0ecec" }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: `${cat.couleur}1a` }}>
+                        <cat.Icon size={20} style={{ color: cat.couleur }} />
+                      </div>
+                      <span className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{n}</span>
+                    </div>
+                    <p className="font-bold text-sm" style={{ color: "#1a2e5a" }}>{cat.label}</p>
+                    <p className="text-xs text-gray-400">{cat.desc}</p>
+                    <p className="text-xs font-semibold mt-3 inline-flex items-center gap-1" style={{ color: cat.couleur }}>
+                      {n > 0 ? <>Voir les souscriptions <ArrowRight size={12} /></> : "Aucune pour l'instant"}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           ) : (
-            <div className="divide-y divide-[#eef4f4]">
-              {contrats.map((c) => {
+            <div>
+              <button type="button" onClick={() => setCategorieVue(null)} className="flex items-center gap-1.5 px-6 sm:px-8 py-3 text-xs font-semibold border-b w-full transition-colors hover:bg-gray-50" style={{ color: "#2a8a8a", borderColor: "#eef4f4" }}>
+                <ArrowLeft size={14} /> Toutes les catégories
+              </button>
+              {(() => {
+                const items = contratsAffiches.filter((c) => (c.segment === "professionnel" || c.segment === "transport" ? c.segment : "particulier") === categorieVue);
+                if (items.length === 0) {
+                  return <div className="py-12 text-center text-sm text-gray-400">Aucune souscription dans cette catégorie.</div>;
+                }
+                return (
+                  <div className="divide-y divide-[#eef4f4]">
+                    {items.map((c) => {
                 const info = infoRelance(c.dateFin, c.dureeMois);
                 const debut = dateCourte(c.dateDebut);
                 const fin = dateCourte(c.dateFin);
@@ -1584,6 +2253,7 @@ export default function AdminPage() {
                             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#eef2ff", color: "#4f46e5" }}>{c.compagnie}</span>
                           )}
                           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize" style={stStyle}>{c.statut}</span>
+                          <MenuCategorie value={c.segment ?? "particulier"} onChange={(s) => changerSegment(c.id, s)} disabled={actionId === c.id} />
                           {c.statut === "actif" && info.fenetreOuverte && (
                             <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>
                               <BellRing size={12} /> À relancer
@@ -1645,12 +2315,123 @@ export default function AdminPage() {
                     </div>
                   </div>
                 );
-              })}
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </motion.div>
 
         )}
+
+        {/* ── Analyse des compagnies (comportement client) ── */}
+        {vue === "compagnies" && (
+          <div className="space-y-6">
+            {totalSollicitations === 0 ? (
+              <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border p-12 text-center" style={{ borderColor: "#e0ecec" }}>
+                <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                  <Building2 size={28} style={{ color: "#2a8a8a" }} />
+                </div>
+                <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Pas encore de données</p>
+                <p className="text-gray-400 text-sm max-w-sm mx-auto">Dès que vous enverrez des propositions de cotation, cette page analysera quelles compagnies sont les plus sollicitées et les plus choisies par vos clients.</p>
+              </motion.div>
+            ) : (
+              <>
+                {/* KPIs */}
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                  {[
+                    { label: "Compagnies sollicitées", value: compagniesStats.length, Icon: Building2, sub: "partenaires proposés" },
+                    { label: "Propositions envoyées", value: totalSollicitations, Icon: Send, sub: "toutes compagnies" },
+                    { label: "Choix clients", value: totalChoix, Icon: CheckCircle2, sub: "offres retenues" },
+                    { label: "Taux de choix global", value: `${totalSollicitations ? Math.round((totalChoix / totalSollicitations) * 100) : 0}%`, Icon: TrendingUp, sub: "choisies / envoyées" },
+                  ].map(({ label, value, Icon, sub }) => (
+                    <div key={label} className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase tracking-wide">{label}</p>
+                          <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{value}</p>
+                          <p className="text-xs text-gray-400 mt-1">{sub}</p>
+                        </div>
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                          <Icon size={20} style={{ color: "#2a8a8a" }} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+
+                {/* Graphe comparatif sollicitations vs choix */}
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                      <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
+                    </div>
+                    <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Sollicitations et choix par compagnie</h2>
+                  </div>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={compagniesStats.slice(0, 8).map((c) => ({ nom: c.nom.split(" ")[0], Proposées: c.envoyees, Choisies: c.choisies }))} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#eef4f4" vertical={false} />
+                        <XAxis dataKey="nom" tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e6f0f0", fontSize: 12 }} cursor={{ fill: "rgba(42,138,138,0.06)" }} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} />
+                        <Bar dataKey="Proposées" fill="#2a8a8a" radius={[6, 6, 0, 0]} animationDuration={900} />
+                        <Bar dataKey="Choisies" fill="#16a34a" radius={[6, 6, 0, 0]} animationDuration={900} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </motion.div>
+
+                {/* Classement interne */}
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.12 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+                  <div className="px-6 sm:px-8 py-5 border-b flex items-center gap-2.5" style={{ borderColor: "#eef4f4" }}>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fef3c7, #fde9d2)" }}>
+                      <Trophy size={18} style={{ color: "#b45309" }} />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Classement par préférence des clients</h2>
+                      <p className="text-xs text-gray-400">Classé selon le nombre d&apos;offres choisies, puis sollicitées</p>
+                    </div>
+                  </div>
+                  <ul className="divide-y divide-[#eef4f4]">
+                    {compagniesStats.map((c, i) => (
+                      <li key={c.nom} className="px-6 sm:px-8 py-4 flex flex-wrap items-center gap-4">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : i === 1 ? "linear-gradient(135deg, #9ca3af, #6b7280)" : i === 2 ? "linear-gradient(135deg, #d89655, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                          {i + 1}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{c.nom}</p>
+                          <div className="mt-1.5 h-2 rounded-full overflow-hidden max-w-xs" style={{ background: "#eef4f4" }}>
+                            <div className="h-full rounded-full" style={{ width: `${c.taux}%`, background: "linear-gradient(90deg, #2a8a8a, #16a34a)" }} />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-5 text-sm">
+                          <div className="text-center">
+                            <p className="font-bold" style={{ color: "#2a8a8a" }}>{c.envoyees}</p>
+                            <p className="text-[10px] text-gray-400 uppercase">proposées</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-bold" style={{ color: "#16a34a" }}>{c.choisies}</p>
+                            <p className="text-[10px] text-gray-400 uppercase">choisies</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-bold" style={{ color: "#1a2e5a" }}>{c.taux}%</p>
+                            <p className="text-[10px] text-gray-400 uppercase">taux</p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── Messagerie : boîte de réception du rédacteur ── */}
+        {vue === "messages" && <MessagesAdmin cibleInitiale={convCible} />}
 
         {/* ── Rendez-vous demandés par les clients ── */}
         {vue === "rdv" && (
@@ -1754,55 +2535,68 @@ export default function AdminPage() {
 
             {/* Archives (éléments supprimés par les agents) */}
             <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-              <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fde9d2, #f8d4a8)" }}>
-                    <Archive size={18} style={{ color: "#b45309" }} />
+              <div className="px-6 sm:px-8 py-5 border-b" style={{ borderColor: "#eef4f4" }}>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fde9d2, #f8d4a8)" }}>
+                      <Archive size={18} style={{ color: "#b45309" }} />
+                    </div>
+                    <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Éléments archivés</h3>
                   </div>
-                  <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Éléments archivés</h3>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+                    {archRecherche.trim() ? `${totalArchivesAffiches} / ${totalArchives}` : `${totalArchives} archivé(s)`}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
-                  {archDevis.length + archSinistres.length + archContrats.length} archivé(s)
-                </span>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "#9ca3af" }} />
+                    <input
+                      type="text"
+                      value={archRecherche}
+                      onChange={(e) => setArchRecherche(e.target.value)}
+                      placeholder="Rechercher dans les archives (client, email, n° de contrat, produit…)"
+                      className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-white border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                      style={{ borderColor: "#e0ecec" }}
+                    />
+                    {archRecherche && (
+                      <button onClick={() => setArchRecherche("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Effacer"><X size={15} /></button>
+                    )}
+                  </div>
+                  <FiltreTri
+                    options={[
+                      { value: "date", label: "Date d'envoi" },
+                      { value: "archivage", label: "Date d'archivage" },
+                      { value: "nom", label: "Nom" },
+                      { value: "email", label: "Email" },
+                      { value: "type", label: "Type d'élément" },
+                    ]}
+                    champ={archTri}
+                    sens={archSens}
+                    periode={archPeriode}
+                    onChamp={setArchTri}
+                    onSens={() => setArchSens((s) => (s === "asc" ? "desc" : "asc"))}
+                    onPeriode={setArchPeriode}
+                  />
+                </div>
               </div>
 
-              {archDevis.length + archSinistres.length + archContrats.length === 0 ? (
+              {totalArchives === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-12 px-6">
-                  <p className="text-gray-400 text-sm">Rien d&apos;archivé. Tout ce qu&apos;un agent supprime apparaîtra ici, avec son auteur.</p>
+                  <p className="text-gray-400 text-sm">Rien d&apos;archivé. Tout ce qu&apos;un rédacteur supprime apparaîtra ici, avec son auteur.</p>
                 </div>
+              ) : totalArchivesAffiches === 0 ? (
+                <div className="py-12 text-center text-sm text-gray-400">Aucun résultat dans les archives pour cette recherche.</div>
               ) : (
                 <div className="divide-y divide-[#eef4f4]">
-                  {archDevis.map((d) => (
+                  {archivesTriees.map((a) => (
                     <LigneArchive
-                      key={d.id} type="devis"
-                      titre={d.produit?.nom ?? "Devis"}
-                      sousTitre={`${d.user?.prenom ?? ""} ${d.user?.nom ?? ""} · ${d.user?.email ?? ""}`}
-                      par={d.supprimePar} le={d.supprimeLe}
-                      enCours={actionId === d.id}
-                      onRestaurer={() => restaurer("devis", d.id)}
-                      onPurger={() => purger("devis", d.id)}
-                    />
-                  ))}
-                  {archSinistres.map((s) => (
-                    <LigneArchive
-                      key={s.id} type="sinistres"
-                      titre={s.typeAssurance ?? "Sinistre"}
-                      sousTitre={`${s.user?.prenom ?? ""} ${s.user?.nom ?? ""} · ${s.user?.email ?? ""}`}
-                      par={s.supprimePar} le={s.supprimeLe}
-                      enCours={actionId === s.id}
-                      onRestaurer={() => restaurer("sinistres", s.id)}
-                      onPurger={() => purger("sinistres", s.id)}
-                    />
-                  ))}
-                  {archContrats.map((c) => (
-                    <LigneArchive
-                      key={c.id} type="contrats"
-                      titre={`${c.produit?.nom ?? "Contrat"} (${c.numeroContrat})`}
-                      sousTitre={`${c.user?.prenom ?? ""} ${c.user?.nom ?? ""} · ${c.user?.email ?? ""}`}
-                      par={c.supprimePar} le={c.supprimeLe}
-                      enCours={actionId === c.id}
-                      onRestaurer={() => restaurer("contrats", c.id)}
-                      onPurger={() => purger("contrats", c.id)}
+                      key={a.id} type={a.kind}
+                      titre={a.titre}
+                      sousTitre={a.sousTitre}
+                      par={a.par} le={a.le} dateEnvoi={a.dateEnvoi}
+                      enCours={actionId === a.id}
+                      onRestaurer={() => restaurer(a.kind, a.id)}
+                      onPurger={() => purger(a.kind, a.id)}
                     />
                   ))}
                 </div>
@@ -1811,39 +2605,133 @@ export default function AdminPage() {
 
             {/* Journal d'audit */}
             <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mt-8 bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-              <div className="px-6 sm:px-8 py-5 border-b flex items-center gap-2.5" style={{ borderColor: "#eef4f4" }}>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-                  <History size={18} style={{ color: "#2a8a8a" }} />
+              <div className="px-6 sm:px-8 py-5 border-b" style={{ borderColor: "#eef4f4" }}>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                    <History size={18} style={{ color: "#2a8a8a" }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
+                    <p className="text-xs text-gray-400">{journalTotal.toLocaleString("fr-FR")} entrée{journalTotal > 1 ? "s" : ""} · recherche instantanée</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
+
+                {/* Recherche serveur + filtres par action */}
+                <div className="flex flex-col lg:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "#9ca3af" }} />
+                    <input
+                      type="text"
+                      value={journalQ}
+                      onChange={(e) => setJournalQ(e.target.value)}
+                      placeholder="Rechercher (auteur, élément, n° d'ID, résumé…)"
+                      className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-white border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                      style={{ borderColor: "#e0ecec" }}
+                    />
+                    {journalQ && (
+                      <button onClick={() => setJournalQ("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Effacer">
+                        <X size={15} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { v: "", label: "Toutes" },
+                      { v: "archivage", label: "Archivages" },
+                      { v: "restauration", label: "Restaurations" },
+                      { v: "purge", label: "Purges" },
+                    ].map((f) => {
+                      const actif = journalAction === f.v;
+                      return (
+                        <button
+                          key={f.v || "tous"}
+                          onClick={() => setJournalAction(f.v)}
+                          className="px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                          style={actif ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" } : { background: "#fff", color: "#1a2e5a", border: "1px solid #e0ecec" }}
+                        >
+                          {f.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <FiltreTri
+                    options={[
+                      { value: "date", label: "Date" },
+                      { value: "auteur", label: "Auteur" },
+                      { value: "action", label: "Action" },
+                      { value: "entite", label: "Type d'élément" },
+                    ]}
+                    champ={journalTri}
+                    sens={journalSens}
+                    periode={journalPeriode}
+                    onChamp={setJournalTri}
+                    onSens={() => setJournalSens((s) => (s === "asc" ? "desc" : "asc"))}
+                    onPeriode={setJournalPeriode}
+                  />
+                </div>
               </div>
 
-              {journal.length === 0 ? (
-                <div className="py-12 text-center text-sm text-gray-400">Aucune action enregistrée pour l&apos;instant.</div>
+              {journalChargement ? (
+                <div className="py-12 flex justify-center"><Loader2 className="animate-spin" size={26} style={{ color: "#2a8a8a" }} /></div>
+              ) : journal.length === 0 ? (
+                <div className="py-12 text-center text-sm text-gray-400">
+                  {journalQ || journalAction ? "Aucun résultat pour cette recherche." : "Aucune action enregistrée pour l'instant."}
+                </div>
               ) : (
-                <div className="divide-y divide-[#eef4f4]">
-                  {journal.map((j) => {
-                    const couleur = j.action === "purge" ? "#b42318" : j.action === "restauration" ? "#166534" : "#b45309";
-                    const fond = j.action === "purge" ? "#fee2e2" : j.action === "restauration" ? "#dcfce7" : "#fef3c7";
-                    return (
-                      <div key={j.id} className="px-6 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-2">
-                        <div className="min-w-0">
-                          <span className="text-xs font-bold px-2.5 py-0.5 rounded-full capitalize" style={{ background: fond, color: couleur }}>{j.action}</span>
-                          <span className="text-sm text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
+                <>
+                  <div className="divide-y divide-[#eef4f4]">
+                    {journal.map((j) => {
+                      const couleur = j.action === "purge" ? "#b42318" : j.action === "restauration" ? "#166534" : "#b45309";
+                      const fond = j.action === "purge" ? "#fee2e2" : j.action === "restauration" ? "#dcfce7" : "#fef3c7";
+                      return (
+                        <div key={j.id} className="px-6 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full capitalize" style={{ background: fond, color: couleur }}>{j.action}</span>
+                            <span className="text-sm text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
+                          </div>
+                          <p className="text-xs text-gray-400">
+                            par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </p>
                         </div>
-                        <p className="text-xs text-gray-400">
-                          par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                        </p>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pagination serveur */}
+                  {(() => {
+                    const pages = Math.max(1, Math.ceil(journalTotal / JOURNAL_TAILLE));
+                    const debut = (journalPage - 1) * JOURNAL_TAILLE + 1;
+                    const fin = Math.min(journalTotal, journalPage * JOURNAL_TAILLE);
+                    return (
+                      <div className="px-6 sm:px-8 py-4 flex items-center justify-between gap-3 border-t" style={{ borderColor: "#eef4f4" }}>
+                        <p className="text-xs text-gray-400">{debut}–{fin} sur {journalTotal.toLocaleString("fr-FR")}</p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setJournalPage((p) => Math.max(1, p - 1))}
+                            disabled={journalPage <= 1}
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border transition-all disabled:opacity-40 hover:shadow-sm"
+                            style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}
+                          >
+                            <ArrowLeft size={13} /> Précédent
+                          </button>
+                          <span className="text-xs font-semibold px-2" style={{ color: "#1a2e5a" }}>{journalPage} / {pages}</span>
+                          <button
+                            onClick={() => setJournalPage((p) => Math.min(pages, p + 1))}
+                            disabled={journalPage >= pages}
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border transition-all disabled:opacity-40 hover:shadow-sm"
+                            style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}
+                          >
+                            Suivant <ArrowRight size={13} />
+                          </button>
+                        </div>
                       </div>
                     );
-                  })}
-                </div>
+                  })()}
+                </>
               )}
             </motion.div>
           </>
         )}
-
-      </div>
 
       {/* Modale : convertir un devis en contrat */}
       <AnimatePresence>
@@ -1873,46 +2761,75 @@ export default function AdminPage() {
             >
               <div className="px-7 py-5 text-white rounded-t-3xl flex items-center justify-between" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                 <div>
-                  <h3 className="font-bold">Envoyer une proposition</h3>
+                  <h3 className="font-bold">Envoyer des propositions</h3>
                   <p className="text-xs text-white/70">{propPour.produit?.nom} · {propPour.user?.prenom} {propPour.user?.nom}</p>
                 </div>
                 <button onClick={() => setPropPour(null)}><X size={20} /></button>
               </div>
 
-              <div className="p-7 space-y-5">
-                <Select
-                  label="Compagnie partenaire" name="compagnie" value={propCompagnie} required
-                  onChange={(e) => setPropCompagnie(e.target.value)}
-                  options={PARTENAIRES.map((c) => ({ value: c, label: c }))}
-                />
-                <DocumentUpload
-                  label="Fiche de la compagnie (PDF)"
-                  value={propDocs}
-                  onChange={setPropDocs}
-                  required
-                  hint="PDF ou image — obligatoire."
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Prime proposée (FCFA, optionnel)</label>
-                  <input
-                    type="number" value={propPrime} onChange={(e) => setPropPrime(e.target.value)} placeholder="ex. 120000"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm"
-                  />
+              <div className="p-6 sm:p-7">
+                <div className="space-y-4 max-h-[58vh] overflow-y-auto pr-1">
+                  {propProps.map((p, i) => (
+                    <div key={i} className="rounded-2xl border p-4 space-y-4" style={{ borderColor: "#e6f0f0", background: "#f8fbfb" }}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "#2a8a8a" }}>Proposition {i + 1}</span>
+                        {propProps.length > 1 && (
+                          <button onClick={() => setPropProps((arr) => arr.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600" type="button">
+                            <Trash2 size={13} /> Retirer
+                          </button>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Nom de la compagnie <span className="text-gray-400 font-normal">(optionnel)</span></label>
+                        <input
+                          type="text" value={p.compagnie} onChange={(e) => majProp(i, "compagnie", e.target.value)} placeholder="ex. NSIA, SUNU, Sanlam Allianz…"
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
+                        />
+                      </div>
+                      <DocumentUpload
+                        label="Fiches de cotation (PDF)"
+                        value={p.docs}
+                        onChange={(urls) => majProp(i, "docs", urls)}
+                        required
+                        max={6}
+                        hint="PDF ou images — vous pouvez en sélectionner plusieurs à la fois."
+                      />
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA, optionnel)</label>
+                          <input
+                            type="number" value={p.prime} onChange={(e) => majProp(i, "prime", e.target.value)} placeholder="ex. 120000"
+                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
+                          <input
+                            type="text" value={p.message} onChange={(e) => majProp(i, "message", e.target.value)} placeholder="Note pour le client…"
+                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => setPropProps((arr) => [...arr, propVide()])}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed text-sm font-semibold transition-all hover:bg-gray-50"
+                    style={{ borderColor: "#cfe3e3", color: "#2a8a8a" }}
+                  >
+                    <Plus size={16} /> Ajouter une autre proposition
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
-                  <textarea
-                    value={propMessage} onChange={(e) => setPropMessage(e.target.value)} rows={2} placeholder="Note pour le client…"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm resize-none"
-                  />
-                </div>
-                <div className="flex gap-3 pt-1">
+
+                <div className="flex gap-3 pt-5">
                   <button onClick={() => setPropPour(null)} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}>
                     Annuler
                   </button>
                   <button onClick={envoyerProposition} disabled={propEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                     {propEnvoi ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                    Envoyer au client
+                    Envoyer {propProps.filter((p) => p.docs.length > 0).length > 1 ? `(${propProps.filter((p) => p.docs.length > 0).length})` : ""} au client
                   </button>
                 </div>
               </div>
@@ -1921,49 +2838,6 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
-      {/* Modale : confirmation de déconnexion */}
-      <AnimatePresence>
-        {confirmDeco && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: "rgba(15,23,42,0.5)" }}
-            onClick={() => setConfirmDeco(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center"
-            >
-              <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "#fee2e2" }}>
-                <LogOut size={24} style={{ color: "#dc2626" }} />
-              </div>
-              <h3 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Se déconnecter ?</h3>
-              <p className="text-sm text-gray-500 mb-6">Vous allez quitter votre session et revenir à l&apos;accueil.</p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setConfirmDeco(false)}
-                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50 active:scale-95"
-                  style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={seDeconnecter}
-                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-95"
-                  style={{ background: "linear-gradient(135deg, #dc2626, #b91c1c)" }}
-                >
-                  Se déconnecter
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    </DashboardShell>
   );
 }

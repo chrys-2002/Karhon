@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth, estGerant } from "@/lib/session";
+import { notifierAgents } from "@/lib/notifications";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
@@ -14,7 +15,10 @@ export async function POST(req: Request) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { produitId, description, montantEstime, documents, reponses, telephoneContact } = await req.json();
+    const { produitId, description, montantEstime, documents, reponses, telephoneContact, segment } = await req.json();
+    // Catégorie choisie par le client (auto). Validée puis portée au contrat plus tard.
+    const SEGMENTS_OK = ["particulier", "professionnel", "transport"];
+    const segmentValide = SEGMENTS_OK.includes(segment) ? segment : "particulier";
 
     // 2) Validation des champs.
     if (!produitId || !description) {
@@ -57,6 +61,7 @@ export async function POST(req: Request) {
       data: {
         userId: auth.userId,
         produitId,
+        segment: segmentValide,
         description,
         montantEstime: typeof montantEstime === "number" ? montantEstime : null,
         documents: docsValides,
@@ -64,7 +69,16 @@ export async function POST(req: Request) {
         telephoneContact: typeof telephoneContact === "string" ? telephoneContact.slice(0, 40) : null,
         // statut "en_attente" par défaut (défini dans le schéma).
       },
-      include: { produit: true },
+      include: { produit: true, user: { select: { nom: true, prenom: true } } },
+    });
+
+    // Prévient le personnel (in-app + e-mail) — sans bloquer la réponse.
+    const nomClient = `${devis.user?.prenom ?? ""} ${devis.user?.nom ?? ""}`.trim() || "Un client";
+    await notifierAgents({
+      type: "devis",
+      titre: "Nouvelle demande de cotation",
+      message: `${nomClient} a demandé une cotation « ${devis.produit?.nom ?? "produit"} ».`,
+      lien: "/admin",
     });
 
     return NextResponse.json({ devis }, { status: 201 });

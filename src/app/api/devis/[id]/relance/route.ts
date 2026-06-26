@@ -25,10 +25,10 @@ export async function POST(
       },
     });
     if (!devis) {
-      return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
+      return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     }
 
-    const sujet = `votre demande de devis ${devis.produit?.nom ?? ""}`.trim();
+    const sujet = `votre demande de cotation ${devis.produit?.nom ?? ""}`.trim();
     const corps =
       typeof message === "string" && message.trim()
         ? message.trim()

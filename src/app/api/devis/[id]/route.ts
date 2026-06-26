@@ -6,6 +6,16 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerStaff, exigerGerant } from "@/lib/session";
 import { journaliser } from "@/lib/audit";
+import { notifierClient } from "@/lib/notifications";
+
+// Libellés clients lisibles pour chaque statut de devis.
+const LABEL_STATUT_DEVIS: Record<string, string> = {
+  en_attente: "en attente",
+  en_cours: "en cours d'étude",
+  envoye: "des offres vous ont été envoyées",
+  accepte: "accepté",
+  refuse: "refusé",
+};
 
 const STATUTS_VALIDES = ["en_attente", "en_cours", "envoye", "accepte", "refuse"] as const;
 type StatutDevis = (typeof STATUTS_VALIDES)[number];
@@ -26,7 +36,7 @@ export async function PATCH(
       include: { produit: { select: { nom: true } }, user: { select: { nom: true, prenom: true } } },
     });
     if (!existant) {
-      return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
+      return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     }
 
     // Cas 1 : restauration d'un devis archivé (réservé au gérant).
@@ -40,7 +50,7 @@ export async function PATCH(
       });
       await journaliser({
         action: "restauration", entite: "devis", entiteId: id,
-        resume: `Devis ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim(),
+        resume: `Cotation ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim(),
         auteurEmail: auth.email,
       });
       return NextResponse.json({ devis });
@@ -59,6 +69,17 @@ export async function PATCH(
         user: { select: { nom: true, prenom: true, email: true, telephone: true } },
       },
     });
+
+    // Prévient le client du changement de statut (in-app + e-mail).
+    await notifierClient({
+      userId: existant.userId,
+      email: devis.user?.email,
+      type: "statut",
+      titre: "Mise à jour de votre cotation",
+      message: `Votre cotation « ${devis.produit?.nom ?? "produit"} » est désormais : ${LABEL_STATUT_DEVIS[statut] ?? statut}.`,
+      onglet: "devis",
+    });
+
     return NextResponse.json({ devis });
   } catch (e) {
     console.error("[devis PATCH]", e);
@@ -82,9 +103,9 @@ export async function DELETE(
       include: { produit: { select: { nom: true } }, user: { select: { nom: true, prenom: true } } },
     });
     if (!existant) {
-      return NextResponse.json({ erreur: "Devis introuvable." }, { status: 404 });
+      return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     }
-    const resume = `Devis ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
+    const resume = `Cotation ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
     if (purge) {
       // Suppression DÉFINITIVE — réservée au gérant.

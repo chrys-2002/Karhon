@@ -103,29 +103,38 @@ export default function DocumentUpload({
 
   const plein = value.length >= max;
 
-  const traiterFichier = async (file: File) => {
+  // Traite un LOT de fichiers (sélection multiple) en les envoyant l'un après
+  // l'autre, puis met à jour la liste en une seule fois.
+  const traiterFichiers = async (files: File[]) => {
     setErreur("");
-
-    // Validation côté client (le serveur revérifie de toute façon).
-    if (!TYPES_OK.includes(file.type)) {
-      setErreur("Format non accepté. Utilisez un PDF ou une image (PNG/JPG).");
-      return;
-    }
+    const restant = max - value.length;
+    if (restant <= 0) return;
+    const lot = files.slice(0, restant);
 
     setEnCours(true);
     setProgression(0);
+    const ajoutees: string[] = [];
     try {
-      // 1) Compression (images) → fichier léger ; les PDF restent intacts.
-      const prepare = await compresserImage(file);
-      if (prepare.size > TAILLE_MAX) {
-        setErreur("Fichier trop volumineux (4 Mo maximum).");
-        return;
+      for (const file of lot) {
+        // Validation côté client (le serveur revérifie de toute façon).
+        if (!TYPES_OK.includes(file.type)) {
+          setErreur("Un fichier a été ignoré (format non accepté : PDF ou image uniquement).");
+          continue;
+        }
+        // 1) Compression (images) → fichier léger ; les PDF restent intacts.
+        const prepare = await compresserImage(file);
+        if (prepare.size > TAILLE_MAX) {
+          setErreur("Un fichier dépasse 4 Mo et a été ignoré.");
+          continue;
+        }
+        // 2) Envoi au serveur, qui l'upload vers Vercel Blob.
+        const url = await envoyerFichier(prepare, (pct) => setProgression(pct));
+        ajoutees.push(url);
       }
-      // 2) Envoi au serveur, qui l'upload vers Vercel Blob.
-      const url = await envoyerFichier(prepare, (pct) => setProgression(pct));
-      onChange([...value, url]);
+      if (ajoutees.length) onChange([...value, ...ajoutees]);
     } catch (e) {
       setErreur((e as Error).message || "Échec de l'envoi. Réessayez.");
+      if (ajoutees.length) onChange([...value, ...ajoutees]);
     } finally {
       setEnCours(false);
       setProgression(0);
@@ -133,9 +142,9 @@ export default function DocumentUpload({
   };
 
   const onSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // permet de re-sélectionner le même fichier
-    if (file) traiterFichier(file);
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    e.target.value = ""; // permet de re-sélectionner les mêmes fichiers
+    if (files.length) traiterFichiers(files);
   };
 
   const supprimer = (url: string) => onChange(value.filter((u) => u !== url));
@@ -154,7 +163,7 @@ export default function DocumentUpload({
       {hint && <p className="text-xs text-gray-400 -mt-1 mb-2">{hint}</p>}
 
       {/* Inputs cachés : un pour la galerie/fichiers, un pour la caméra arrière. */}
-      <input ref={inputFichier} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" hidden onChange={onSelection} />
+      <input ref={inputFichier} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" multiple={max > 1} hidden onChange={onSelection} />
       <input ref={inputCamera} type="file" accept="image/png,image/jpeg,image/webp" capture="environment" hidden onChange={onSelection} />
 
       {/* Miniatures des fichiers déjà envoyés */}

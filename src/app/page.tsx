@@ -147,7 +147,7 @@ const produitsVIE: Product[] = [
 const stats = [
   { value: "5+", label: "Partenaires", Icon: Handshake },
   { value: "200+", label: "Clients", Icon: Users },
-  { value: "Gratuit", label: "Devis & conseils", Icon: Zap },
+  { value: "Gratuit", label: "Cotations & conseils", Icon: Zap },
   { value: "100%", label: "Sans honoraires", Icon: ShieldCheck },
 ];
 
@@ -268,7 +268,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                       Voir les détails <ArrowRight size={15} />
                     </button>
                     <Link href="/devis" className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm border-2 transition-all hover:scale-105 active:scale-95" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
-                      Devis gratuit
+                      Cotation gratuite
                     </Link>
                   </div>
                 </motion.div>
@@ -386,7 +386,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
               </div>
               <div className="p-6 border-t flex gap-4" style={{ borderColor: "#e0ecec" }}>
                 <button onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 py-3 border-2 rounded-2xl font-semibold hover:bg-gray-50 transition text-sm" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>Fermer</button>
-                <Link href="/devis" onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 text-white py-3 rounded-2xl font-semibold transition shadow-lg hover:scale-105 text-center text-sm" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>Demander un devis gratuit</Link>
+                <Link href="/devis" onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 text-white py-3 rounded-2xl font-semibold transition shadow-lg hover:scale-105 text-center text-sm" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>Demander une cotation gratuite</Link>
               </div>
             </motion.div>
           </div>
@@ -453,7 +453,7 @@ export default function Home() {
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/devis" className="group px-8 py-4 rounded-full font-bold text-white text-base transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
-                Demander un devis gratuit <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                Demander une cotation gratuite <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="/produits" className="px-8 py-4 rounded-full font-bold text-white text-base border-2 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md">
                 Voir nos produits
@@ -561,7 +561,7 @@ export default function Home() {
               Prêt à être bien protégé ?
             </h2>
             <p className="text-gray-500 mb-10 text-lg">
-              Obtenez votre devis personnalisé gratuit en quelques minutes.
+              Obtenez votre cotation personnalisée gratuite en quelques minutes.
             </p>
             <Link
               href="/devis"

@@ -53,6 +53,35 @@ export async function envoyerEmail({ to, subject, html, text }: ParamsEmail): Pr
   }
 }
 
+// ── Gabarit HTML générique de notification, aux couleurs KARHON ─
+export function gabaritNotification(opts: {
+  titre: string;
+  message: string;
+  lienTexte?: string;   // ex. "Ouvrir mon espace"
+  lienUrl?: string;     // ex. "https://karhonassurance.com/client/dashboard"
+}): string {
+  const { titre, message, lienTexte, lienUrl } = opts;
+  const bouton =
+    lienTexte && lienUrl
+      ? `<p style="margin-top:24px"><a href="${lienUrl}" style="display:inline-block;background:linear-gradient(135deg,#1a2e5a,#2a8a8a);color:#fff;text-decoration:none;padding:12px 22px;border-radius:12px;font-size:14px;font-weight:600">${lienTexte}</a></p>`
+      : "";
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto;border:1px solid #e0ecec;border-radius:16px;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#1a2e5a,#2a8a8a);padding:24px 28px;color:#fff">
+      <h1 style="margin:0;font-size:20px">KARHON Assurances</h1>
+      <p style="margin:6px 0 0;font-size:13px;opacity:.8">Cabinet de courtage — Abidjan</p>
+    </div>
+    <div style="padding:28px;color:#374151;font-size:15px;line-height:1.6">
+      <h2 style="margin:0 0 12px;font-size:17px;color:#1a2e5a">${titre}</h2>
+      <p style="white-space:pre-line;margin:0">${message}</p>
+      ${bouton}
+    </div>
+    <div style="background:#f5fbfb;padding:16px 28px;color:#9ca3af;font-size:12px;text-align:center">
+      Abidjan, Cocody — Angré 8ème Tranche · infos@karhonassurance.com
+    </div>
+  </div>`;
+}
+
 // ── Gabarit HTML d'une relance, aux couleurs KARHON ─────────────
 export function gabaritRelance(opts: {
   prenom: string;

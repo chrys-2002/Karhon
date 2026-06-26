@@ -15,6 +15,7 @@ type Contrat = {
   dureeMois: number;
   primeAnnuelle: number;
   compagnie?: string | null;
+  segment?: string | null;
   statut: string;
   options?: string[];
   produit?: { nom?: string; type?: string; garanties?: string[] };
@@ -62,9 +63,16 @@ export default function ImprimerContrat() {
     );
   }
 
+  const LABEL_SEGMENT: Record<string, string> = {
+    particulier: "Particulier (usage personnel)",
+    professionnel: "Professionnel — flotte / pack auto",
+    transport: "Transport professionnel",
+  };
+
   const lignes: [string, string][] = [
     ["N° de contrat", contrat.numeroContrat],
     ["Produit", contrat.produit?.nom ?? "—"],
+    ["Catégorie", LABEL_SEGMENT[contrat.segment ?? "particulier"] ?? "Particulier (usage personnel)"],
     ["Compagnie", contrat.compagnie ?? "—"],
     ["Durée souscrite", `${contrat.dureeMois} mois`],
     ["Date de début", fmtDate(contrat.dateDebut)],

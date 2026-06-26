@@ -23,9 +23,9 @@ type Regle = { motsCles: string[]; reponse: string };
 // Base de connaissances : à enrichir librement.
 const REGLES: Regle[] = [
   {
-    motsCles: ["devis", "tarif", "prix", "cout", "coût", "combien"],
+    motsCles: ["cotation", "devis", "tarif", "prix", "cout", "coût", "combien"],
     reponse:
-      "Pour obtenir un devis gratuit, rendez-vous sur la page Devis et remplissez le formulaire. KARHON Assurances vous recontacte rapidement avec une offre personnalisée. C'est totalement gratuit.",
+      "Pour obtenir une cotation gratuite, rendez-vous sur la page Cotation et remplissez le formulaire. KARHON Assurances vous recontacte rapidement avec une offre personnalisée. C'est totalement gratuit.",
   },
   {
     motsCles: ["produit", "assurance", "garantie", "couverture", "auto", "santé", "sante", "vie", "habitation"],
@@ -64,7 +64,7 @@ const REGLES: Regle[] = [
   },
 ];
 
-const SUGGESTIONS = ["Demander un devis", "Vos produits", "Déclarer un sinistre", "Vous contacter"];
+const SUGGESTIONS = ["Demander une cotation", "Vos produits", "Déclarer un sinistre", "Vous contacter"];
 
 const MESSAGE_ACCUEIL: Message = {
   role: "bot",

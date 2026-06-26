@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth } from "@/lib/session";
+import { notifierAgents } from "@/lib/notifications";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
@@ -58,6 +59,17 @@ export async function POST(req: Request) {
         notes: typeof notes === "string" && notes.trim() ? notes.slice(0, 500) : null,
         // statut "en_attente" par défaut (défini dans le schéma).
       },
+      include: { user: { select: { nom: true, prenom: true } } },
+    });
+
+    // Prévient le personnel (in-app + e-mail).
+    const nomClient = `${rdv.user?.prenom ?? ""} ${rdv.user?.nom ?? ""}`.trim() || "Un client";
+    const quand = dateHeure.toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" });
+    await notifierAgents({
+      type: "rendezvous",
+      titre: "Nouvelle demande de rendez-vous",
+      message: `${nomClient} souhaite un rendez-vous le ${quand} — motif : ${rdv.motif}.`,
+      lien: "/admin",
     });
 
     return NextResponse.json({ rendezVous: rdv }, { status: 201 });

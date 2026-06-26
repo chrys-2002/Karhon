@@ -75,6 +75,20 @@ export async function PATCH(
       return NextResponse.json({ contrat });
     }
 
+    // Re-catégorisation d'une souscription (particulier / professionnel / transport).
+    if (typeof body?.segment === "string") {
+      const SEGMENTS_OK = ["particulier", "professionnel", "transport"];
+      if (!SEGMENTS_OK.includes(body.segment)) {
+        return NextResponse.json({ erreur: "Catégorie invalide." }, { status: 400 });
+      }
+      const contrat = await prisma.contrat.update({
+        where: { id },
+        data: { segment: body.segment },
+        include: { produit: { select: { nom: true, type: true } }, user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
+      });
+      return NextResponse.json({ contrat });
+    }
+
     return NextResponse.json({ erreur: "Action non reconnue." }, { status: 400 });
   } catch (e) {
     console.error("[contrats PATCH]", e);

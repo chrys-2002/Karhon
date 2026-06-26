@@ -34,7 +34,7 @@ const produitsVie = [
 const liens = [
   { href: "/", label: "Accueil" },
   { href: "/produits", label: "Nos produits" },
-  { href: "/devis", label: "Demander un devis" },
+  { href: "/devis", label: "Demander une cotation" },
   { href: "/apropos", label: "À propos" },
   { href: "/contact", label: "Contact" },
   { href: "/client", label: "Espace Client" },
@@ -288,7 +288,7 @@ export default function Footer() {
                 ))}
               </ul>
               <Link href="/devis" className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-xs text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)", boxShadow: "0 6px 20px rgba(42,138,138,0.3)" }}>
-                Devis gratuit →
+                Cotation gratuite →
               </Link>
             </div>
           </div>

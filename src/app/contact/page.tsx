@@ -29,7 +29,7 @@ import {
 const selectOptions = [
   {
     value: 'devis',
-    label: 'Demande de devis',
+    label: 'Demande de cotation',
     Icon: FileText,
     badge: 'linear-gradient(135deg, #2a8a8a, #1a2e5a)',
   },
