@@ -131,21 +131,29 @@ async function main() {
   }
   console.log(`✅ ${produits.length} produits créés`);
 
-  // Compte admin de démonstration.
-  const motDePasse = await bcrypt.hash("AdMin#2020", 10);
-  await prisma.user.upsert({
-    where: { email: "admin@karhon.ci" },
-    update: { motDePasse, role: "admin" },
-    create: {
-      nom: "KARHON",
-      prenom: "Admin",
-      email: "admin@karhon.ci",
-      telephone: "+225 07 87 10 39 39",
-      motDePasse,
-      role: "admin",
-    },
-  });
-  console.log("✅ Compte admin créé / mis à jour : admin@karhon.ci");
+  // Compte admin de démonstration (héritage, table User). Le VRAI personnel
+  // vit dans la table Admin (voir prisma/creer-equipe.ts). On ne crée donc ce
+  // compte que si un mot de passe est fourni via l'environnement — aucun mot de
+  // passe n'est écrit en clair dans le code.
+  const seedAdminPwd = process.env.SEED_ADMIN_PASSWORD;
+  if (seedAdminPwd) {
+    const motDePasse = await bcrypt.hash(seedAdminPwd, 10);
+    await prisma.user.upsert({
+      where: { email: "admin@karhon.ci" },
+      update: { motDePasse, role: "admin" },
+      create: {
+        nom: "KARHON",
+        prenom: "Admin",
+        email: "admin@karhon.ci",
+        telephone: "+225 07 87 10 39 39",
+        motDePasse,
+        role: "admin",
+      },
+    });
+    console.log("✅ Compte admin de démonstration créé / mis à jour : admin@karhon.ci");
+  } else {
+    console.log("ℹ️  SEED_ADMIN_PASSWORD non défini : compte admin de démo ignoré. Pour le personnel, utilise prisma/creer-equipe.ts.");
+  }
 
   console.log("🎉 Seed terminé.");
 }
