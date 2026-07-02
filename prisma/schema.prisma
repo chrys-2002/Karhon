@@ -182,12 +182,14 @@ model Proposition {
   prime      Float?    // prime proposée (optionnel)
   message    String?   // note de l'agent
   choisie    Boolean   @default(false)
+  vueClient  Boolean   @default(false)  // true dès que le client a consulté cette offre (repère « nouveau »)
   dateEnvoi  DateTime  @default(now())
   dateChoix  DateTime?
 
   devisId    String
   devis      Devis     @relation(fields: [devisId], references: [id], onDelete: Cascade)
 
+  @@index([devisId, vueClient])
   @@map("propositions")
 }
 
@@ -304,10 +306,13 @@ model Message {
   contexte      String?  // "devis" | "sinistre" (facultatif)
   contexteId    String?
   lu            Boolean  @default(false) // lu par le destinataire
+  archive       Boolean  @default(false) // message archivé (masqué des conversations)
+  archiveLe     DateTime?
   createdAt     DateTime @default(now())
 
   @@index([userId, createdAt])
   @@index([expediteur, lu])
+  @@index([archive])
   @@map("messages")
 }
 

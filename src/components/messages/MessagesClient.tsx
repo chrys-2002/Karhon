@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import DocumentUpload from "@/components/ui/DocumentUpload";
-import { Send, Loader2, FileText, MessagesSquare, Paperclip, ArrowLeft, ArrowRight, ChevronUp } from "lucide-react";
+import { Send, Loader2, FileText, MessagesSquare, Paperclip, ArrowLeft, ArrowRight, ChevronUp, ListChecks, Archive, Trash2, X } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
 // MessagesClient — messagerie du client.
@@ -48,6 +48,29 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
   const finRef = useRef<HTMLDivElement>(null);
+
+  // Sélection multiple pour archiver / supprimer.
+  const [selection, setSelection] = useState(false);
+  const [selIds, setSelIds] = useState<string[]>([]);
+  const [actionEnCours, setActionEnCours] = useState(false);
+  const toggleSel = (id: string) => setSelIds((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  const quitterSelection = () => { setSelection(false); setSelIds([]); };
+  const appliquer = async (action: "archiver" | "supprimer") => {
+    if (selIds.length === 0 || actionEnCours) return;
+    if (action === "supprimer" && !window.confirm(`Supprimer définitivement ${selIds.length} message(s) ?`)) return;
+    setActionEnCours(true);
+    try {
+      const r = await fetch("/api/messages", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: selIds, action }) });
+      if (r.ok) {
+        setMessages((p) => p.filter((m) => !selIds.includes(m.id)));
+        setTotal((t) => Math.max(0, t - selIds.length));
+        quitterSelection();
+        chargerApercu();
+      }
+    } finally {
+      setActionEnCours(false);
+    }
+  };
 
   const chargerApercu = () =>
     fetch("/api/messages?apercu=1")
@@ -185,6 +208,15 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
           <p className="text-sm font-bold" style={{ color: MARINE }}>Conseiller KARHON</p>
           <p className="text-xs text-gray-400">{total} message{total > 1 ? "s" : ""}</p>
         </div>
+        {messages.length > 0 && (
+          <button
+            onClick={() => (selection ? quitterSelection() : setSelection(true))}
+            className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all hover:bg-gray-50"
+            style={{ borderColor: "#e0ecec", color: selection ? "#b42318" : TEAL }}
+          >
+            {selection ? <><X size={14} /> Annuler</> : <><ListChecks size={14} /> Sélectionner</>}
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3" style={{ background: "#f8fbfb" }}>
@@ -208,9 +240,22 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
         ) : (
           messages.map((m) => {
             const moi = m.expediteur === "client";
+            const sel = selIds.includes(m.id);
             return (
-              <div key={m.id} className={`flex ${moi ? "justify-end" : "justify-start"}`}>
-                <div className="max-w-[80%] rounded-2xl px-4 py-2.5" style={moi ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" } : { background: "#fff", border: "1px solid #e6f0f0", color: "#374151" }}>
+              <div key={m.id} className={`flex items-center gap-2 ${moi ? "justify-end" : "justify-start"}`}>
+                {selection && (
+                  <button onClick={() => toggleSel(m.id)} aria-label="Sélectionner" className="flex-shrink-0 w-5 h-5 rounded-md border flex items-center justify-center" style={{ borderColor: sel ? TEAL : "#cbd5e1", background: sel ? TEAL : "#fff", color: "#fff" }}>
+                    {sel && <span style={{ fontSize: 12, lineHeight: 1 }}>✓</span>}
+                  </button>
+                )}
+                <div
+                  onClick={selection ? () => toggleSel(m.id) : undefined}
+                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${selection ? "cursor-pointer" : ""}`}
+                  style={{
+                    ...(moi ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" } : { background: "#fff", border: "1px solid #e6f0f0", color: "#374151" }),
+                    ...(sel ? { outline: `2px solid ${TEAL}`, outlineOffset: "2px" } : {}),
+                  }}
+                >
                   {!moi && <p className="text-[11px] font-semibold mb-0.5" style={{ color: TEAL }}>KARHON · Rédacteur</p>}
                   {m.contenu && <p className="text-sm whitespace-pre-line leading-snug">{m.contenu}</p>}
                   {m.piecesJointes?.map((doc) => <PieceJointe key={doc} doc={doc} clair={moi} />)}
@@ -223,6 +268,19 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
         <div ref={finRef} />
       </div>
 
+      {selection ? (
+        <div className="border-t p-3 sm:p-4 flex items-center justify-between gap-2" style={{ borderColor: "#eef4f4" }}>
+          <span className="text-xs text-gray-500">{selIds.length} sélectionné{selIds.length > 1 ? "s" : ""}</span>
+          <div className="flex items-center gap-2">
+            <button onClick={() => appliquer("archiver")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border disabled:opacity-50" style={{ borderColor: "#e0ecec", color: MARINE }}>
+              {actionEnCours ? <Loader2 size={14} className="animate-spin" /> : <Archive size={14} />} Archiver
+            </button>
+            <button onClick={() => appliquer("supprimer")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}>
+              <Trash2 size={14} /> Supprimer
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="border-t p-3 sm:p-4 space-y-3" style={{ borderColor: "#eef4f4" }}>
         {erreur && <p className="text-xs px-1" style={{ color: "#b42318" }}>{erreur}</p>}
         {(joindre || docs.length > 0) && (
@@ -248,6 +306,7 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }

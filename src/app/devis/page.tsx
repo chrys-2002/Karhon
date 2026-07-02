@@ -202,6 +202,13 @@ export default function DevisPage() {
     return () => { annule = true; };
   }, []);
 
+  // À chaque changement d'étape (y compris l'écran de confirmation), on remonte
+  // en haut de la page : sinon la position de défilement reste là où était le
+  // bouton d'envoi et l'utilisateur se retrouve sur le pied de page.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };

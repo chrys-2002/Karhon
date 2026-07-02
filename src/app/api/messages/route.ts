@@ -1,9 +1,10 @@
 // Routes /api/messages — messagerie client ↔ rédacteur.
-//   GET  ?count=1            → nombre de messages non lus (pour le badge)
-//   GET  (staff)             → boîte de réception : 1 conversation par client
-//   GET  (staff) ?userId=ID  → le fil complet avec ce client
-//   GET  (client)            → le fil du client connecté
-//   POST                     → envoyer un message (texte + pièces jointes)
+//   GET    ?count=1            → nombre de messages non lus (pour le badge)
+//   GET    (staff)             → boîte de réception : 1 conversation par client
+//   GET    (staff) ?userId=ID  → le fil complet avec ce client
+//   GET    (client)            → le fil du client connecté
+//   POST                       → envoyer un message (texte + pièces jointes)
+//   DELETE { ids, action }     → archiver ou supprimer des messages sélectionnés
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth } from "@/lib/session";
@@ -22,8 +23,8 @@ export async function GET(req: Request): Promise<NextResponse> {
     // Compteur de non-lus (pour la pastille de l'onglet).
     if (url.searchParams.get("count") === "1") {
       const where = estStaff
-        ? { expediteur: "client", lu: false }
-        : { userId: auth.userId, expediteur: "staff", lu: false };
+        ? { expediteur: "client", lu: false, archive: false }
+        : { userId: auth.userId, expediteur: "staff", lu: false, archive: false };
       const nonLus = await prisma.message.count({ where });
       return NextResponse.json({ nonLus });
     }
@@ -37,14 +38,15 @@ export async function GET(req: Request): Promise<NextResponse> {
       // Fil avec un client précis (page = lot de messages les plus récents).
       if (userId) {
         const [recents, client, total] = await Promise.all([
-          prisma.message.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize }),
+          prisma.message.findMany({ where: { userId, archive: false }, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize }),
           prisma.user.findUnique({ where: { id: userId }, select: { nom: true, prenom: true, email: true, telephone: true } }),
-          prisma.message.count({ where: { userId } }),
+          prisma.message.count({ where: { userId, archive: false } }),
         ]);
         return NextResponse.json({ messages: recents.reverse(), client, total, page, pageSize });
       }
       // Boîte de réception : dernier message de chaque conversation.
       const derniers = await prisma.message.findMany({
+        where: { archive: false },
         orderBy: { createdAt: "desc" },
         distinct: ["userId"],
         take: 60,
@@ -52,7 +54,7 @@ export async function GET(req: Request): Promise<NextResponse> {
       });
       const nonLusParUser = await prisma.message.groupBy({
         by: ["userId"],
-        where: { expediteur: "client", lu: false },
+        where: { expediteur: "client", lu: false, archive: false },
         _count: { _all: true },
       });
       const mapNonLus: Record<string, number> = {};
@@ -69,16 +71,16 @@ export async function GET(req: Request): Promise<NextResponse> {
     // Client : aperçu pour la vue « section » (dernier message + compteurs).
     if (url.searchParams.get("apercu") === "1") {
       const [dernier, total, nonLus] = await Promise.all([
-        prisma.message.findFirst({ where: { userId: auth.userId }, orderBy: { createdAt: "desc" } }),
-        prisma.message.count({ where: { userId: auth.userId } }),
-        prisma.message.count({ where: { userId: auth.userId, expediteur: "staff", lu: false } }),
+        prisma.message.findFirst({ where: { userId: auth.userId, archive: false }, orderBy: { createdAt: "desc" } }),
+        prisma.message.count({ where: { userId: auth.userId, archive: false } }),
+        prisma.message.count({ where: { userId: auth.userId, expediteur: "staff", lu: false, archive: false } }),
       ]);
       return NextResponse.json({ dernier, total, nonLus });
     }
     // Client : son fil, paginé (lot des plus récents).
     const [recents, total] = await Promise.all([
-      prisma.message.findMany({ where: { userId: auth.userId }, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize }),
-      prisma.message.count({ where: { userId: auth.userId } }),
+      prisma.message.findMany({ where: { userId: auth.userId, archive: false }, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize }),
+      prisma.message.count({ where: { userId: auth.userId, archive: false } }),
     ]);
     return NextResponse.json({ messages: recents.reverse(), total, page, pageSize });
   } catch (e) {
@@ -151,6 +153,38 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ message }, { status: 201 });
   } catch (e) {
     console.error("[messages POST]", e);
+    return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
+  }
+}
+
+// DELETE — archive ou supprime les messages sélectionnés.
+//   Corps : { ids: string[], action: "archiver" | "supprimer" }
+//   Un client ne peut agir que sur SES messages ; le personnel sur tous.
+export async function DELETE(req: Request): Promise<NextResponse> {
+  const auth = await exigerAuth();
+  if (auth instanceof NextResponse) return auth;
+  const estStaff = ROLES_STAFF.includes(auth.role);
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const ids = Array.isArray(body?.ids)
+      ? body.ids.filter((x: unknown): x is string => typeof x === "string").slice(0, 200)
+      : [];
+    const action = body?.action === "supprimer" ? "supprimer" : "archiver";
+    if (ids.length === 0) {
+      return NextResponse.json({ erreur: "Aucun message sélectionné." }, { status: 400 });
+    }
+
+    const where = estStaff ? { id: { in: ids } } : { id: { in: ids }, userId: auth.userId };
+
+    if (action === "supprimer") {
+      const res = await prisma.message.deleteMany({ where });
+      return NextResponse.json({ ok: true, action, nombre: res.count });
+    }
+    const res = await prisma.message.updateMany({ where, data: { archive: true, archiveLe: new Date() } });
+    return NextResponse.json({ ok: true, action, nombre: res.count });
+  } catch (e) {
+    console.error("[messages DELETE]", e);
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
   }
 }

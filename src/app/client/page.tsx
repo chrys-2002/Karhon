@@ -230,13 +230,13 @@ export default function ClientLoginPage() {
 
               <div className="relative">
                 <Mail className="absolute left-4 top-3.5 text-gray-400" size={18} />
-                <input type={isLogin ? "text" : "email"} name="email" value={formData.email} onChange={handleChange} placeholder={isLogin ? "Email ou téléphone" : "Adresse email"} required
+                <input type={isLogin ? "text" : "email"} name="email" value={formData.email} onChange={handleChange} placeholder={isLogin ? "Email ou téléphone" : "Adresse email"} required autoComplete="username"
                   className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
               </div>
               
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
-                <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="Mot de passe" required
+                <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="Mot de passe" required autoComplete={isLogin ? "current-password" : "new-password"}
                   className="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -246,7 +246,7 @@ export default function ClientLoginPage() {
               {!isLogin && (
                 <div className="relative">
                   <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
-                  <input type={showPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirmer le mot de passe" required={!isLogin}
+                  <input type={showPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirmer le mot de passe" required={!isLogin} autoComplete="new-password"
                     className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm" />
                 </div>
               )}

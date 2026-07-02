@@ -324,16 +324,14 @@ type StatutInfo = { value: string; label: string; couleur: string; fond: string 
 // Libellés + couleurs des statuts (alignés sur l'enum StatutDevis).
 const STATUTS: StatutInfo[] = [
   { value: "en_attente", label: "En attente", couleur: "#92600a", fond: "#fef3c7" },
+  { value: "envoye", label: "Offre à choisir", couleur: "#5b21b6", fond: "#ede9fe" },
   { value: "en_cours", label: "En cours", couleur: "#1e40af", fond: "#dbeafe" },
-  { value: "envoye", label: "Envoyé", couleur: "#5b21b6", fond: "#ede9fe" },
-  { value: "choisi", label: "Offre choisie · à encaisser", couleur: "#9a3412", fond: "#ffedd5" },
-  { value: "paye", label: "Payé · à valider", couleur: "#0e7490", fond: "#cffafe" },
   { value: "accepte", label: "Souscrit", couleur: "#166534", fond: "#dcfce7" },
   { value: "refuse", label: "Refusé", couleur: "#991b1b", fond: "#fee2e2" },
 ];
 
 // Libellés lisibles des modes de paiement.
-const MODE_LABEL: Record<string, string> = { cheque: "Chèque", wave: "Wave", orange_money: "Orange Money" };
+const MODE_LABEL: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money" };
 
 // Libellés + couleurs des statuts de sinistre (alignés sur l'enum StatutSinistre).
 const STATUTS_SINISTRE: StatutInfo[] = [
@@ -343,8 +341,11 @@ const STATUTS_SINISTRE: StatutInfo[] = [
   { value: "refuse", label: "Refusé", couleur: "#991b1b", fond: "#fee2e2" },
 ];
 
-const infoStatut = (v: string) =>
-  STATUTS.find((s) => s.value === v) ?? STATUTS[0];
+const infoStatut = (v: string) => {
+  // Anciennes valeurs (choisi/paye) repliées sur « En cours » pour l'affichage.
+  const alias = v === "choisi" || v === "paye" ? "en_cours" : v;
+  return STATUTS.find((s) => s.value === alias) ?? STATUTS[0];
+};
 
 const infoStatutSinistre = (v: string) =>
   STATUTS_SINISTRE.find((s) => s.value === v) ?? STATUTS_SINISTRE[0];
@@ -974,17 +975,6 @@ export default function AdminPage() {
     finally { setPaieId(null); }
   };
 
-  const confirmerPaiement = async (d: DevisAdmin) => {
-    setPaieId(d.id);
-    try {
-      const res = await fetch(`/api/devis/${d.id}/paiement`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmer: true }) });
-      const data = await res.json();
-      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
-      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, statut: "paye" } : x)));
-      setNotif({ type: "ok", texte: "Paiement confirmé. Vous pouvez valider la souscription." });
-    } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
-    finally { setPaieId(null); }
-  };
 
   // Envoie une proposition au client via WhatsApp (message + lien vers la fiche).
   const propositionWhatsApp = async (d: DevisAdmin, p: PropositionAdmin) => {
@@ -1323,6 +1313,15 @@ export default function AdminPage() {
   })();
   const totalSollicitations = compagniesStats.reduce((s, c) => s + c.envoyees, 0);
   const totalChoix = compagniesStats.reduce((s, c) => s + c.choisies, 0);
+
+  // Nombre de clients uniques (par e-mail) toutes activités confondues.
+  const nombreClients = (() => {
+    const emails = new Set<string>();
+    for (const d of devis) if (d.user?.email) emails.add(d.user.email);
+    for (const c of contrats) if (c.user?.email) emails.add(c.user.email);
+    for (const s of sinistres) if (s.user?.email) emails.add(s.user.email);
+    return emails.size;
+  })();
 
   const stats = [
     { label: "Cotations reçues", value: total, Icon: ClipboardList, filtre: "tous" },
@@ -1933,8 +1932,8 @@ export default function AdminPage() {
                           </div>
                         )}
 
-                        {/* Encaissement : visible une fois que le client a choisi une offre */}
-                        {(d.statut === "choisi" || d.statut === "paye") && (
+                        {/* Encaissement : visible une fois que le client a choisi une offre (statut « En cours ») */}
+                        {d.statut === "en_cours" && (
                           <div className="mt-3 rounded-xl p-3" style={{ background: "#fffaf0", border: "1px solid #fed7aa" }}>
                             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#9a3412" }}>
                               Encaissement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
@@ -1954,7 +1953,7 @@ export default function AdminPage() {
                                 <Send size={13} /> {d.montantAPayer != null ? "Mettre à jour" : "Communiquer le montant"}
                               </button>
                             </div>
-                            {d.modePaiement && d.modePaiement !== "cheque" && (
+                            {d.modePaiement && (
                               <div className="flex flex-wrap gap-2 items-center mb-2">
                                 <input
                                   value={lienInputs[d.id] ?? d.lienPaiement ?? ""}
@@ -1969,16 +1968,9 @@ export default function AdminPage() {
                                 </button>
                               </div>
                             )}
-                            {d.statut === "choisi" ? (
-                              <button type="button" onClick={() => confirmerPaiement(d)} disabled={paieId === d.id}
-                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "#16a34a" }}>
-                                {paieId === d.id ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />} Confirmer le paiement reçu
-                              </button>
-                            ) : (
-                              <p className="text-xs font-semibold" style={{ color: "#0e7490" }}>
-                                Paiement confirmé — validez la souscription (bouton « Enregistrer la souscription »).
-                              </p>
-                            )}
+                            <p className="text-xs" style={{ color: "#9a3412" }}>
+                              Une fois le paiement reçu, cliquez sur « Enregistrer la souscription » pour passer la cotation en « Souscrit ».
+                            </p>
                           </div>
                         )}
                       </div>
@@ -2352,9 +2344,9 @@ export default function AdminPage() {
                 {/* KPIs */}
                 <motion.div initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   {[
-                    { label: "Compagnies sollicitées", value: compagniesStats.length, Icon: Building2, sub: "partenaires proposés" },
+                    { label: "Clients", value: nombreClients, Icon: Users, sub: "clients uniques" },
+                    { label: "Compagnies partenaires", value: compagniesStats.length, Icon: Building2, sub: "compagnies sollicitées" },
                     { label: "Propositions envoyées", value: totalSollicitations, Icon: Send, sub: "toutes compagnies" },
-                    { label: "Choix clients", value: totalChoix, Icon: CheckCircle2, sub: "offres retenues" },
                     { label: "Taux de choix global", value: `${totalSollicitations ? Math.round((totalChoix / totalSollicitations) * 100) : 0}%`, Icon: TrendingUp, sub: "choisies / envoyées" },
                   ].map(({ label, value, Icon, sub }) => (
                     <div key={label} className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>

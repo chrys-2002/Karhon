@@ -21,6 +21,7 @@ import {
   MessagesSquare,
   ChevronDown,
   CheckCircle2,
+  Check,
   CreditCard,
   X,
 } from "lucide-react";
@@ -32,11 +33,22 @@ import {
 type Utilisateur = { nom?: string; prenom?: string; email?: string; role?: string };
 
 // Libellés des modes de paiement.
-const MODE_LABEL: Record<string, string> = { cheque: "Chèque", wave: "Wave", orange_money: "Orange Money" };
+const MODE_LABEL: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money" };
+// Libellés lisibles des statuts de cotation côté client.
+const STATUT_COTATION: Record<string, string> = {
+  en_attente: "En attente",
+  envoye: "Offre à choisir",
+  choisi: "En cours",
+  paye: "En cours",
+  en_cours: "En cours",
+  accepte: "Souscrit",
+  refuse: "Refusé",
+};
+const libStatut = (s?: string | null) => STATUT_COTATION[s ?? "en_attente"] ?? (s ?? "").replace(/_/g, " ");
 const MODES_PAIEMENT = [
-  { v: "wave", label: "Wave" },
-  { v: "orange_money", label: "Orange Money" },
-  { v: "cheque", label: "Chèque" },
+  { v: "carte", label: "Carte bancaire", desc: "Visa / Mastercard, paiement en ligne sécurisé" },
+  { v: "wave", label: "Wave", desc: "Paiement mobile Wave" },
+  { v: "orange_money", label: "Orange Money", desc: "Paiement mobile Orange Money" },
 ];
 
 type Proposition = {
@@ -46,6 +58,8 @@ type Proposition = {
   prime?: number | null;
   message?: string | null;
   choisie: boolean;
+  dateEnvoi?: string;
+  vueClient?: boolean;
 };
 type Devis = { id: string; statut?: string; dateCreation?: string; segment?: string | null; montantEstime?: number | null; modePaiement?: string | null; montantAPayer?: number | null; lienPaiement?: string | null; produit?: { nom?: string }; propositions?: Proposition[] };
 
@@ -182,6 +196,20 @@ export default function Dashboard() {
   const [choixEnvoi, setChoixEnvoi] = useState(false);
   const [groupeOuvert, setGroupeOuvert] = useState<string | null>(null);
 
+  // Marque côté serveur toutes les propositions d'une cotation comme consultées
+  // (appelé à l'ouverture du groupe). Met aussi l'état local à jour tout de suite
+  // pour que le repère « Nouveau » disparaisse sans attendre le rechargement.
+  const marquerVues = (devisId: string) => {
+    setDevis((prev) =>
+      prev.map((d) =>
+        d.id === devisId
+          ? { ...d, propositions: d.propositions?.map((p) => ({ ...p, vueClient: true })) }
+          : d
+      )
+    );
+    fetch(`/api/devis/${devisId}/vues`, { method: "POST" }).catch(() => {});
+  };
+
   const confirmerChoix = async () => {
     if (!choixModal || !modePaiement || choixEnvoi) return;
     setChoixEnvoi(true);
@@ -195,7 +223,7 @@ export default function Dashboard() {
         setDevis((prev) =>
           prev.map((d) =>
             d.id === choixModal.devisId
-              ? { ...d, statut: "choisi", modePaiement, propositions: d.propositions?.map((p) => ({ ...p, choisie: p.id === choixModal.propId })) }
+              ? { ...d, statut: "en_cours", modePaiement, propositions: d.propositions?.map((p) => ({ ...p, choisie: p.id === choixModal.propId })) }
               : d
           )
         );
@@ -532,8 +560,13 @@ export default function Dashboard() {
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
               {devis.map((d) => {
-                const props = d.propositions ?? [];
+                // Propositions triées de la plus récente à la plus ancienne.
+                const props = [...(d.propositions ?? [])].sort(
+                  (a, b) => new Date(b.dateEnvoi ?? 0).getTime() - new Date(a.dateEnvoi ?? 0).getTime()
+                );
                 const choisie = props.find((p) => p.choisie);
+                // Offres reçues mais pas encore consultées par le client (indicateur serveur).
+                const nouvelles = choisie ? 0 : props.filter((p) => !p.vueClient).length;
                 return (
                   <li key={d.id} className="px-6 sm:px-8 py-4">
                     <div className="flex items-center justify-between gap-3">
@@ -547,9 +580,16 @@ export default function Dashboard() {
                         </div>
                         <ChevronDown size={16} className={`ml-1 flex-shrink-0 transition-transform duration-200 ${detailOuvert === d.id ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                       </button>
-                      <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: TEAL }}>
-                        {(d.statut ?? "en_attente").replace(/_/g, " ")}
-                      </span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {nouvelles > 0 && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full text-white animate-pulse" style={{ background: "#e11d48" }}>
+                            <Sparkles size={11} /> {nouvelles} nouvelle{nouvelles > 1 ? "s" : ""} offre{nouvelles > 1 ? "s" : ""}
+                          </span>
+                        )}
+                        <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: TEAL }}>
+                          {libStatut(d.statut)}
+                        </span>
+                      </div>
                     </div>
                     <AnimatePresence initial={false}>
                       {detailOuvert === d.id && (
@@ -560,7 +600,7 @@ export default function Dashboard() {
                                 ["Produit", d.produit?.nom ?? "—"],
                                 ["Demande du", d.dateCreation ? fmtDateHeure(d.dateCreation) : "—"],
                                 ["Catégorie", d.segment === "professionnel" ? "Professionnel — flotte" : d.segment === "transport" ? "Transport professionnel" : "Particulier"],
-                                ["Statut", (d.statut ?? "en_attente").replace(/_/g, " ")],
+                                ["Statut", libStatut(d.statut)],
                                 ...(typeof d.montantEstime === "number" ? [["Montant estimé", `${d.montantEstime.toLocaleString("fr-FR")} FCFA`]] : []),
                                 ["Offres reçues", String(props.length)],
                                 ...(choisie ? [["Offre choisie", choisie.compagnie || `Offre ${props.findIndex((p) => p.choisie) + 1}`]] : []),
@@ -580,12 +620,21 @@ export default function Dashboard() {
                         {/* En-tête groupé : toutes les propositions réunies */}
                         <button
                           type="button"
-                          onClick={() => setGroupeOuvert(groupeOuvert === d.id ? null : d.id)}
+                          onClick={() => {
+                            const ouvre = groupeOuvert !== d.id;
+                            setGroupeOuvert(ouvre ? d.id : null);
+                            if (ouvre && nouvelles > 0) marquerVues(d.id);
+                          }}
                           className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[#eef9f9]"
                         >
                           <span className="flex items-center gap-2 font-semibold text-sm" style={{ color: "#0f766e" }}>
                             <FolderOpen size={18} style={{ color: TEAL }} />
                             {choisie ? "Votre choix de cotation" : `Propositions de cotation (${props.length})`}
+                            {nouvelles > 0 && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white animate-pulse" style={{ background: "#e11d48" }}>
+                                {nouvelles} nouveau{nouvelles > 1 ? "x" : ""}
+                              </span>
+                            )}
                           </span>
                           <span className="flex items-center gap-2">
                             {!choisie && <span className="hidden sm:inline text-xs font-medium" style={{ color: TEAL }}>Ouvrir pour comparer</span>}
@@ -597,35 +646,73 @@ export default function Dashboard() {
                           {groupeOuvert === d.id && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
                               <ul className="px-3 pb-3 space-y-2">
-                                {props.map((p, pi) => (
-                                  <li key={p.id} className="bg-white rounded-xl px-3 py-2.5 border" style={{ borderColor: p.choisie ? "#16a34a" : "#e0ecec" }}>
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                      <p className="font-semibold text-sm" style={{ color: MARINE }}>Cotation {pi + 1}</p>
-                                      {p.choisie ? (
-                                        <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>✓ Choisie</span>
-                                      ) : !choisie ? (
-                                        <button onClick={() => { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); }} className="text-xs font-semibold px-3.5 py-2 rounded-xl text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
-                                          Choisir cette compagnie
+                                {props.map((p, pi) => {
+                                  const estNouvelle = !p.choisie && !p.vueClient;
+                                  return (
+                                  <li key={p.id} className="bg-white rounded-xl px-3 py-2.5 border" style={{ borderColor: p.choisie ? "#16a34a" : estNouvelle ? "#fecdd3" : "#e0ecec" }}>
+                                    <div className="flex items-start gap-3">
+                                      {/* Case à cocher : choisir cette proposition */}
+                                      {(!choisie || p.choisie) && (
+                                        <button
+                                          type="button"
+                                          disabled={!!choisie}
+                                          onClick={() => { if (!choisie) { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); } }}
+                                          aria-label={p.choisie ? "Offre choisie" : "Choisir cette offre"}
+                                          title={p.choisie ? "Offre choisie" : "Cocher pour choisir cette offre"}
+                                          className="mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all disabled:cursor-default"
+                                          style={p.choisie ? { background: "#16a34a", borderColor: "#16a34a" } : { borderColor: TEAL, background: "#fff" }}
+                                        >
+                                          {p.choisie && <Check size={13} className="text-white" strokeWidth={3} />}
                                         </button>
-                                      ) : null}
-                                    </div>
-                                    <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                                      {p.documents.map((doc) => {
-                                        const [lbl, url] = doc.split("|");
-                                        return (
-                                          <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg" style={{ color: TEAL, background: "#eaf4f4" }}>
-                                            <FileText size={12} /> Lire {lbl || "la cotation"}
-                                          </a>
-                                        );
-                                      })}
-                                      {p.compagnie && (
-                                        <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
-                                          {p.compagnie}
-                                        </span>
                                       )}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <p className="font-semibold text-sm" style={{ color: MARINE }}>Cotation {props.length - pi}</p>
+                                          {p.compagnie && (
+                                            <span className="inline-flex items-center text-xs font-bold px-2.5 py-0.5 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
+                                              {p.compagnie}
+                                            </span>
+                                          )}
+                                          {estNouvelle && (
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#e11d48" }}>Nouveau</span>
+                                          )}
+                                          {p.choisie && (
+                                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>✓ Choisie</span>
+                                          )}
+                                        </div>
+                                        {p.dateEnvoi && (
+                                          <p className="text-[11px] text-gray-400 mt-0.5">Reçue le {fmtDateHeure(p.dateEnvoi)}</p>
+                                        )}
+                                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                          {p.documents.map((doc) => {
+                                            const [lbl, url] = doc.split("|");
+                                            return (
+                                              <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg" style={{ color: TEAL, background: "#eaf4f4" }}>
+                                                <FileText size={12} /> Lire {lbl || "la cotation"}
+                                              </a>
+                                            );
+                                          })}
+                                          {typeof p.prime === "number" && (
+                                            <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg" style={{ background: "#fff7ed", color: "#9a3412" }}>
+                                              Prime : {p.prime.toLocaleString("fr-FR")} FCFA
+                                            </span>
+                                          )}
+                                        </div>
+                                        {!choisie && (
+                                          <button
+                                            type="button"
+                                            onClick={() => { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); }}
+                                            className="mt-2 text-xs font-semibold"
+                                            style={{ color: TEAL }}
+                                          >
+                                            Cocher pour choisir cette offre
+                                          </button>
+                                        )}
+                                      </div>
                                     </div>
                                   </li>
-                                ))}
+                                  );
+                                })}
                               </ul>
                             </motion.div>
                           )}
@@ -633,36 +720,26 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    {/* Paiement : une fois l'offre choisie */}
-                    {(d.statut === "choisi" || d.statut === "paye") && (
+                    {/* Paiement : une fois l'offre choisie (statut « En cours ») */}
+                    {d.statut === "en_cours" && (
                       <div className="mt-3 rounded-2xl p-3 sm:p-4" style={{ background: "#fffaf0", border: "1px solid #fed7aa" }}>
-                        {d.statut === "paye" ? (
-                          <p className="text-sm font-semibold flex items-center gap-2" style={{ color: "#0e7490" }}>
-                            <CheckCircle2 size={16} /> Paiement confirmé — votre souscription est en cours de validation.
-                          </p>
+                        <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#9a3412" }}>
+                          Paiement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
+                        </p>
+                        {d.montantAPayer == null ? (
+                          <p className="text-sm text-gray-600">Votre choix a bien été transmis. Votre rédacteur va vous communiquer le montant à régler.</p>
                         ) : (
                           <>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#9a3412" }}>
-                              Paiement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
-                            </p>
-                            {d.montantAPayer == null ? (
-                              <p className="text-sm text-gray-600">Votre choix a bien été transmis. Votre rédacteur va vous communiquer le montant à régler.</p>
+                            <p className="text-sm mb-2" style={{ color: MARINE }}>Montant à régler : <strong>{d.montantAPayer.toLocaleString("fr-FR")} FCFA</strong></p>
+                            {d.lienPaiement ? (
+                              <div className="flex flex-wrap items-center gap-3">
+                                <p className="text-sm text-gray-600">Votre lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} est prêt.</p>
+                                <a href={d.lienPaiement} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                                  <CreditCard size={14} /> Payer maintenant
+                                </a>
+                              </div>
                             ) : (
-                              <>
-                                <p className="text-sm mb-2" style={{ color: MARINE }}>Montant à régler : <strong>{d.montantAPayer.toLocaleString("fr-FR")} FCFA</strong></p>
-                                {d.modePaiement === "cheque" ? (
-                                  <p className="text-sm text-gray-600">Réglez ce montant par chèque à l&apos;ordre de KARHON Assurances. Un rédacteur confirmera la réception.</p>
-                                ) : d.lienPaiement ? (
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    <p className="text-sm text-gray-600">Votre lien de paiement est prêt.</p>
-                                    <a href={d.lienPaiement} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
-                                      <CreditCard size={14} /> Payer maintenant
-                                    </a>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-gray-600">Votre rédacteur va vous transmettre le lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} sous peu.</p>
-                                )}
-                              </>
+                              <p className="text-sm text-gray-600">Votre rédacteur va vous transmettre le lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} sous peu.</p>
                             )}
                           </>
                         )}
@@ -853,20 +930,28 @@ export default function Dashboard() {
                 <button onClick={() => { if (!choixEnvoi) { setChoixModal(null); setModePaiement(""); } }} className="text-white/80 hover:text-white"><X size={20} /></button>
               </div>
               <div className="p-6 space-y-4">
-                <p className="text-sm text-gray-600">Comment souhaitez-vous régler votre prime ? Votre rédacteur vous transmettra le lien de paiement (Wave / Orange Money) ou confirmera la réception du chèque.</p>
+                <p className="text-sm text-gray-600">Comment souhaitez-vous régler votre prime ? Votre rédacteur vous transmettra un lien de paiement sécurisé selon le mode choisi.</p>
                 <div className="space-y-2">
                   {MODES_PAIEMENT.map((m) => (
                     <button
                       key={m.v}
                       type="button"
                       onClick={() => setModePaiement(m.v)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-all"
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border text-left transition-all"
                       style={modePaiement === m.v
                         ? { borderColor: TEAL, background: "#eaf4f4", color: MARINE }
                         : { borderColor: "#e0ecec", color: MARINE, background: "#fff" }}
                     >
-                      {m.label}
-                      {modePaiement === m.v && <CheckCircle2 size={16} style={{ color: TEAL }} />}
+                      <span className="flex items-center gap-3 min-w-0">
+                        <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#eaf4f4" }}>
+                          <CreditCard size={16} style={{ color: TEAL }} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold">{m.label}</span>
+                          <span className="block text-[11px] text-gray-400">{m.desc}</span>
+                        </span>
+                      </span>
+                      {modePaiement === m.v && <CheckCircle2 size={18} style={{ color: TEAL }} className="flex-shrink-0" />}
                     </button>
                   ))}
                 </div>

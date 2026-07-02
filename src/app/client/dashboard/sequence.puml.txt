@@ -1,0 +1,43 @@
+@startuml
+mainframe sd Se connecter
+autonumber
+
+actor Client
+participant ":IHM Connexion" as IHM
+participant ":Contrôleur Auth" as Ctrl
+participant ":Prisma" as Prisma
+database ":Base de données" as BD
+
+Client -> IHM : saisir(email, motDePasse)
+activate IHM
+
+IHM -> Ctrl : seConnecter(email, motDePasse)
+activate Ctrl
+
+Ctrl -> Prisma : chercherClient(email)
+activate Prisma
+Prisma -> BD : SELECT client
+activate BD
+BD --> Prisma : client
+deactivate BD
+Prisma --> Ctrl : client
+deactivate Prisma
+
+' message récursif : dédoublement de la bande d'activation (p.147)
+Ctrl -> Ctrl : verifierMotDePasse(motDePasse)
+activate Ctrl
+
+alt [client absent ou mot de passe incorrect]
+    Ctrl --> IHM : erreur = 401 identifiants invalides
+    IHM --> Client : afficherErreur()
+else [identifiants valides]
+    Ctrl -> Ctrl : genererJWT()
+    Ctrl --> IHM : succes = 200 + cookie session
+    IHM --> Client : redirigerTableauDeBord()
+end
+hide footbox
+deactivate Ctrl
+deactivate Ctrl
+deactivate IHM
+
+@enduml

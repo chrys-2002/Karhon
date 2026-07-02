@@ -1,0 +1,82 @@
+﻿node.exe : ÔÜá Warning: Next.js inferred 
+your workspace root, but it may not be 
+correct.
+Au caractère Ligne:1 : 1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified:  
+   (ÔÜá Warning: Ne...not be correct.:Strin  
+  g) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandE 
+   rror
+ 
+ We detected multiple lockfiles and selected 
+the directory of C:\Users\Boli 
+Chyst\package-lock.json as the root 
+directory.
+ To silence this warning, set 
+`turbopack.root` in your Next.js config, or 
+consider removing one of the lockfiles if 
+it's not needed.
+   See https://nextjs.org/docs/app/api-refere
+nce/config/next-config-js/turbopack#root-dire
+ctory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\Boli 
+Chyst\mykarhon-assurance\package-lock.json
+
+Ôû▓ Next.js 16.2.6 (Turbopack)
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 4 errors:
+./mykarhon-assurance/src/app/a-propos/page.ts
+x
+Reading source code for parsing failed
+An unexpected error happened while trying to 
+read the source code to parse: failed to 
+convert rope into string
+
+Caused by:
+- invalid utf-8 sequence of 1 bytes from 
+index 501
+
+
+./mykarhon-assurance/src/app/contact/page.tsx
+Reading source code for parsing failed
+An unexpected error happened while trying to 
+read the source code to parse: failed to 
+convert rope into string
+
+Caused by:
+- invalid utf-8 sequence of 1 bytes from 
+index 1009
+
+
+./mykarhon-assurance/src/app/devis/page.tsx
+Reading source code for parsing failed
+An unexpected error happened while trying to 
+read the source code to parse: failed to 
+convert rope into string
+
+Caused by:
+- invalid utf-8 sequence of 1 bytes from 
+index 2335
+
+
+./mykarhon-assurance/src/app/produits/page.ts
+x
+Reading source code for parsing failed
+An unexpected error happened while trying to 
+read the source code to parse: failed to 
+convert rope into string
+
+Caused by:
+- invalid utf-8 sequence of 1 bytes from 
+index 600
+
+
+    at ignore-listed frames
