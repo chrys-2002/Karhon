@@ -203,7 +203,47 @@
                 <mxCell id="card10" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
                     <mxGeometry x="690" y="160" width="30" height="20" as="geometry"/>
                 </mxCell>
-                
+
+                <!-- Classe Proposition (offre d'une compagnie rattachée à un devis) -->
+                <mxCell id="Proposition" value="Proposition" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="400" y="540" width="280" height="238" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropAttr1" value="- id: Long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="30" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropAttr2" value="- compagnie: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="56" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropAttr3" value="- prime: Double" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="82" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropAttr4" value="- choisie: Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="108" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropAttr5" value="- vueClient: Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="134" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropAttr6" value="- dateEnvoi: Date" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="160" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropMeth1" value="+ choisir(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="186" width="280" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropMeth2" value="+ marquerVue(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Proposition">
+                    <mxGeometry y="212" width="280" height="26" as="geometry"/>
+                </mxCell>
+
+                <!-- Association Devis 1 - * Proposition (composition) -->
+                <mxCell id="assoc6" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;startArrow=diamondThin;startFill=1;strokeColor=#1e3a8a;strokeWidth=2;" edge="1" parent="1" source="Devis" target="Proposition">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="card11" value="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="345" y="250" width="30" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="card12" value="*" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="345" y="520" width="30" height="20" as="geometry"/>
+                </mxCell>
+
             </root>
         </mxGraphModel>
     </diagram>

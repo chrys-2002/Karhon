@@ -28,7 +28,7 @@ export const FORMULAIRES: Record<string, Champ[]> = {
 
   "Assurance Automobile": [
     { id: "valeurVehicule", label: "Valeur actuelle du véhicule", type: "number", suffixe: "FCFA", requis: true },
-    { id: "formule", label: "Formule souhaitée", type: "select", options: ["Responsabilité civile (au tiers)", "Tiers + Vol et Incendie", "Tous risques"] },
+    { id: "formule", label: "Formule souhaitée", type: "select", options: ["Tiers simple", "Tiers amélioré", "Tiers + Vol et Incendie", "Tous risques"] },
   ],
 
   "Assurance Habitation": [

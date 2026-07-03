@@ -104,4 +104,66 @@
             </root>
         </mxGraphModel>
     </diagram>
+    <diagram name="Séquence - Choix et paiement" id="sequence-paiement">
+        <mxGraphModel dx="1300" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="820" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+
+                <mxCell id="p_client" value="Client" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="30" y="90" width="40" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_ui" value="Interface Web" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="150" y="90" width="100" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_ctrl" value="CotationController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="320" y="90" width="120" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_svc" value="CotationService" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="500" y="90" width="120" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_db" value="Base de données" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="680" y="90" width="100" height="680" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_admin" value="Rédacteur" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;strokeColor=#1e3a8a;fillColor=#e0e7ff;" vertex="1" parent="1">
+                    <mxGeometry x="850" y="90" width="40" height="80" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="pm1" value="1: Envoie les propositions" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="p_admin" target="p_ctrl">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="850" y="190" as="sourcePoint"/><mxPoint x="440" y="190" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm2" value="2: Enregistre les propositions" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="p_ctrl" target="p_svc">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="440" y="235" as="sourcePoint"/><mxPoint x="500" y="235" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm3" value="3: Sauvegarde (vueClient = false)" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="p_svc" target="p_db">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="620" y="280" as="sourcePoint"/><mxPoint x="680" y="280" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm4" value="4: Notifie : nouvelles offres reçues" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;dashed=1;" edge="1" parent="1" source="p_svc" target="p_client">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="500" y="325" as="sourcePoint"/><mxPoint x="70" y="325" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm5" value="5: Compare et choisit une offre (+ mode de paiement)" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="p_client" target="p_ui">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="70" y="380" as="sourcePoint"/><mxPoint x="150" y="380" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm6" value="6: POST /choisir" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="p_ui" target="p_ctrl">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="250" y="425" as="sourcePoint"/><mxPoint x="320" y="425" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm7" value="7: Offre choisie, statut = en cours" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="p_ctrl" target="p_db">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="440" y="470" as="sourcePoint"/><mxPoint x="680" y="470" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm8" value="8: Communique le montant + lien de paiement" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="p_admin" target="p_ctrl">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="850" y="520" as="sourcePoint"/><mxPoint x="440" y="520" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm9" value="9: Paie la prime (carte / Wave / OM)" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="p_client" target="p_ui">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="70" y="565" as="sourcePoint"/><mxPoint x="150" y="565" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm10" value="10: Confirme le paiement, statut = souscrit" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#e85d04;" edge="1" parent="1" source="p_ctrl" target="p_db">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="440" y="610" as="sourcePoint"/><mxPoint x="680" y="610" as="targetPoint"/></mxGeometry>
+                </mxCell>
+                <mxCell id="pm11" value="11: Reçu du contrat disponible" style="html=1;verticalAlign=bottom;endArrow=open;strokeColor=#1e3a8a;dashed=1;" edge="1" parent="1" source="p_ui" target="p_client">
+                    <mxGeometry relative="1" as="geometry"><mxPoint x="150" y="660" as="sourcePoint"/><mxPoint x="70" y="660" as="targetPoint"/></mxGeometry>
+                </mxCell>
+
+            </root>
+        </mxGraphModel>
+    </diagram>
 </mxfile>

@@ -115,7 +115,29 @@
                 <mxCell id="label1" value="héritage" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
                     <mxGeometry x="85" y="540" width="50" height="20" as="geometry"/>
                 </mxCell>
-                
+
+                <!-- Nouveaux cas : propositions, choix, paiement -->
+                <mxCell id="uc18" value="Comparer et choisir une offre" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="720" y="370" width="160" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc19" value="Payer la prime en ligne" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="720" y="440" width="160" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc20" value="Envoyer des propositions" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="920" y="580" width="160" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc21" value="Encaisser et valider la souscription" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#e85d04;fillColor=#fff7ed;" vertex="1" parent="1">
+                    <mxGeometry x="920" y="650" width="160" height="40" as="geometry"/>
+                </mxCell>
+
+                <!-- Relations des nouveaux cas -->
+                <mxCell id="r18" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="client" target="uc18"/>
+                <mxCell id="r19" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="client" target="uc19"/>
+                <mxCell id="r20" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="admin" target="uc20"/>
+                <mxCell id="r21" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;strokeColor=#1e3a8a;" edge="1" parent="1" source="admin" target="uc21"/>
+                <mxCell id="inc3" value="«include»" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;dashed=1;strokeColor=#6b7280;" edge="1" parent="1" source="uc19" target="uc18"/>
+                <mxCell id="ext2" value="«extend»" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;dashed=1;strokeColor=#6b7280;" edge="1" parent="1" source="uc20" target="uc12"/>
+
             </root>
         </mxGraphModel>
     </diagram>
