@@ -69,7 +69,8 @@ export async function POST(req: Request) {
       type: "rendezvous",
       titre: "Nouvelle demande de rendez-vous",
       message: `${nomClient} souhaite un rendez-vous le ${quand} — motif : ${rdv.motif}.`,
-      lien: "/admin",
+      onglet: "rdv",
+      ref: rdv.id,
     });
 
     return NextResponse.json({ rendezVous: rdv }, { status: 201 });

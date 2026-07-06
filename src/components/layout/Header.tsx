@@ -13,6 +13,7 @@ export default function Header() {
   const [connecte, setConnecte] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const [confirmDeco, setConfirmDeco] = useState(false);
+  const [nonLues, setNonLues] = useState(0);
 
   const isHomePage = pathname === "/";
 
@@ -32,6 +33,30 @@ export default function Header() {
       });
     return () => { annule = true; };
   }, [pathname]);
+
+  // Compteur de notifications non lues : rafraîchi tant que l'utilisateur est
+  // connecté, même hors de son espace. Permet d'afficher une pastille dans
+  // l'en-tête du site pour qu'il sache qu'il a une notification.
+  useEffect(() => {
+    if (!connecte) { setNonLues(0); return; }
+    let stop = false;
+    const charger = () =>
+      fetch("/api/notifications")
+        .then((r) => (r.ok ? r.json() : { nonLues: 0 }))
+        .then((d) => { if (!stop) setNonLues(d.nonLues ?? 0); })
+        .catch(() => {});
+    charger();
+    const t = setInterval(charger, 30000);
+    return () => { stop = true; clearInterval(t); };
+  }, [connecte, pathname]);
+
+  // Petite pastille rouge (nombre de notifications non lues), posée sur un bouton.
+  const Pastille = () =>
+    nonLues > 0 ? (
+      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center shadow" style={{ background: "#e11d48" }}>
+        {nonLues > 9 ? "9+" : nonLues}
+      </span>
+    ) : null;
 
   // Destination du bouton selon l'état de connexion et le rôle.
   const espaceHref = !connecte
@@ -181,7 +206,8 @@ export default function Header() {
               <Link
                 href={espaceHref}
                 onClick={onEspaceClick}
-                className="px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                aria-label={connecte && nonLues > 0 ? `Mon espace, ${nonLues} notifications non lues` : undefined}
+                className="relative px-5 py-2.5 rounded-full text-white font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 style={{
                   background: pathname === "/client"
                     ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)"
@@ -190,15 +216,16 @@ export default function Header() {
                 }}
               >
                 {connecte ? "Mon espace" : "Espace Client"}
+                {connecte && <Pastille />}
               </Link>
             </div>
 
-            {/* Bouton menu mobile */}
+            {/* Bouton menu mobile (avec pastille de notifications) */}
             <button
               className="md:hidden relative w-10 h-10 rounded-xl shadow-lg z-20 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Menu"
+              aria-label={connecte && nonLues > 0 ? `Menu, ${nonLues} notifications non lues` : "Menu"}
             >
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMenuOpen ? (
@@ -207,6 +234,7 @@ export default function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
               </svg>
+              {connecte && !isMenuOpen && <Pastille />}
             </button>
           </div>
         </nav>

@@ -78,7 +78,8 @@ export async function POST(req: Request) {
       type: "devis",
       titre: "Nouvelle demande de cotation",
       message: `${nomClient} a demandé une cotation « ${devis.produit?.nom ?? "produit"} ».`,
-      lien: "/admin",
+      onglet: "devis",
+      ref: devis.id,
     });
 
     return NextResponse.json({ devis }, { status: 201 });

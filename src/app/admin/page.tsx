@@ -54,11 +54,16 @@ import SignalerDocument from "@/components/messages/SignalerDocument";
 import DashboardShell, { type NavItem } from "@/components/ui/DashboardShell";
 
 // Construit un lien WhatsApp pré-rempli (format wa.me standard).
-// Le numéro est nettoyé (chiffres uniquement, sans + ni espaces).
+// IMPORTANT : wa.me exige le numéro INTERNATIONAL complet avec l'indicatif pays.
+// Sans le 225, WhatsApp devine le pays selon l'appareil, ce qui échoue sur un
+// téléphone réglé sur un autre pays (« ce numéro n'est pas sur WhatsApp »).
+// On force donc l'indicatif ivoirien 225 pour un comportement identique partout.
 function lienWhatsApp(telephone: string | undefined, message: string): string | null {
   if (!telephone) return null;
-  const numero = telephone.replace(/\D/g, "");
+  let numero = telephone.replace(/\D/g, ""); // chiffres uniquement
   if (!numero) return null;
+  if (numero.startsWith("00")) numero = numero.slice(2); // préfixe international "00"
+  if (!numero.startsWith("225")) numero = `225${numero}`; // ajoute l'indicatif CI si absent
   return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
 }
 
@@ -735,6 +740,7 @@ export default function AdminPage() {
   const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "compagnies" | "messages" | "rdv" | "gerant">("accueil");
   const [messagesNonLus, setMessagesNonLus] = useState(0);
   const [convCible, setConvCible] = useState<string | null>(null); // conversation à ouvrir (clic notif)
+  const [cibleDossier, setCibleDossier] = useState<string | null>(null); // élément (devis/sinistre/rdv) à ouvrir et surligner au clic d'une notif
   const [archRecherche, setArchRecherche] = useState("");
   const [archTri, setArchTri] = useState("date");
   const [archSens, setArchSens] = useState<"asc" | "desc">("desc");
@@ -756,8 +762,21 @@ export default function AdminPage() {
     const o = params.get("onglet");
     const ref = params.get("ref");
     if (o) setVue(o as typeof vue);
-    if (ref) setConvCible(ref);
+    if (o === "devis") setFiltre("tous");
+    if (ref) { setConvCible(ref); setCibleDossier(ref); }
   }, []);
+
+  // Défile vers l'élément ciblé par une notification (devis, sinistre, rdv…) et
+  // le surligne brièvement, puis retire le repère. On attend le rendu de la liste.
+  useEffect(() => {
+    if (!cibleDossier) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById(`dossier-${cibleDossier}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+    const clear = setTimeout(() => setCibleDossier(null), 3500);
+    return () => { clearTimeout(t); clearTimeout(clear); };
+  }, [cibleDossier, vue, devis, sinistres, contrats, rendezVous]);
 
   // ── Journal d'audit : recherche + filtre + pagination CÔTÉ SERVEUR ──
   const JOURNAL_TAILLE = 20;
@@ -1312,7 +1331,6 @@ export default function AdminPage() {
       .sort((a, b) => b.choisies - a.choisies || b.envoyees - a.envoyees);
   })();
   const totalSollicitations = compagniesStats.reduce((s, c) => s + c.envoyees, 0);
-  const totalChoix = compagniesStats.reduce((s, c) => s + c.choisies, 0);
 
   // Nombre de clients uniques (par e-mail) toutes activités confondues.
   const nombreClients = (() => {
@@ -1322,6 +1340,9 @@ export default function AdminPage() {
     for (const s of sinistres) if (s.user?.email) emails.add(s.user.email);
     return emails.size;
   })();
+
+  // Compagnie la plus choisie (compagniesStats est déjà trié par choix décroissants).
+  const compagnieTop = compagniesStats[0]?.nom ?? "—";
 
   const stats = [
     { label: "Cotations reçues", value: total, Icon: ClipboardList, filtre: "tous" },
@@ -1473,7 +1494,11 @@ export default function AdminPage() {
       marque="Espace administrateur"
       items={navItems}
       actif={vue}
-      onNaviger={(c, ref) => { setVue(c as typeof vue); if (ref) setConvCible(ref); }}
+      onNaviger={(c, ref) => {
+        setVue(c as typeof vue);
+        if (c === "devis") setFiltre("tous");
+        if (ref) { setConvCible(ref); setCibleDossier(ref); }
+      }}
       titre={infoVue.t}
       sousTitre={infoVue.s}
       user={profil ?? undefined}
@@ -1845,7 +1870,7 @@ export default function AdminPage() {
                   timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
                 }).replace(",", " à");
                 return (
-                  <div key={d.id} className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md" style={{ borderColor: "#e6f0f0" }}>
+                  <div key={d.id} id={`dossier-${d.id}`} className="rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md scroll-mt-24" style={{ borderColor: cibleDossier === d.id ? "#2a8a8a" : "#e6f0f0", boxShadow: cibleDossier === d.id ? "0 0 0 3px rgba(42,138,138,0.35)" : undefined }}>
                     <div className="flex flex-wrap items-stretch gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -2081,7 +2106,7 @@ export default function AdminPage() {
                   timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric",
                 });
                 return (
-                  <div key={s.id} className="px-6 sm:px-8 py-5">
+                  <div key={s.id} id={`dossier-${s.id}`} className="px-6 sm:px-8 py-5 scroll-mt-24 transition-colors" style={{ background: cibleDossier === s.id ? "rgba(42,138,138,0.08)" : undefined }}>
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -2341,20 +2366,19 @@ export default function AdminPage() {
               </motion.div>
             ) : (
               <>
-                {/* KPIs */}
-                <motion.div initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {/* KPIs — relation partenaires */}
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                   {[
-                    { label: "Clients", value: nombreClients, Icon: Users, sub: "clients uniques" },
-                    { label: "Compagnies partenaires", value: compagniesStats.length, Icon: Building2, sub: "compagnies sollicitées" },
-                    { label: "Propositions envoyées", value: totalSollicitations, Icon: Send, sub: "toutes compagnies" },
-                    { label: "Taux de choix global", value: `${totalSollicitations ? Math.round((totalChoix / totalSollicitations) * 100) : 0}%`, Icon: TrendingUp, sub: "choisies / envoyées" },
+                    { label: "Clients", value: nombreClients, Icon: Users, sub: "clients ayant sollicité une cotation" },
+                    { label: "Compagnies partenaires", value: compagniesStats.length, Icon: Building2, sub: "sollicitées pour vos clients" },
+                    { label: "Compagnie n°1", value: compagnieTop, Icon: Trophy, sub: "la plus choisie par les clients" },
                   ].map(({ label, value, Icon, sub }) => (
-                    <div key={label} className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
-                      <div className="flex items-start justify-between">
-                        <div>
+                    <div key={label} className="bg-white rounded-3xl p-6 shadow-sm border transition-shadow hover:shadow-md" style={{ borderColor: "#e0ecec" }}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
                           <p className="text-gray-400 text-xs uppercase tracking-wide">{label}</p>
-                          <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{value}</p>
-                          <p className="text-xs text-gray-400 mt-1">{sub}</p>
+                          <p className="text-2xl font-bold mt-2 break-words" style={{ color: "#1a2e5a" }}>{value}</p>
+                          <p className="text-xs text-gray-400 mt-1 leading-snug">{sub}</p>
                         </div>
                         <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                           <Icon size={20} style={{ color: "#2a8a8a" }} />
@@ -2366,22 +2390,40 @@ export default function AdminPage() {
 
                 {/* Graphe comparatif sollicitations vs choix */}
                 <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
-                  <div className="flex items-center gap-2 mb-5">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-                      <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                        <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Propositions et choix par compagnie</h2>
+                        <p className="text-xs text-gray-400">Comparaison des offres proposées et réellement retenues</p>
+                      </div>
                     </div>
-                    <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Sollicitations et choix par compagnie</h2>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#2a8a8a" }} /> Proposées</span>
+                      <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#16a34a" }} /> Retenues</span>
+                    </div>
                   </div>
-                  <div className="h-[300px]">
+                  <div className="h-[320px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={compagniesStats.slice(0, 8).map((c) => ({ nom: c.nom.split(" ")[0], Proposées: c.envoyees, Choisies: c.choisies }))} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                      <BarChart data={compagniesStats.slice(0, 8).map((c) => ({ nom: c.nom.split(" ")[0], Proposées: c.envoyees, Retenues: c.choisies }))} margin={{ top: 12, right: 8, left: -18, bottom: 0 }} barGap={4}>
+                        <defs>
+                          <linearGradient id="gradProposees" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#2a8a8a" stopOpacity={0.95} />
+                            <stop offset="100%" stopColor="#2a8a8a" stopOpacity={0.5} />
+                          </linearGradient>
+                          <linearGradient id="gradRetenues" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#16a34a" stopOpacity={0.95} />
+                            <stop offset="100%" stopColor="#16a34a" stopOpacity={0.5} />
+                          </linearGradient>
+                        </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#eef4f4" vertical={false} />
-                        <XAxis dataKey="nom" tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e6f0f0", fontSize: 12 }} cursor={{ fill: "rgba(42,138,138,0.06)" }} />
-                        <Legend wrapperStyle={{ fontSize: 12 }} />
-                        <Bar dataKey="Proposées" fill="#2a8a8a" radius={[6, 6, 0, 0]} animationDuration={900} />
-                        <Bar dataKey="Choisies" fill="#16a34a" radius={[6, 6, 0, 0]} animationDuration={900} />
+                        <XAxis dataKey="nom" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ borderRadius: 14, border: "1px solid #e6f0f0", fontSize: 12, boxShadow: "0 10px 30px rgba(26,46,90,0.12)" }} cursor={{ fill: "rgba(42,138,138,0.06)" }} />
+                        <Bar dataKey="Proposées" fill="url(#gradProposees)" radius={[8, 8, 0, 0]} maxBarSize={44} animationDuration={900} />
+                        <Bar dataKey="Retenues" fill="url(#gradRetenues)" radius={[8, 8, 0, 0]} maxBarSize={44} animationDuration={900} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -2469,7 +2511,7 @@ export default function AdminPage() {
                   : { bg: "#fef9c3", fg: "#854d0e" };
                 const quand = new Date(r.dateHeure).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }).replace(",", " à");
                 return (
-                  <li key={r.id} className="px-6 sm:px-8 py-4">
+                  <li key={r.id} id={`dossier-${r.id}`} className="px-6 sm:px-8 py-4 scroll-mt-24 transition-colors" style={{ background: cibleDossier === r.id ? "rgba(42,138,138,0.08)" : undefined }}>
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{r.motif}</p>

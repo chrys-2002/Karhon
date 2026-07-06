@@ -64,7 +64,8 @@ export async function POST(
       type: "choix",
       titre: `Choix client : ${offre} (${MODES[mode]})`,
       message: `${c.prenom} ${c.nom} (${c.email}) a choisi ${offre} pour sa cotation ${proposition.devis.produit?.nom ?? ""}, paiement par ${MODES[mode]}. Envoyez le lien de paiement puis validez la souscription.`,
-      lien: "/admin",
+      onglet: "devis",
+      ref: proposition.devisId,
     });
 
     return NextResponse.json({ proposition: maj });

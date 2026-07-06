@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <body className="flex flex-col min-h-screen">
+    <html lang="fr" suppressHydrationWarning>
+      <body className="flex flex-col min-h-screen" suppressHydrationWarning>
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

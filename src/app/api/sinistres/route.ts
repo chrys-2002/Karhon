@@ -86,7 +86,8 @@ export async function POST(req: Request) {
       type: "sinistre",
       titre: "Nouvelle déclaration de sinistre",
       message: `${nomClient} a déclaré un sinistre (${sinistre.typeAssurance ?? "assurance"}) sur le contrat ${contrat.numeroContrat}.`,
-      lien: "/admin",
+      onglet: "sinistres",
+      ref: sinistre.id,
     });
 
     return NextResponse.json({ sinistre }, { status: 201 });

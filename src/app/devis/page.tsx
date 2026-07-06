@@ -213,6 +213,16 @@ export default function DevisPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Sélection d'un produit : on choisit puis on amène directement l'utilisateur
+  // au formulaire correspondant (utile surtout sur mobile, où il est plus bas).
+  const formSectionRef = useRef<HTMLDivElement>(null);
+  const choisirProduit = (id: string) => {
+    updateField('produit', id);
+    setTimeout(() => {
+      formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 90);
+  };
+
   // Produits de la catégorie sélectionnée (depuis la base).
   const produitsCategorie = produitsDB.filter(p => p.categorie === formData.categorie);
   const produitChoisi = produitsDB.find(p => p.id === formData.produit);
@@ -239,10 +249,48 @@ export default function DevisPage() {
     formData.produit !== '' && formData.nom !== '' && formData.telephone !== '' &&
     voyageComplet && autoComplet && questionnaireComplet;
 
+  // Liste précise des champs obligatoires encore vides, avec un libellé lisible.
+  // Sert à indiquer au client exactement ce qu'il lui reste à renseigner.
+  const champsManquants = (): string[] => {
+    const manque: string[] = [];
+    if (!formData.produit) manque.push('Produit à assurer');
+    if (!formData.nom || !formData.nom.trim()) manque.push('Nom complet');
+    if (!formData.telephone || !formData.telephone.trim()) manque.push('Téléphone');
+    if (estVoyage) {
+      if (!formData.destination || !formData.destination.trim()) manque.push('Destination');
+      if (!formData.duree) manque.push('Durée du séjour');
+      if (!formData.ageAssure) manque.push("Âge de l'assuré");
+      if (docPasseport.length === 0) manque.push('Passeport (à joindre)');
+    }
+    if (estAuto) {
+      if (docCarteGrise.length === 0) manque.push('Carte grise (à joindre)');
+      if (docVisite.length === 0) manque.push('Visite technique (à joindre)');
+    }
+    for (const c of champsProduit) {
+      if (!c.requis) continue;
+      const v = reponses[c.id];
+      const rempli = Array.isArray(v) ? v.length > 0 : !!(v && String(v).trim());
+      if (!rempli) manque.push(c.label);
+    }
+    return manque;
+  };
+
   // Envoi réel : crée un devis en base via l'API (connexion obligatoire).
   const envoyerDevis = async () => {
     if (envoi) return;
     setErreur('');
+    // Vérifie d'abord que tous les champs obligatoires sont remplis, et si non,
+    // indique précisément lesquels au client sans envoyer la demande.
+    const manquants = champsManquants();
+    if (manquants.length) {
+      setErreur(
+        manquants.length === 1
+          ? `Il reste un champ à renseigner : ${manquants[0]}.`
+          : `Il reste ${manquants.length} champs à renseigner : ${manquants.join(', ')}.`
+      );
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setEnvoi(true);
     try {
       // Description lisible pour le conseiller (les coordonnées saisies
@@ -454,7 +502,7 @@ export default function DevisPage() {
                         key={prod.id}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => updateField('produit', prod.id)}
+                        onClick={() => choisirProduit(prod.id)}
                         className="rounded-2xl p-4 cursor-pointer transition-all flex items-center gap-3"
                         style={{
                           border: isSelected ? "2px solid #2a8a8a" : "2px solid #e2e8f0",
@@ -475,6 +523,9 @@ export default function DevisPage() {
                 </div>
                 )}
               </div>
+
+              {/* Ancre : cible du défilement automatique quand un produit est choisi */}
+              <div ref={formSectionRef} className="scroll-mt-24" />
 
               {/* Pièces du véhicule — affichées uniquement pour un produit auto */}
               {estAuto && (
@@ -711,12 +762,12 @@ export default function DevisPage() {
                 </button>
                 <button
                   onClick={envoyerDevis}
-                  disabled={!canGoToStep3 || envoi}
+                  disabled={envoi}
                   className="flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all"
                   style={{
-                    background: canGoToStep3 && !envoi ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#e2e8f0",
-                    color: canGoToStep3 && !envoi ? "#fff" : "#94a3b8",
-                    cursor: canGoToStep3 && !envoi ? "pointer" : "not-allowed",
+                    background: canGoToStep3 && !envoi ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#94a3b8",
+                    color: "#fff",
+                    cursor: envoi ? "not-allowed" : "pointer",
                     boxShadow: canGoToStep3 && !envoi ? "0 8px 25px rgba(26,46,90,0.25)" : "none",
                   }}
                 >
