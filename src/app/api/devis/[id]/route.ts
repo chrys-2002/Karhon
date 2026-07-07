@@ -78,6 +78,7 @@ export async function PATCH(
       titre: "Mise à jour de votre cotation",
       message: `Votre cotation « ${devis.produit?.nom ?? "produit"} » est désormais : ${LABEL_STATUT_DEVIS[statut] ?? statut}.`,
       onglet: "devis",
+      ref: id,
     });
 
     return NextResponse.json({ devis });

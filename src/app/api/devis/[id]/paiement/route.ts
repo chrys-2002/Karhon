@@ -37,6 +37,7 @@ export async function POST(
           titre: "Montant à régler disponible",
           message: `Le montant à régler pour « ${nomProduit} » est de ${montant.toLocaleString("fr-FR")} FCFA. Connectez-vous pour procéder au paiement.`,
           onglet: "devis",
+          ref: id,
         });
       }
       return NextResponse.json({ devis: maj });
@@ -55,6 +56,7 @@ export async function POST(
           titre: "Lien de paiement disponible",
           message: `Votre lien de paiement pour « ${nomProduit} » est disponible. Connectez-vous pour régler votre prime.`,
           onglet: "devis",
+          ref: id,
         });
       }
       return NextResponse.json({ devis: maj });
@@ -69,6 +71,7 @@ export async function POST(
           titre: "Paiement confirmé",
           message: `Votre paiement pour « ${nomProduit} » a bien été confirmé. Votre souscription est en cours de validation.`,
           onglet: "devis",
+          ref: id,
         });
       }
       return NextResponse.json({ devis: maj });

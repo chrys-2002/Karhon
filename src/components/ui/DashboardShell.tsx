@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
-import { Menu, X, Bell, LogOut, Search, ShieldCheck, ChevronRight, ChevronDown, CheckCheck, Inbox, ClipboardList, AlertTriangle, CalendarClock, Sparkles, RefreshCw, MessagesSquare, Mail, Phone } from "lucide-react";
+import { Menu, X, Bell, LogOut, Search, ShieldCheck, ChevronRight, ChevronDown, CheckCheck, Inbox, ClipboardList, AlertTriangle, CalendarClock, Sparkles, RefreshCw, MessagesSquare, Mail, Phone, Volume2, VolumeX } from "lucide-react";
 
 // Type d'une notification reçue de /api/notifications.
 type Notif = { id: string; type: string; titre: string; message: string; lien?: string | null; lu: boolean; createdAt: string };
@@ -113,12 +113,82 @@ export default function DashboardShell({
   // ── Centre de notifications (in-app) ──
   const [notifs, setNotifs] = useState<Notif[]>([]);
   const [nonLues, setNonLues] = useState(0);
+  const [sonActif, setSonActif] = useState(true); // alerte sonore des nouvelles notifications
   const [clocheOuverte, setClocheOuverte] = useState(false);
   const refCloche = useRef<HTMLDivElement>(null);
   const [profilOuvert, setProfilOuvert] = useState(false);
   const refProfil = useRef<HTMLDivElement>(null);
 
-  // Charge les notifications au montage, puis rafraîchit toutes les 30 s.
+  // Préférence son (activé/coupé), mémorisée sur l'appareil.
+  const sonActifRef = useRef(true);
+  useEffect(() => {
+    try { const v = localStorage.getItem("karhon_notif_son"); if (v !== null) setSonActif(v === "1"); } catch {}
+  }, []);
+  useEffect(() => { sonActifRef.current = sonActif; }, [sonActif]);
+
+  // Contexte audio persistant : sur mobile, l'audio doit être « débloqué » par
+  // une interaction utilisateur. On crée le contexte une fois et on le réactive
+  // à chaque interaction (idempotent), pour que le son marche ensuite tout seul.
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  useEffect(() => {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
+    const debloquer = () => {
+      try {
+        if (!audioCtxRef.current) audioCtxRef.current = new AC();
+        if (audioCtxRef.current.state === "suspended") audioCtxRef.current.resume().catch(() => {});
+      } catch {}
+    };
+    window.addEventListener("pointerdown", debloquer);
+    window.addEventListener("keydown", debloquer);
+    window.addEventListener("touchstart", debloquer, { passive: true });
+    return () => {
+      window.removeEventListener("pointerdown", debloquer);
+      window.removeEventListener("keydown", debloquer);
+      window.removeEventListener("touchstart", debloquer);
+    };
+  }, []);
+
+  // Alerte à l'arrivée d'une nouvelle notification : son (3 notes montantes) +
+  // vibration sur les mobiles compatibles. Réutilise le contexte audio débloqué.
+  const jouerSon = () => {
+    // Vibration mobile (Android/Chrome) — alerte tactile même si le son est coupé.
+    try { navigator.vibrate?.([180, 90, 180, 90, 260]); } catch {}
+    try {
+      const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtxRef.current) audioCtxRef.current = new AC();
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+      const bip = (freq: number, debut: number) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + debut);
+        g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + debut + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + debut + 0.24);
+        o.start(ctx.currentTime + debut);
+        o.stop(ctx.currentTime + debut + 0.26);
+      };
+      bip(784, 0); bip(1047, 0.16); bip(1319, 0.32);
+    } catch {}
+  };
+
+  // Active/coupe le son (mémorisé) ; un petit aperçu sonore quand on l'active.
+  const basculerSon = () => {
+    setSonActif((s) => {
+      const n = !s;
+      try { localStorage.setItem("karhon_notif_son", n ? "1" : "0"); } catch {}
+      if (n) jouerSon();
+      return n;
+    });
+  };
+
+  // Charge les notifications au montage, puis rafraîchit régulièrement.
+  // Dès qu'une NOUVELLE notification apparaît (id en tête différent), on émet un son.
+  const dernierIdRef = useRef<string | null>(null);
   useEffect(() => {
     let stop = false;
     const charger = async () => {
@@ -126,12 +196,24 @@ export default function DashboardShell({
         const r = await fetch("/api/notifications");
         if (!r.ok) return;
         const d = await r.json();
-        if (!stop) { setNotifs(d.notifications ?? []); setNonLues(d.nonLues ?? 0); }
+        if (stop) return;
+        const liste: Notif[] = d.notifications ?? [];
+        setNotifs(liste);
+        setNonLues(d.nonLues ?? 0);
+        const nouveauId = liste[0]?.id ?? null;
+        // On ne sonne pas au tout premier chargement (référence non initialisée).
+        if (dernierIdRef.current !== null && nouveauId && nouveauId !== dernierIdRef.current) {
+          if (sonActifRef.current) jouerSon();
+        }
+        dernierIdRef.current = nouveauId;
       } catch {}
     };
     charger();
-    const t = setInterval(charger, 30000);
-    return () => { stop = true; clearInterval(t); };
+    const t = setInterval(charger, 15000);
+    // Rafraîchit aussi quand l'onglet reprend le focus (retour sur la page).
+    const onFocus = () => charger();
+    window.addEventListener("focus", onFocus);
+    return () => { stop = true; clearInterval(t); window.removeEventListener("focus", onFocus); };
   }, []);
 
   // Ferme le menu profil au clic extérieur.
@@ -406,11 +488,22 @@ export default function DashboardShell({
                     >
                       <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "#eef4f4" }}>
                         <p className="font-bold text-sm" style={{ color: MARINE }}>Notifications</p>
-                        {nonLues > 0 && (
-                          <button onClick={marquerTout} className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors hover:opacity-80" style={{ color: TEAL }}>
-                            <CheckCheck size={14} /> Tout marquer lu
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={basculerSon}
+                            title={sonActif ? "Couper le son des notifications" : "Activer le son des notifications"}
+                            aria-label={sonActif ? "Couper le son" : "Activer le son"}
+                            className="transition-colors"
+                            style={{ color: sonActif ? TEAL : "#9ca3af" }}
+                          >
+                            {sonActif ? <Volume2 size={16} /> : <VolumeX size={16} />}
                           </button>
-                        )}
+                          {nonLues > 0 && (
+                            <button onClick={marquerTout} className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors hover:opacity-80" style={{ color: TEAL }}>
+                              <CheckCheck size={14} /> Tout marquer lu
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="max-h-[380px] overflow-y-auto">
                         {notifs.length === 0 ? (

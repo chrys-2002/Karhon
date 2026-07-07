@@ -137,6 +137,7 @@ export default function Dashboard() {
   const [contratOuvert, setContratOuvert] = useState<string | null>(null);
   const [detailOuvert, setDetailOuvert] = useState<string | null>(null); // devis / sinistre / rdv
   const [ouvrirConvDirect, setOuvrirConvDirect] = useState(false); // ouvrir la conversation au clic d'une notif
+  const [cibleDossier, setCibleDossier] = useState<string | null>(null); // dossier exact à ouvrir/surligner au clic d'une notif
 
   useEffect(() => {
     let annule = false;
@@ -182,12 +183,28 @@ export default function Dashboard() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const o = params.get("onglet");
+    const ref = params.get("ref");
     if (o) setVue(o as typeof vue);
-    if (o === "messages" && params.get("ref")) setOuvrirConvDirect(true);
+    if (o === "messages" && ref) setOuvrirConvDirect(true);
+    if (ref && o !== "messages") setCibleDossier(ref);
   }, []);
 
   // L'ouverture directe ne vaut que pour l'arrivée via notification.
   useEffect(() => { if (vue !== "messages") setOuvrirConvDirect(false); }, [vue]);
+
+  // Ouvre et défile vers le dossier exact ciblé par une notification, puis
+  // retire le repère. Pour une cotation, on ouvre aussi le groupe de propositions.
+  useEffect(() => {
+    if (!cibleDossier) return;
+    setDetailOuvert(cibleDossier);
+    setGroupeOuvert(cibleDossier);
+    const t = setTimeout(() => {
+      const el = document.getElementById(`dossier-${cibleDossier}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 320);
+    const clear = setTimeout(() => setCibleDossier(null), 3500);
+    return () => { clearTimeout(t); clearTimeout(clear); };
+  }, [cibleDossier, vue, devis, sinistres, rdv]);
 
   // Choix d'une offre : le client retient une proposition puis indique son
   // mode de paiement. La cotation passe en "choisi" (en attente de paiement).
@@ -195,6 +212,14 @@ export default function Dashboard() {
   const [modePaiement, setModePaiement] = useState("");
   const [choixEnvoi, setChoixEnvoi] = useState(false);
   const [groupeOuvert, setGroupeOuvert] = useState<string | null>(null);
+  // Offres écartées par le client (localement, pour comparer) — non enregistré.
+  const [ecartees, setEcartees] = useState<Set<string>>(new Set());
+  const toggleEcartee = (id: string) =>
+    setEcartees((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
 
   // Marque côté serveur toutes les propositions d'une cotation comme consultées
   // (appelé à l'ouverture du groupe). Met aussi l'état local à jour tout de suite
@@ -312,7 +337,7 @@ export default function Dashboard() {
       marque="Espace client"
       items={items}
       actif={vue}
-      onNaviger={(c, ref) => { setVue(c as typeof vue); if (c === "messages" && ref) setOuvrirConvDirect(true); }}
+      onNaviger={(c, ref) => { setVue(c as typeof vue); if (c === "messages" && ref) setOuvrirConvDirect(true); if (ref && c !== "messages") setCibleDossier(ref); }}
       titre={titres[vue].t}
       sousTitre={titres[vue].s}
       user={user}
@@ -568,7 +593,7 @@ export default function Dashboard() {
                 // Offres reçues mais pas encore consultées par le client (indicateur serveur).
                 const nouvelles = choisie ? 0 : props.filter((p) => !p.vueClient).length;
                 return (
-                  <li key={d.id} className="px-6 sm:px-8 py-4">
+                  <li key={d.id} id={`dossier-${d.id}`} className="px-6 sm:px-8 py-4 scroll-mt-24 transition-colors" style={{ background: cibleDossier === d.id ? "rgba(42,138,138,0.06)" : undefined }}>
                     <div className="flex items-center justify-between gap-3">
                       <button onClick={() => setDetailOuvert(detailOuvert === d.id ? null : d.id)} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -648,23 +673,10 @@ export default function Dashboard() {
                               <ul className="px-3 pb-3 space-y-2">
                                 {props.map((p, pi) => {
                                   const estNouvelle = !p.choisie && !p.vueClient;
+                                  const estEcartee = !p.choisie && ecartees.has(p.id);
                                   return (
-                                  <li key={p.id} className="bg-white rounded-xl px-3 py-2.5 border" style={{ borderColor: p.choisie ? "#16a34a" : estNouvelle ? "#fecdd3" : "#e0ecec" }}>
-                                    <div className="flex items-start gap-3">
-                                      {/* Case à cocher : choisir cette proposition */}
-                                      {(!choisie || p.choisie) && (
-                                        <button
-                                          type="button"
-                                          disabled={!!choisie}
-                                          onClick={() => { if (!choisie) { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); } }}
-                                          aria-label={p.choisie ? "Offre choisie" : "Choisir cette offre"}
-                                          title={p.choisie ? "Offre choisie" : "Cocher pour choisir cette offre"}
-                                          className="mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all disabled:cursor-default"
-                                          style={p.choisie ? { background: "#16a34a", borderColor: "#16a34a" } : { borderColor: TEAL, background: "#fff" }}
-                                        >
-                                          {p.choisie && <Check size={13} className="text-white" strokeWidth={3} />}
-                                        </button>
-                                      )}
+                                  <li key={p.id} className="bg-white rounded-xl px-3 py-2.5 border transition-all" style={{ borderColor: p.choisie ? "#16a34a" : estNouvelle ? "#fecdd3" : "#e0ecec", opacity: estEcartee ? 0.6 : 1 }}>
+                                    <div className="flex items-start justify-between gap-3">
                                       <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2">
                                           <p className="font-semibold text-sm" style={{ color: MARINE }}>Cotation {props.length - pi}</p>
@@ -675,6 +687,9 @@ export default function Dashboard() {
                                           )}
                                           {estNouvelle && (
                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#e11d48" }}>Nouveau</span>
+                                          )}
+                                          {estEcartee && (
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#f1f5f9", color: "#64748b" }}>Écartée</span>
                                           )}
                                           {p.choisie && (
                                             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>✓ Choisie</span>
@@ -698,17 +713,33 @@ export default function Dashboard() {
                                             </span>
                                           )}
                                         </div>
-                                        {!choisie && (
+                                      </div>
+
+                                      {/* Actions à droite : valider (✓) ou écarter (✗). Masquées si une offre est déjà choisie. */}
+                                      {!choisie && (
+                                        <div className="flex items-center gap-2 flex-shrink-0">
                                           <button
                                             type="button"
                                             onClick={() => { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); }}
-                                            className="mt-2 text-xs font-semibold"
-                                            style={{ color: TEAL }}
+                                            aria-label="Choisir cette offre"
+                                            title="Choisir cette offre"
+                                            className="w-9 h-9 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 shadow-sm"
+                                            style={{ background: "#16a34a" }}
                                           >
-                                            Cocher pour choisir cette offre
+                                            <Check size={18} strokeWidth={3} />
                                           </button>
-                                        )}
-                                      </div>
+                                          <button
+                                            type="button"
+                                            onClick={() => toggleEcartee(p.id)}
+                                            aria-label={estEcartee ? "Remettre cette offre" : "Écarter cette offre"}
+                                            title={estEcartee ? "Remettre cette offre" : "Écarter cette offre"}
+                                            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                                            style={estEcartee ? { background: "#eef2ff", color: "#4f46e5" } : { background: "#fee2e2", color: "#dc2626" }}
+                                          >
+                                            <X size={18} strokeWidth={3} />
+                                          </button>
+                                        </div>
+                                      )}
                                     </div>
                                   </li>
                                   );
@@ -786,7 +817,7 @@ export default function Dashboard() {
                   ["Statut", statut.replace(/_/g, " ")],
                 ];
                 return (
-                  <li key={s.id}>
+                  <li key={s.id} id={`dossier-${s.id}`} className="scroll-mt-24 transition-colors" style={{ background: cibleDossier === s.id ? "rgba(42,138,138,0.06)" : undefined }}>
                     <div className="flex items-center justify-between gap-3 px-6 sm:px-8 py-4">
                       <button onClick={() => setDetailOuvert(detailOuvert === s.id ? null : s.id)} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -862,7 +893,7 @@ export default function Dashboard() {
                   ["Statut", statut.replace(/_/g, " ")],
                 ];
                 return (
-                  <li key={r.id}>
+                  <li key={r.id} id={`dossier-${r.id}`} className="scroll-mt-24 transition-colors" style={{ background: cibleDossier === r.id ? "rgba(42,138,138,0.06)" : undefined }}>
                     <div className="flex items-center justify-between gap-3 px-6 sm:px-8 py-4">
                       <button onClick={() => setDetailOuvert(detailOuvert === r.id ? null : r.id)} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -930,6 +961,13 @@ export default function Dashboard() {
                 <button onClick={() => { if (!choixEnvoi) { setChoixModal(null); setModePaiement(""); } }} className="text-white/80 hover:text-white"><X size={20} /></button>
               </div>
               <div className="p-6 space-y-4">
+                {/* Avertissement : le choix est définitif. */}
+                <div className="flex items-start gap-2.5 rounded-2xl px-4 py-3" style={{ background: "#fff7ed", border: "1px solid #fed7aa" }}>
+                  <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" style={{ color: "#c2410c" }} />
+                  <p className="text-sm" style={{ color: "#9a3412" }}>
+                    <strong>Choix définitif.</strong> Une fois votre choix confirmé, vous ne pourrez plus revenir en arrière ni changer d&apos;offre. Vérifiez bien votre sélection avant de continuer.
+                  </p>
+                </div>
                 <p className="text-sm text-gray-600">Comment souhaitez-vous régler votre prime ? Votre rédacteur vous transmettra un lien de paiement sécurisé selon le mode choisi.</p>
                 <div className="space-y-2">
                   {MODES_PAIEMENT.map((m) => (

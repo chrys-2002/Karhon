@@ -71,6 +71,7 @@ export async function PATCH(
       titre: "Mise à jour de votre sinistre",
       message: `Votre sinistre (${sinistre.typeAssurance ?? "assurance"}) est désormais : ${LABEL_STATUT_SINISTRE[statut] ?? statut}.`,
       onglet: "sinistres",
+      ref: id,
     });
 
     return NextResponse.json({ sinistre });

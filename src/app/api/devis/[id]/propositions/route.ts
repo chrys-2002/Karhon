@@ -72,6 +72,8 @@ export async function POST(
         type: "proposition",
         titre: aCreer.length > 1 ? `${aCreer.length} nouvelles offres vous attendent` : "Une nouvelle offre vous attend",
         message: `${aCreer.length} proposition(s) de cotation ${aCreer.length > 1 ? "ont" : "a"} été ajoutée(s) à votre cotation « ${devis.produit?.nom ?? "produit"} ». Connectez-vous pour comparer et choisir.`,
+        onglet: "devis",
+        ref: devis.id,
       });
     }
 
