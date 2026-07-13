@@ -206,6 +206,10 @@ model Contrat {
   statut        StatutContrat @default(actif)
   options       String[]
 
+  // Attestation d'assurance remise au client par le rédacteur (document au
+  // format "Libellé|url" hébergé sur Vercel Blob). Vide tant qu'elle n'est pas jointe.
+  attestation   String?
+
   // Suivi des relances de renouvellement (avant le terme).
   derniereRelance DateTime?
   nombreRelances  Int        @default(0)

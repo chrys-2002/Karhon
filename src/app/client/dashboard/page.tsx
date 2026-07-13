@@ -73,6 +73,7 @@ type Contrat = {
   primeAnnuelle?: number;
   compagnie?: string | null;
   segment?: string | null;
+  attestation?: string | null;
   produit?: { nom?: string };
 };
 
@@ -150,21 +151,29 @@ export default function Dashboard() {
 
   useEffect(() => {
     let annule = false;
-    Promise.all([
-      fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
-      fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
-      fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
-      fetch("/api/rendez-vous").then((res) => (res.ok ? res.json() : { rendezVous: [] })),
-    ])
-      .then(([dDevis, dCon, dSin, dRdv]) => {
-        if (annule) return;
-        if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
-        if (Array.isArray(dCon.contrats)) setContrats(dCon.contrats);
-        if (Array.isArray(dSin.sinistres)) setSinistres(dSin.sinistres);
-        if (Array.isArray(dRdv.rendezVous)) setRdv(dRdv.rendezVous);
-      })
-      .catch(() => {});
-    return () => { annule = true; };
+    // Recharge les données du client. Appelé au montage, périodiquement, et au
+    // retour sur l'onglet : ainsi une souscription enregistrée par le rédacteur
+    // (ou une nouvelle offre, un changement de statut) apparaît sans rechargement.
+    const chargerDonnees = () =>
+      Promise.all([
+        fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
+        fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
+        fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
+        fetch("/api/rendez-vous").then((res) => (res.ok ? res.json() : { rendezVous: [] })),
+      ])
+        .then(([dDevis, dCon, dSin, dRdv]) => {
+          if (annule) return;
+          if (Array.isArray(dDevis.devis)) setDevis(dDevis.devis);
+          if (Array.isArray(dCon.contrats)) setContrats(dCon.contrats);
+          if (Array.isArray(dSin.sinistres)) setSinistres(dSin.sinistres);
+          if (Array.isArray(dRdv.rendezVous)) setRdv(dRdv.rendezVous);
+        })
+        .catch(() => {});
+    chargerDonnees();
+    const t = setInterval(chargerDonnees, 30000);
+    const onFocus = () => chargerDonnees();
+    window.addEventListener("focus", onFocus);
+    return () => { annule = true; clearInterval(t); window.removeEventListener("focus", onFocus); };
   }, []);
 
   // Compteur de messages non lus (pour la pastille de l'onglet Messages).
@@ -211,6 +220,7 @@ export default function Dashboard() {
   const [choixModal, setChoixModal] = useState<{ devisId: string; propId: string } | null>(null);
   const [modePaiement, setModePaiement] = useState("");
   const [choixEnvoi, setChoixEnvoi] = useState(false);
+  const [erreurChoix, setErreurChoix] = useState("");
   const [groupeOuvert, setGroupeOuvert] = useState<string | null>(null);
   // Offres écartées par le client (localement, pour comparer) — non enregistré.
   const [ecartees, setEcartees] = useState<Set<string>>(new Set());
@@ -238,23 +248,29 @@ export default function Dashboard() {
   const confirmerChoix = async () => {
     if (!choixModal || !modePaiement || choixEnvoi) return;
     setChoixEnvoi(true);
+    setErreurChoix("");
     try {
       const res = await fetch(`/api/propositions/${choixModal.propId}/choisir`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ modePaiement }),
       });
-      if (res.ok) {
-        setDevis((prev) =>
-          prev.map((d) =>
-            d.id === choixModal.devisId
-              ? { ...d, statut: "en_cours", modePaiement, propositions: d.propositions?.map((p) => ({ ...p, choisie: p.id === choixModal.propId })) }
-              : d
-          )
-        );
-        setChoixModal(null);
-        setModePaiement("");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErreurChoix(data?.erreur || "Le choix n'a pas pu être envoyé. Réessayez.");
+        return;
       }
+      setDevis((prev) =>
+        prev.map((d) =>
+          d.id === choixModal.devisId
+            ? { ...d, statut: "en_cours", modePaiement, propositions: d.propositions?.map((p) => ({ ...p, choisie: p.id === choixModal.propId })) }
+            : d
+        )
+      );
+      setChoixModal(null);
+      setModePaiement("");
+    } catch {
+      setErreurChoix("Connexion impossible. Vérifiez votre réseau et réessayez.");
     } finally {
       setChoixEnvoi(false);
     }
@@ -522,7 +538,7 @@ export default function Dashboard() {
                   ["Statut", (c.statut ?? "actif").replace(/_/g, " ")],
                 ];
                 return (
-                  <li key={c.id}>
+                  <li key={c.id} id={`dossier-${c.id}`} className="scroll-mt-24 transition-colors" style={{ background: cibleDossier === c.id ? "rgba(42,138,138,0.06)" : undefined }}>
                     <div className="flex flex-wrap items-center justify-between gap-3 px-6 sm:px-8 py-4">
                       <button onClick={() => setContratOuvert(ouvert ? null : c.id)} className="flex items-center gap-3 min-w-0 flex-1 text-left">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
@@ -541,6 +557,17 @@ export default function Dashboard() {
                         <Link href={`/client/recu/${c.id}`} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                           <Printer size={14} /> Voir le reçu
                         </Link>
+                        {c.attestation && (
+                          <a
+                            href={c.attestation.split("|")[1] ?? c.attestation}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
+                            style={{ background: "#dcfce7", color: "#166534" }}
+                          >
+                            <FileText size={14} /> Mon attestation
+                          </a>
+                        )}
                       </div>
                     </div>
                     <AnimatePresence initial={false}>
@@ -720,7 +747,7 @@ export default function Dashboard() {
                                         <div className="flex items-center gap-2 flex-shrink-0">
                                           <button
                                             type="button"
-                                            onClick={() => { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); }}
+                                            onClick={() => { setChoixModal({ devisId: d.id, propId: p.id }); setModePaiement(""); setErreurChoix(""); }}
                                             aria-label="Choisir cette offre"
                                             title="Choisir cette offre"
                                             className="w-9 h-9 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 shadow-sm"
@@ -993,8 +1020,14 @@ export default function Dashboard() {
                     </button>
                   ))}
                 </div>
+                {erreurChoix && (
+                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.25)", color: "#b91c1c" }}>
+                    <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                    <span>{erreurChoix}</span>
+                  </div>
+                )}
                 <div className="flex gap-3 pt-1">
-                  <button onClick={() => { setChoixModal(null); setModePaiement(""); }} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: MARINE, borderColor: "#e0ecec" }}>
+                  <button onClick={() => { setChoixModal(null); setModePaiement(""); setErreurChoix(""); }} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: MARINE, borderColor: "#e0ecec" }}>
                     Annuler
                   </button>
                   <button onClick={confirmerChoix} disabled={!modePaiement || choixEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: `linear-gradient(135deg, ${TEAL}, ${MARINE})` }}>

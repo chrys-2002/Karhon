@@ -1,7 +1,7 @@
 // Route /api/devis/[id]/paiement — gestion du paiement par le rédacteur.
-//   POST { montant }    → indique au client le montant (prime) à régler
-//   POST { lien }       → enregistre/envoie le lien de paiement (Wave / Orange Money)
-//   POST { confirmer }  → confirme la réception du paiement (cotation → "paye")
+//   POST { montant, lien } → envoie EN UNE FOIS le montant à régler ET le lien
+//                            de paiement au client (une seule notification).
+//   POST { confirmer }     → confirme la réception du paiement (cotation → "paye")
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerStaff } from "@/lib/session";
@@ -24,45 +24,7 @@ export async function POST(
     if (!devis) return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     const nomProduit = devis.produit?.nom ?? "votre cotation";
 
-    // 0) Le rédacteur indique le montant (prime) à régler.
-    if (body?.montant != null && body?.montant !== "") {
-      const montant = Number(body.montant);
-      if (!Number.isFinite(montant) || montant < 0) {
-        return NextResponse.json({ erreur: "Montant invalide." }, { status: 400 });
-      }
-      const maj = await prisma.devis.update({ where: { id }, data: { montantAPayer: montant } });
-      if (devis.user?.id) {
-        await notifierClient({
-          userId: devis.user.id, email: devis.user.email, type: "statut",
-          titre: "Montant à régler disponible",
-          message: `Le montant à régler pour « ${nomProduit} » est de ${montant.toLocaleString("fr-FR")} FCFA. Connectez-vous pour procéder au paiement.`,
-          onglet: "devis",
-          ref: id,
-        });
-      }
-      return NextResponse.json({ devis: maj });
-    }
-
-    // 1) Envoi d'un lien de paiement (Wave / Orange Money).
-    if (typeof body?.lien === "string" && body.lien.trim()) {
-      const lien = body.lien.trim().slice(0, 500);
-      if (!/^https?:\/\//i.test(lien)) {
-        return NextResponse.json({ erreur: "Lien invalide (il doit commencer par http)." }, { status: 400 });
-      }
-      const maj = await prisma.devis.update({ where: { id }, data: { lienPaiement: lien } });
-      if (devis.user?.id) {
-        await notifierClient({
-          userId: devis.user.id, email: devis.user.email, type: "statut",
-          titre: "Lien de paiement disponible",
-          message: `Votre lien de paiement pour « ${nomProduit} » est disponible. Connectez-vous pour régler votre prime.`,
-          onglet: "devis",
-          ref: id,
-        });
-      }
-      return NextResponse.json({ devis: maj });
-    }
-
-    // 2) Confirmation du paiement reçu.
+    // 0) Confirmation du paiement reçu.
     if (body?.confirmer === true) {
       const maj = await prisma.devis.update({ where: { id }, data: { statut: "paye" } });
       if (devis.user?.id) {
@@ -77,7 +39,52 @@ export async function POST(
       return NextResponse.json({ devis: maj });
     }
 
-    return NextResponse.json({ erreur: "Action inconnue." }, { status: 400 });
+    // 1) Le rédacteur envoie le montant à régler ET/OU le lien de paiement,
+    //    en une seule opération, avec une seule notification au client.
+    const data: { montantAPayer?: number; lienPaiement?: string } = {};
+    let montantNum: number | null = null;
+    let lienVal: string | null = null;
+
+    if (body?.montant != null && body?.montant !== "") {
+      const montant = Number(body.montant);
+      if (!Number.isFinite(montant) || montant < 0) {
+        return NextResponse.json({ erreur: "Montant invalide." }, { status: 400 });
+      }
+      data.montantAPayer = montant;
+      montantNum = montant;
+    }
+
+    if (typeof body?.lien === "string" && body.lien.trim()) {
+      const lien = body.lien.trim().slice(0, 500);
+      if (!/^https?:\/\//i.test(lien)) {
+        return NextResponse.json({ erreur: "Lien invalide (il doit commencer par http)." }, { status: 400 });
+      }
+      data.lienPaiement = lien;
+      lienVal = lien;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ erreur: "Renseignez le montant et/ou le lien de paiement." }, { status: 400 });
+    }
+
+    const maj = await prisma.devis.update({ where: { id }, data });
+    if (devis.user?.id) {
+      const parts: string[] = [];
+      if (montantNum != null) parts.push(`le montant à régler (${montantNum.toLocaleString("fr-FR")} FCFA)`);
+      if (lienVal) parts.push("votre lien de paiement");
+      const quoi = parts.join(" et ");
+      const pluriel = parts.length > 1;
+      await notifierClient({
+        userId: devis.user.id,
+        email: devis.user.email,
+        type: "statut",
+        titre: "Paiement : votre lien et le montant sont disponibles",
+        message: `Pour « ${nomProduit} », ${quoi} ${pluriel ? "sont" : "est"} disponible${pluriel ? "s" : ""}. Connectez-vous pour procéder au paiement.`,
+        onglet: "devis",
+        ref: id,
+      });
+    }
+    return NextResponse.json({ devis: maj });
   } catch (e) {
     console.error("[devis paiement]", e);
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });

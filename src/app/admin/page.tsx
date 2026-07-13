@@ -154,6 +154,7 @@ type ContratAdmin = {
   segment?: string | null;
   compagnie?: string | null;
   statut: string;
+  attestation?: string | null;
   derniereRelance?: string | null;
   nombreRelances?: number;
   supprimePar?: string | null;
@@ -966,32 +967,47 @@ export default function AdminPage() {
   const [montantInputs, setMontantInputs] = useState<Record<string, string>>({});
   const [paieId, setPaieId] = useState<string | null>(null);
 
-  const communiquerMontant = async (d: DevisAdmin) => {
+  // Envoie EN UNE FOIS le montant à régler ET le lien de paiement au client.
+  const envoyerPaiement = async (d: DevisAdmin) => {
     const montant = (montantInputs[d.id] ?? "").trim();
+    const lien = (lienInputs[d.id] ?? "").trim();
     if (!montant || Number(montant) < 0) { setNotif({ type: "warn", texte: "Saisissez le montant à régler." }); return; }
+    if (!/^https?:\/\//i.test(lien)) { setNotif({ type: "warn", texte: "Saisissez un lien de paiement valide (https://…)." }); return; }
     setPaieId(d.id);
     try {
-      const res = await fetch(`/api/devis/${d.id}/paiement`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ montant: Number(montant) }) });
+      const res = await fetch(`/api/devis/${d.id}/paiement`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ montant: Number(montant), lien }),
+      });
       const data = await res.json();
       if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
-      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, montantAPayer: Number(montant) } : x)));
-      setNotif({ type: "ok", texte: "Montant communiqué au client." });
+      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, montantAPayer: Number(montant), lienPaiement: lien } : x)));
+      setNotif({ type: "ok", texte: "Montant et lien de paiement envoyés au client." });
     } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
     finally { setPaieId(null); }
   };
 
-  const envoyerLienPaiement = async (d: DevisAdmin) => {
-    const lien = (lienInputs[d.id] ?? "").trim();
-    if (!/^https?:\/\//i.test(lien)) { setNotif({ type: "warn", texte: "Saisissez un lien valide (https://…)." }); return; }
-    setPaieId(d.id);
+  // ── Attestation d'assurance : le rédacteur joint le document au contrat ──
+  const [attestationInputs, setAttestationInputs] = useState<Record<string, string[]>>({});
+  const envoyerAttestation = async (c: ContratAdmin) => {
+    const urls = attestationInputs[c.id] ?? [];
+    if (!urls.length) { setNotif({ type: "warn", texte: "Joignez d'abord le document d'attestation." }); return; }
+    const valeur = `Attestation|${urls[0]}`;
+    setActionId(c.id);
     try {
-      const res = await fetch(`/api/devis/${d.id}/paiement`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lien }) });
+      const res = await fetch(`/api/contrats/${c.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attestation: valeur }),
+      });
       const data = await res.json();
-      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
-      setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, lienPaiement: lien } : x)));
-      setNotif({ type: "ok", texte: "Lien de paiement envoyé au client." });
+      if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec de l'envoi." }); return; }
+      setContrats((prev) => prev.map((x) => (x.id === c.id ? { ...x, attestation: valeur } : x)));
+      setAttestationInputs((s) => { const n = { ...s }; delete n[c.id]; return n; });
+      setNotif({ type: "ok", texte: "Attestation envoyée au client." });
     } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
-    finally { setPaieId(null); }
+    finally { setActionId(null); }
   };
 
 
@@ -1343,6 +1359,56 @@ export default function AdminPage() {
 
   // Compagnie la plus choisie (compagniesStats est déjà trié par choix décroissants).
   const compagnieTop = compagniesStats[0]?.nom ?? "—";
+
+  // ── Analyse par compagnie : propositions + contrats + primes (rentabilité) ──
+  const analyseCompagnies = (() => {
+    const m = new Map<string, { nom: string; envoyees: number; choisies: number; contrats: number; primes: number }>();
+    const get = (nom: string) => {
+      let e = m.get(nom);
+      if (!e) { e = { nom, envoyees: 0, choisies: 0, contrats: 0, primes: 0 }; m.set(nom, e); }
+      return e;
+    };
+    for (const c of compagniesStats) { const e = get(c.nom); e.envoyees = c.envoyees; e.choisies = c.choisies; }
+    for (const ct of contrats) {
+      if (!ct.compagnie) continue;
+      const e = get(ct.compagnie);
+      e.contrats++;
+      e.primes += typeof ct.primeAnnuelle === "number" ? ct.primeAnnuelle : 0;
+    }
+    return Array.from(m.values()).sort((a, b) => b.primes - a.primes || b.choisies - a.choisies || b.envoyees - a.envoyees);
+  })();
+  const primesTotales = analyseCompagnies.reduce((s, c) => s + c.primes, 0);
+
+  // ── Types d'assurance les plus demandés (par nombre de cotations) ──
+  const demandeParProduit = (() => {
+    const m = new Map<string, number>();
+    for (const d of devis) { const n = d.produit?.nom ?? "Autre"; m.set(n, (m.get(n) ?? 0) + 1); }
+    return Array.from(m.entries()).map(([nom, valeur]) => ({ nom, valeur })).sort((a, b) => b.valeur - a.valeur);
+  })();
+
+  // ── Sinistres par type d'assurance ──
+  const sinistresParType = (() => {
+    const m = new Map<string, number>();
+    for (const s of sinistres) { const n = s.typeAssurance ?? "Autre"; m.set(n, (m.get(n) ?? 0) + 1); }
+    return Array.from(m.entries()).map(([nom, valeur]) => ({ nom, valeur })).sort((a, b) => b.valeur - a.valeur);
+  })();
+
+  // ── Clients les plus actifs (cotations + contrats + sinistres) ──
+  const clientsFrequents = (() => {
+    type C = { nom: string; email: string; cotations: number; contrats: number; sinistres: number };
+    const m = new Map<string, C>();
+    const get = (email: string, nomComplet: string) => {
+      let e = m.get(email);
+      if (!e) { e = { nom: nomComplet || email, email, cotations: 0, contrats: 0, sinistres: 0 }; m.set(email, e); }
+      return e;
+    };
+    for (const d of devis) if (d.user?.email) get(d.user.email, `${d.user.prenom ?? ""} ${d.user.nom ?? ""}`.trim()).cotations++;
+    for (const c of contrats) if (c.user?.email) get(c.user.email, `${c.user.prenom ?? ""} ${c.user.nom ?? ""}`.trim()).contrats++;
+    for (const s of sinistres) if (s.user?.email) get(s.user.email, `${s.user.prenom ?? ""} ${s.user.nom ?? ""}`.trim()).sinistres++;
+    return Array.from(m.values())
+      .map((c) => ({ ...c, total: c.cotations + c.contrats + c.sinistres }))
+      .sort((a, b) => b.total - a.total);
+  })();
 
   const stats = [
     { label: "Cotations reçues", value: total, Icon: ClipboardList, filtre: "tous" },
@@ -1761,6 +1827,104 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Analyses métier : types demandés, sinistres par type, clients actifs */}
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+          {/* Types d'assurance les plus demandés (cotations) */}
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.14 }} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e0ecec" }}>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <ClipboardList size={18} style={{ color: "#2a8a8a" }} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Assurances les plus demandées</h2>
+                <p className="text-xs text-gray-400">Par nombre de cotations</p>
+              </div>
+            </div>
+            {demandeParProduit.length === 0 ? (
+              <p className="text-sm text-gray-400 py-6 text-center">Aucune cotation pour l&apos;instant.</p>
+            ) : (
+              <ul className="space-y-2.5">
+                {demandeParProduit.slice(0, 6).map((p, i) => {
+                  const max = demandeParProduit[0].valeur || 1;
+                  return (
+                    <li key={p.nom}>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="font-medium truncate pr-2" style={{ color: "#1a2e5a" }}>{i === 0 ? "🥇 " : ""}{p.nom}</span>
+                        <span className="font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{p.valeur}</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#eef4f4" }}>
+                        <div className="h-full rounded-full" style={{ width: `${Math.round((p.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #1a2e5a, #2a8a8a)" }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </motion.div>
+
+          {/* Sinistres par type d'assurance */}
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.18 }} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e0ecec" }}>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fee2e2, #fecaca)" }}>
+                <AlertTriangle size={18} style={{ color: "#dc2626" }} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Sinistres par type</h2>
+                <p className="text-xs text-gray-400">Répartition des déclarations</p>
+              </div>
+            </div>
+            {sinistresParType.length === 0 ? (
+              <p className="text-sm text-gray-400 py-6 text-center">Aucun sinistre déclaré.</p>
+            ) : (
+              <ul className="space-y-2.5">
+                {sinistresParType.slice(0, 6).map((s) => {
+                  const max = sinistresParType[0].valeur || 1;
+                  return (
+                    <li key={s.nom}>
+                      <div className="flex items-center justify-between text-sm mb-1">
+                        <span className="font-medium capitalize truncate pr-2" style={{ color: "#1a2e5a" }}>{s.nom}</span>
+                        <span className="font-bold flex-shrink-0" style={{ color: "#dc2626" }}>{s.valeur}</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#fef2f2" }}>
+                        <div className="h-full rounded-full" style={{ width: `${Math.round((s.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #b91c1c, #f87171)" }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </motion.div>
+
+          {/* Clients les plus actifs */}
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.22 }} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e0ecec" }}>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <Users size={18} style={{ color: "#2a8a8a" }} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Clients les plus actifs</h2>
+                <p className="text-xs text-gray-400">Cotations + contrats + sinistres</p>
+              </div>
+            </div>
+            {clientsFrequents.length === 0 ? (
+              <p className="text-sm text-gray-400 py-6 text-center">Aucun client pour l&apos;instant.</p>
+            ) : (
+              <ul className="space-y-2">
+                {clientsFrequents.slice(0, 6).map((c, i) => (
+                  <li key={c.email} className="flex items-center gap-3">
+                    <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{c.nom}</p>
+                      <p className="text-[11px] text-gray-400 truncate">{c.cotations} cotation{c.cotations > 1 ? "s" : ""} · {c.contrats} contrat{c.contrats > 1 ? "s" : ""} · {c.sinistres} sinistre{c.sinistres > 1 ? "s" : ""}</p>
+                    </div>
+                    <span className="text-sm font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{c.total}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+        </div>
+
         {/* Teaser : compagnies préférées des clients */}
         {compagniesStats.length > 0 && (
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.16 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
@@ -1963,38 +2127,30 @@ export default function AdminPage() {
                             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#9a3412" }}>
                               Encaissement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
                             </p>
-                            {/* Montant (prime) à communiquer au client */}
-                            <div className="flex flex-wrap gap-2 items-center mb-2">
+                            {/* Montant + lien de paiement, envoyés ENSEMBLE au client via un seul bouton */}
+                            <div className="space-y-2 mb-2">
                               <input
                                 type="number"
                                 value={montantInputs[d.id] ?? (d.montantAPayer != null ? String(d.montantAPayer) : "")}
                                 onChange={(e) => setMontantInputs((s) => ({ ...s, [d.id]: e.target.value }))}
                                 placeholder="Montant à régler (FCFA)"
-                                className="flex-1 min-w-[160px] px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                                className="w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                                 style={{ borderColor: "#e0ecec" }}
                               />
-                              <button type="button" onClick={() => communiquerMontant(d)} disabled={paieId === d.id}
-                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "#9a3412" }}>
-                                <Send size={13} /> {d.montantAPayer != null ? "Mettre à jour" : "Communiquer le montant"}
+                              <input
+                                value={lienInputs[d.id] ?? d.lienPaiement ?? ""}
+                                onChange={(e) => setLienInputs((s) => ({ ...s, [d.id]: e.target.value }))}
+                                placeholder="Lien de paiement (https://…)"
+                                className="w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                                style={{ borderColor: "#e0ecec" }}
+                              />
+                              <button type="button" onClick={() => envoyerPaiement(d)} disabled={paieId === d.id}
+                                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                                <Send size={13} /> {(d.montantAPayer != null || d.lienPaiement) ? "Mettre à jour et renvoyer au client" : "Envoyer le montant et le lien au client"}
                               </button>
                             </div>
-                            {d.modePaiement && (
-                              <div className="flex flex-wrap gap-2 items-center mb-2">
-                                <input
-                                  value={lienInputs[d.id] ?? d.lienPaiement ?? ""}
-                                  onChange={(e) => setLienInputs((s) => ({ ...s, [d.id]: e.target.value }))}
-                                  placeholder="Lien de paiement (https://pay.wave.com/…)"
-                                  className="flex-1 min-w-[180px] px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
-                                  style={{ borderColor: "#e0ecec" }}
-                                />
-                                <button type="button" onClick={() => envoyerLienPaiement(d)} disabled={paieId === d.id}
-                                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
-                                  <Send size={13} /> {d.lienPaiement ? "Mettre à jour" : "Envoyer le lien"}
-                                </button>
-                              </div>
-                            )}
                             <p className="text-xs" style={{ color: "#9a3412" }}>
-                              Une fois le paiement reçu, cliquez sur « Enregistrer la souscription » pour passer la cotation en « Souscrit ».
+                              Le client reçoit le montant et le lien en une seule notification. Une fois le paiement reçu, cliquez sur « Enregistrer la souscription » pour passer la cotation en « Souscrit ».
                             </p>
                           </div>
                         )}
@@ -2341,6 +2497,28 @@ export default function AdminPage() {
                         </button>
                       </div>
                     </div>
+
+                    {/* Attestation d'assurance remise au client */}
+                    <div className="mt-4 pt-3 border-t flex flex-wrap items-center gap-3" style={{ borderColor: "#eef4f4" }}>
+                      <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>Attestation</span>
+                      {c.attestation ? (
+                        <>
+                          <a href={c.attestation.split("|")[1] ?? c.attestation} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ color: "#166534", background: "#dcfce7" }}>
+                            <FileText size={13} /> Attestation jointe — voir
+                          </a>
+                          <span className="text-xs text-gray-400">Le client a été notifié.</span>
+                        </>
+                      ) : (
+                        <div className="flex flex-wrap items-end gap-2">
+                          <div className="w-60">
+                            <DocumentUpload label="Joindre l'attestation (PDF ou image)" value={attestationInputs[c.id] ?? []} onChange={(v) => setAttestationInputs((s) => ({ ...s, [c.id]: v }))} />
+                          </div>
+                          <button type="button" disabled={actionId === c.id || !(attestationInputs[c.id]?.length)} onClick={() => envoyerAttestation(c)} className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all disabled:opacity-50" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                            {actionId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Envoyer au client
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
                     })}
@@ -2386,6 +2564,67 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ))}
+                </motion.div>
+
+                {/* Rentabilité par compagnie : primes générées (barres horizontales) */}
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.06 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #dcfce7, #bbf7d0)" }}>
+                        <HandCoins size={18} style={{ color: "#15803d" }} />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Rentabilité par compagnie</h2>
+                        <p className="text-xs text-gray-400">Part de chaque partenaire dans les primes du portefeuille</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
+                      Total : {primesTotales.toLocaleString("fr-FR")} FCFA
+                    </span>
+                  </div>
+                  {analyseCompagnies.some((c) => c.primes > 0) ? (() => {
+                    const PALETTE = ["#1a2e5a", "#2a8a8a", "#16a34a", "#b45309", "#7c3aed", "#0891b2", "#db2777", "#65a30d"];
+                    const parts = analyseCompagnies.filter((c) => c.primes > 0).slice(0, 8).map((c, i) => ({
+                      ...c,
+                      couleur: PALETTE[i % PALETTE.length],
+                      part: primesTotales ? Math.round((c.primes / primesTotales) * 100) : 0,
+                      moyenne: c.contrats ? Math.round(c.primes / c.contrats) : 0,
+                    }));
+                    return (
+                      <div className="flex flex-col sm:flex-row items-center gap-6">
+                        <div className="w-full sm:w-[46%] h-[240px] relative">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie data={parts} dataKey="primes" nameKey="nom" cx="50%" cy="50%" innerRadius={64} outerRadius={94} paddingAngle={3} stroke="none" animationDuration={900}>
+                                {parts.map((e) => <Cell key={e.nom} fill={e.couleur} />)}
+                              </Pie>
+                              <Tooltip contentStyle={{ borderRadius: 14, border: "1px solid #e6f0f0", fontSize: 12, boxShadow: "0 10px 30px rgba(26,46,90,0.12)" }} formatter={(v: number | string) => [`${Number(v).toLocaleString("fr-FR")} FCFA`, "Primes"]} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>{primesTotales >= 1000 ? `${Math.round(primesTotales / 1000).toLocaleString("fr-FR")} k` : primesTotales.toLocaleString("fr-FR")}</span>
+                            <span className="text-[10px] text-gray-400 uppercase tracking-wide">FCFA au total</span>
+                          </div>
+                        </div>
+                        <ul className="w-full sm:flex-1 space-y-2.5">
+                          {parts.map((e) => (
+                            <li key={e.nom} className="flex items-center gap-3">
+                              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: e.couleur }} />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{e.nom}</span>
+                                  <span className="text-sm font-bold flex-shrink-0" style={{ color: "#1a2e5a" }}>{e.part}%</span>
+                                </div>
+                                <p className="text-[11px] text-gray-400">{e.primes.toLocaleString("fr-FR")} FCFA · {e.contrats} contrat{e.contrats > 1 ? "s" : ""} · moy. {e.moyenne.toLocaleString("fr-FR")} FCFA</p>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })() : (
+                    <div className="h-[160px] flex items-center justify-center text-sm text-gray-400 text-center px-6">Aucune souscription enregistrée pour l&apos;instant. Les primes par compagnie apparaîtront ici dès la première souscription.</div>
+                  )}
                 </motion.div>
 
                 {/* Graphe comparatif sollicitations vs choix */}

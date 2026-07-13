@@ -149,6 +149,35 @@ export default function DashboardShell({
     };
   }, []);
 
+  // ── Déconnexion automatique après inactivité ──
+  // Sécurité : si l'utilisateur laisse sa session ouverte sans rien faire
+  // pendant 1 minute, on ferme la session et on renvoie vers la connexion.
+  // Toute activité (souris, clavier, tactile, défilement) remet le compteur à zéro.
+  useEffect(() => {
+    const DELAI_MS = 900_000; // 15 minutes (mettre 60_000 = 1 min pour la démo)
+    const estStaff = ["agent", "gerant", "admin"].includes(user?.role ?? "");
+    let timer: ReturnType<typeof setTimeout>;
+
+    const deconnecter = async () => {
+      try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
+      // Renvoi vers la page de connexion correspondant au rôle.
+      router.replace(`${estStaff ? "/acces-equipe" : "/client"}?expire=1`);
+    };
+    const relancer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(deconnecter, DELAI_MS);
+    };
+
+    const evenements = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "click"];
+    evenements.forEach((e) => window.addEventListener(e, relancer, { passive: true }));
+    relancer(); // démarre le compteur
+
+    return () => {
+      clearTimeout(timer);
+      evenements.forEach((e) => window.removeEventListener(e, relancer));
+    };
+  }, [user, router]);
+
   // Alerte à l'arrivée d'une nouvelle notification : son (3 notes montantes) +
   // vibration sur les mobiles compatibles. Réutilise le contexte audio débloqué.
   const jouerSon = () => {

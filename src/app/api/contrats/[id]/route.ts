@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth, exigerStaff, exigerGerant } from "@/lib/session";
 import { journaliser } from "@/lib/audit";
+import { notifierClient } from "@/lib/notifications";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
@@ -72,6 +73,35 @@ export async function PATCH(
         include: { produit: { select: { nom: true, type: true } }, user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
       });
       await journaliser({ action: "restauration", entite: "contrat", entiteId: id, resume, auteurEmail: auth.email });
+      return NextResponse.json({ contrat });
+    }
+
+    // Le rédacteur joint l'attestation d'assurance (document Vercel Blob) et le
+    // client en est notifié. Format attendu : "Libellé|url".
+    if (typeof body?.attestation === "string" && body.attestation.trim()) {
+      const att = body.attestation.trim().slice(0, 600);
+      if (!/https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\//i.test(att)) {
+        return NextResponse.json({ erreur: "Document d'attestation invalide." }, { status: 400 });
+      }
+      const contrat = await prisma.contrat.update({
+        where: { id },
+        data: { attestation: att },
+        include: {
+          produit: { select: { nom: true, type: true } },
+          user: { select: { id: true, nom: true, prenom: true, email: true, telephone: true } },
+        },
+      });
+      if (contrat.user?.id) {
+        await notifierClient({
+          userId: contrat.user.id,
+          email: contrat.user.email,
+          type: "statut",
+          titre: "Votre attestation d'assurance est disponible",
+          message: `Votre attestation pour « ${existant.produit?.nom ?? "votre contrat"} » (n° ${existant.numeroContrat}) est disponible dans votre espace, rubrique Souscriptions.`,
+          onglet: "souscriptions",
+          ref: id,
+        });
+      }
       return NextResponse.json({ contrat });
     }
 
