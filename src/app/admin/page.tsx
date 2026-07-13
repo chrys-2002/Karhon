@@ -966,6 +966,8 @@ export default function AdminPage() {
   const [lienInputs, setLienInputs] = useState<Record<string, string>>({});
   const [montantInputs, setMontantInputs] = useState<Record<string, string>>({});
   const [paieId, setPaieId] = useState<string | null>(null);
+  // Confirmation d'envoi persistante par devis : heure du dernier envoi réussi.
+  const [paieOk, setPaieOk] = useState<Record<string, string>>({});
 
   // Envoie EN UNE FOIS le montant à régler ET le lien de paiement au client.
   const envoyerPaiement = async (d: DevisAdmin) => {
@@ -983,6 +985,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec." }); return; }
       setDevis((prev) => prev.map((x) => (x.id === d.id ? { ...x, montantAPayer: Number(montant), lienPaiement: lien } : x)));
+      const heure = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+      setPaieOk((s) => ({ ...s, [d.id]: heure }));
       setNotif({ type: "ok", texte: "Montant et lien de paiement envoyés au client." });
     } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
     finally { setPaieId(null); }
@@ -2124,9 +2128,16 @@ export default function AdminPage() {
                         {/* Encaissement : visible une fois que le client a choisi une offre (statut « En cours ») */}
                         {d.statut === "en_cours" && (
                           <div className="mt-3 rounded-xl p-3" style={{ background: "#fffaf0", border: "1px solid #fed7aa" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#9a3412" }}>
-                              Encaissement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
-                            </p>
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#9a3412" }}>
+                                Encaissement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
+                              </p>
+                              {(d.montantAPayer != null && d.lienPaiement) && (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#15803d" }}>
+                                  <Check size={12} /> Envoyé au client
+                                </span>
+                              )}
+                            </div>
                             {/* Montant + lien de paiement, envoyés ENSEMBLE au client via un seul bouton */}
                             <div className="space-y-2 mb-2">
                               <input
@@ -2146,8 +2157,13 @@ export default function AdminPage() {
                               />
                               <button type="button" onClick={() => envoyerPaiement(d)} disabled={paieId === d.id}
                                 className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
-                                <Send size={13} /> {(d.montantAPayer != null || d.lienPaiement) ? "Mettre à jour et renvoyer au client" : "Envoyer le montant et le lien au client"}
+                                <Send size={13} /> {paieId === d.id ? "Envoi en cours…" : (d.montantAPayer != null || d.lienPaiement) ? "Mettre à jour et renvoyer au client" : "Envoyer le montant et le lien au client"}
                               </button>
+                              {paieOk[d.id] && (
+                                <div className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold" style={{ background: "#dcfce7", color: "#15803d" }}>
+                                  <Check size={14} /> Envoyé au client à {paieOk[d.id]}. Le client a reçu le montant et le lien.
+                                </div>
+                              )}
                             </div>
                             <p className="text-xs" style={{ color: "#9a3412" }}>
                               Le client reçoit le montant et le lien en une seule notification. Une fois le paiement reçu, cliquez sur « Enregistrer la souscription » pour passer la cotation en « Souscrit ».
