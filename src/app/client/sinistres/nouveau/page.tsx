@@ -13,11 +13,20 @@ type Souscription = {
   id: string;
   numeroContrat: string;
   statut?: string;
+  dateDebut?: string; // date de souscription (début du contrat)
   produit?: { nom?: string; type?: string };
 };
 
 // Date du jour au format AAAA-MM-JJ (pour interdire les dates futures).
 const aujourdhui = new Date().toISOString().split("T")[0];
+
+// Formate une date ISO en JJ mois AAAA (ex. "13 juillet 2026").
+const formatDateSouscription = (iso?: string) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+};
 
 export default function NouveauSinistre() {
   const router = useRouter();
@@ -143,7 +152,7 @@ export default function NouveauSinistre() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-16 px-4" style={{ backgroundColor: "#f5fbfb" }}>
+    <div className="min-h-screen pt-24 sm:pt-28 pb-16 px-4" style={{ backgroundColor: "#f5fbfb" }}>
       <div className="max-w-2xl mx-auto">
 
         <div className="mb-6">
@@ -156,21 +165,21 @@ export default function NouveauSinistre() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="bg-white rounded-3xl shadow-xl overflow-hidden"
         >
-          <div className="relative px-8 py-8" style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                <ShieldAlert size={26} color="#ffffff" strokeWidth={1.6} />
+          <div className="relative px-6 py-7 sm:px-8 sm:py-8" style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                <ShieldAlert size={24} color="#ffffff" strokeWidth={1.6} />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Déclaration de sinistre</h1>
-                <p className="text-white/60 text-sm mt-1">Un sinistre se déclare sur l&apos;une de vos souscriptions.</p>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-white">Déclaration de sinistre</h1>
+                <p className="text-white/60 text-xs sm:text-sm mt-1">Un sinistre se déclare sur l&apos;une de vos souscriptions.</p>
               </div>
             </div>
           </div>
 
           {/* Cas : aucune souscription active → on ne peut pas déclarer. */}
           {!chargement && souscriptions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-16 px-8">
+            <div className="flex flex-col items-center justify-center text-center py-14 px-6 sm:px-8">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FolderOpen size={28} style={{ color: "#2a8a8a" }} />
               </div>
@@ -187,7 +196,7 @@ export default function NouveauSinistre() {
               </Link>
             </div>
           ) : (
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5 sm:space-y-6">
 
             <Select
               label="Souscription concernée"
@@ -197,11 +206,12 @@ export default function NouveauSinistre() {
               options={souscriptions.map((c) => ({
                 value: c.id,
                 label: `${c.produit?.nom ?? "Souscription"} — N° ${c.numeroContrat}`,
+                desc: c.dateDebut ? `Souscrit le ${formatDateSouscription(c.dateDebut)}` : undefined,
               }))}
               required
             />
 
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                   <CalendarDays size={15} style={{ color: "#2a8a8a" }} /> Date du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
