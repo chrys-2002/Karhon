@@ -9,8 +9,8 @@ import { estPartenaireValide } from "@/lib/partenaires";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
-// Durées de souscription autorisées (en mois).
-const DUREES_VALIDES = [1, 2, 3, 6, 12];
+// Durées de souscription autorisées (en mois) : de 1 mois à 1 an.
+const DUREES_VALIDES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 // Génère un numéro de contrat lisible et unique (ex. "KAR-2026-3F9A2C").
 function genererNumero(): string {
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
     if (!DUREES_VALIDES.includes(Number(dureeMois))) {
       return NextResponse.json(
-        { erreur: "Durée invalide (1, 2, 3, 6 ou 12 mois)." },
+        { erreur: "Durée invalide (de 1 à 12 mois)." },
         { status: 400 }
       );
     }
