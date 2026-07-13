@@ -586,7 +586,14 @@ const DUREES = [
   { mois: 1, label: "1 mois" },
   { mois: 2, label: "2 mois" },
   { mois: 3, label: "3 mois" },
+  { mois: 4, label: "4 mois" },
+  { mois: 5, label: "5 mois" },
   { mois: 6, label: "6 mois" },
+  { mois: 7, label: "7 mois" },
+  { mois: 8, label: "8 mois" },
+  { mois: 9, label: "9 mois" },
+  { mois: 10, label: "10 mois" },
+  { mois: 11, label: "11 mois" },
   { mois: 12, label: "1 an" },
 ];
 
@@ -602,10 +609,17 @@ function ConversionModal({
   onSubmit: (p: { devisId: string; dureeMois: number; primeAnnuelle: number; dateDebut: string; compagnie: string }) => void;
 }) {
   const aujourdhui = new Date().toISOString().split("T")[0];
+  // Valeurs déjà connues depuis les étapes précédentes de la cotation :
+  //   • la compagnie = celle de la proposition que le client a choisie,
+  //   • la prime = le montant que le personnel a fait payer au client,
+  //   • la date de début = aujourd'hui (jour de la souscription).
+  const propChoisie = devis.propositions?.find((p) => p.choisie);
   const [dureeMois, setDureeMois] = useState(12);
-  const [prime, setPrime] = useState("");
+  const [prime, setPrime] = useState(
+    devis.montantAPayer != null ? String(devis.montantAPayer) : propChoisie?.prime != null ? String(propChoisie.prime) : ""
+  );
   const [dateDebut, setDateDebut] = useState(aujourdhui);
-  const [compagnie, setCompagnie] = useState("");
+  const [compagnie, setCompagnie] = useState(propChoisie?.compagnie ?? "");
 
   const valide = prime !== "" && Number(prime) >= 0 && dateDebut !== "" && compagnie !== "";
 
@@ -623,10 +637,10 @@ function ConversionModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
         transition={{ duration: 0.2 }}
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl"
+        className="w-full max-w-md bg-white rounded-3xl shadow-2xl flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 py-5 flex items-center justify-between rounded-t-3xl" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+        <div className="px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between rounded-t-3xl shrink-0" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
           <div className="flex items-center gap-2.5 text-white">
             <FileSignature size={20} />
             <h3 className="font-bold">Enregistrer la souscription</h3>
@@ -636,7 +650,7 @@ function ConversionModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
           <div className="rounded-xl px-4 py-3 text-sm" style={{ background: "#f5fbfb", color: "#1a2e5a" }}>
             <p className="font-semibold">{devis.produit?.nom}</p>
             <p className="text-gray-500 text-xs mt-0.5">{devis.user?.prenom} {devis.user?.nom} · {devis.user?.email}</p>
@@ -837,6 +851,12 @@ export default function AdminPage() {
   const [actionId, setActionId] = useState<string | null>(null);
   // Bandeau de retour transitoire (résultat d'une relance / suppression).
   const [notif, setNotif] = useState<{ type: "ok" | "warn" | "err"; texte: string } | null>(null);
+  // Tout toast (même posé via setNotif direct) s'efface seul après 6 s.
+  useEffect(() => {
+    if (!notif) return;
+    const t = window.setTimeout(() => setNotif(null), 6000);
+    return () => window.clearTimeout(t);
+  }, [notif]);
   // Filtre actif : "tous" ou une valeur de statut. Piloté par les cartes.
   const [filtre, setFiltre] = useState<string>("tous");
 
@@ -1695,24 +1715,28 @@ export default function AdminPage() {
           </motion.div>
         )}
 
-        {/* Bandeau de retour (relance / suppression) */}
+        {/* Toast flottant (relance / envoi / suppression) — position fixe,
+            toujours visible quelle que soit la position de défilement. */}
         <AnimatePresence>
           {notif && (
             <motion.div
-              initial={{ opacity: 0, y: -8 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="mb-6 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium"
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed z-[200] left-1/2 -translate-x-1/2 bottom-4 sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0 w-[calc(100%-2rem)] sm:w-auto sm:max-w-md flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium shadow-xl"
+              onClick={() => setNotif(null)}
+              role="status"
               style={
                 notif.type === "ok"
-                  ? { background: "#dcfce7", color: "#166534" }
+                  ? { background: "#dcfce7", color: "#166534", border: "1px solid #86efac" }
                   : notif.type === "warn"
-                  ? { background: "#fef3c7", color: "#92600a" }
-                  : { background: "#fee2e2", color: "#991b1b" }
+                  ? { background: "#fef3c7", color: "#92600a", border: "1px solid #fcd34d" }
+                  : { background: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5" }
               }
             >
-              {notif.type === "ok" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
-              {notif.texte}
+              {notif.type === "ok" ? <CheckCircle2 size={16} className="shrink-0" /> : <AlertTriangle size={16} className="shrink-0" />}
+              <span className="flex-1">{notif.texte}</span>
+              <X size={15} className="shrink-0 opacity-60" />
             </motion.div>
           )}
         </AnimatePresence>
