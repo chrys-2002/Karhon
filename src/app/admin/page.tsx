@@ -586,14 +586,7 @@ const DUREES = [
   { mois: 1, label: "1 mois" },
   { mois: 2, label: "2 mois" },
   { mois: 3, label: "3 mois" },
-  { mois: 4, label: "4 mois" },
-  { mois: 5, label: "5 mois" },
   { mois: 6, label: "6 mois" },
-  { mois: 7, label: "7 mois" },
-  { mois: 8, label: "8 mois" },
-  { mois: 9, label: "9 mois" },
-  { mois: 10, label: "10 mois" },
-  { mois: 11, label: "11 mois" },
   { mois: 12, label: "1 an" },
 ];
 
@@ -770,6 +763,28 @@ export default function AdminPage() {
   // Réinitialise tri + période + catégorie quand on change d'onglet.
   // La conversation ciblée n'est gardée que sur l'onglet Messages.
   useEffect(() => { setTriChamp("date"); setTriSens("desc"); setPeriode("tout"); setCategorieVue(null); if (vue !== "messages") setConvCible(null); }, [vue]);
+
+  // Après enregistrement d'une souscription : amène le personnel PRÉCISÉMENT sur
+  // le bloc d'envoi de l'attestation de la souscription créée. Cet effet est
+  // défini APRÈS celui du dessus : il s'exécute ensuite et « gagne » sur la
+  // remise à zéro de la catégorie.
+  const [cibleAttestation, setCibleAttestation] = useState<string | null>(null);
+  useEffect(() => {
+    if (vue !== "souscriptions" || !cibleAttestation) return;
+    const c = contrats.find((x) => x.id === cibleAttestation);
+    if (!c) return;
+    const seg = c.segment === "professionnel" || c.segment === "transport" ? c.segment : "particulier";
+    setCategorieVue(seg);
+    setCibleDossier(cibleAttestation);
+    const t = setTimeout(() => {
+      const el =
+        document.getElementById(`attestation-${cibleAttestation}`) ||
+        document.getElementById(`dossier-${cibleAttestation}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setCibleAttestation(null);
+    }, 320);
+    return () => clearTimeout(t);
+  }, [vue, cibleAttestation, contrats]);
 
   // Au chargement (clic notif / lien e-mail), ouvre l'onglet et l'élément ciblés (?onglet=…&ref=…).
   useEffect(() => {
@@ -1301,7 +1316,13 @@ export default function AdminPage() {
       setContrats((prev) => [data.contrat, ...prev]);
       setDevis((prev) => prev.map((d) => (d.id === payload.devisId ? { ...d, statut: "accepte" } : d)));
       setConversion(null);
-      afficherNotif("ok", `Contrat ${data.contrat.numeroContrat} créé.`);
+      afficherNotif("ok", `Souscription ${data.contrat.numeroContrat} enregistrée. Joignez maintenant l'attestation.`);
+
+      // Redirige directement vers la phase « envoi de l'attestation » :
+      // on bascule sur l'onglet Souscriptions et on marque la souscription cible ;
+      // l'effet dédié ouvre la bonne catégorie et défile sur le bloc attestation.
+      setVue("souscriptions");
+      setCibleAttestation(data.contrat.id);
     } catch {
       afficherNotif("err", "Erreur réseau lors de la création.");
     } finally {
@@ -2467,7 +2488,7 @@ export default function AdminPage() {
                   ? { background: "#fef3c7", color: "#92600a" }
                   : { background: "#fee2e2", color: "#991b1b" };
                 return (
-                  <div key={c.id} className="px-6 sm:px-8 py-5">
+                  <div key={c.id} id={`dossier-${c.id}`} className="px-6 sm:px-8 py-5 scroll-mt-24 transition-colors" style={{ background: cibleDossier === c.id ? "rgba(42,138,138,0.08)" : undefined }}>
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -2539,7 +2560,15 @@ export default function AdminPage() {
                     </div>
 
                     {/* Attestation d'assurance remise au client */}
-                    <div className="mt-4 pt-3 border-t flex flex-wrap items-center gap-3" style={{ borderColor: "#eef4f4" }}>
+                    <div
+                      id={`attestation-${c.id}`}
+                      className="mt-4 pt-3 border-t flex flex-wrap items-center gap-3 scroll-mt-24 rounded-xl transition-all"
+                      style={
+                        cibleDossier === c.id && !c.attestation
+                          ? { borderColor: "#eef4f4", background: "#fffaf0", boxShadow: "0 0 0 2px rgba(217,119,6,0.35)", padding: "12px" }
+                          : { borderColor: "#eef4f4" }
+                      }
+                    >
                       <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>Attestation</span>
                       {c.attestation ? (
                         <>

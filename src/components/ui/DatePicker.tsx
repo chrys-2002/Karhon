@@ -108,7 +108,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
         <span className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
           <CalendarDays size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.7} />
         </span>
-        <span className={`flex-1 text-sm ${value ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+        <span className={`flex-1 min-w-0 truncate text-sm ${value ? "text-gray-800 font-medium" : "text-gray-400"}`}>
           {value ? formater(value) : placeholder}
         </span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
@@ -124,7 +124,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: versLeHaut ? 8 : -8, scale: 0.97 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className={`absolute z-50 w-full max-w-[320px] bg-white rounded-2xl shadow-2xl p-4 border ${versLeHaut ? "bottom-full mb-2" : "mt-2"}`}
+            className={`absolute left-0 z-50 w-[300px] max-w-[calc(100vw-2.5rem)] bg-white rounded-2xl shadow-2xl p-3 sm:p-4 border ${versLeHaut ? "bottom-full mb-2" : "mt-2"}`}
             style={{ borderColor: "#e0ecec" }}
           >
             {/* En-tête : mois + navigation */}

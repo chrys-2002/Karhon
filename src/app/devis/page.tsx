@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle, Globe, CalendarClock, Cake } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Phone, User, Building2, Car, Home, HeartPulse, ShieldAlert, Plane, Scale, Truck, Store, Anchor, TrendingUp, GraduationCap, Landmark, Flower2, ChevronDown, ShieldCheck, AlertCircle, Globe, Cake } from 'lucide-react';
 import BackButton from '@/components/ui/BackButton';
 import DocumentUpload from '@/components/ui/DocumentUpload';
 import FormulaireDynamique from '@/components/ui/FormulaireDynamique';
@@ -186,7 +186,6 @@ export default function DevisPage() {
     message: '',
     // Champs spécifiques au produit Voyage.
     destination: '',
-    duree: '',
     ageAssure: '',
   });
 
@@ -230,8 +229,8 @@ export default function DevisPage() {
   const estVoyage = !!produitChoisi && produitChoisi.nom === PRODUIT_VOYAGE;
 
   const canGoToStep2 = formData.categorie !== '';
-  // Pour un voyage, destination, durée et âge sont requis.
-  const voyageComplet = !estVoyage || (formData.destination !== '' && formData.duree !== '' && formData.ageAssure !== '' && docPasseport.length > 0);
+  // Pour un voyage, destination et âge sont requis (la durée n'est plus demandée).
+  const voyageComplet = !estVoyage || (formData.destination !== '' && formData.ageAssure !== '' && docPasseport.length > 0);
   // Pour l'auto, la carte grise et la visite technique sont obligatoires.
   const autoComplet = !estAuto || (docCarteGrise.length > 0 && docVisite.length > 0);
 
@@ -258,7 +257,6 @@ export default function DevisPage() {
     if (!formData.telephone || !formData.telephone.trim()) manque.push('Téléphone');
     if (estVoyage) {
       if (!formData.destination || !formData.destination.trim()) manque.push('Destination');
-      if (!formData.duree) manque.push('Durée du séjour');
       if (!formData.ageAssure) manque.push("Âge de l'assuré");
       if (docPasseport.length === 0) manque.push('Passeport (à joindre)');
     }
@@ -302,7 +300,6 @@ export default function DevisPage() {
         formData.entreprise ? `Entreprise : ${formData.entreprise}` : '',
         // Détails spécifiques au voyage.
         estVoyage ? `Destination : ${formData.destination}` : '',
-        estVoyage ? `Durée du séjour : ${formData.duree} jour(s)` : '',
         estVoyage ? `Âge de l'assuré : ${formData.ageAssure} an(s)` : '',
         formData.message ? `Message : ${formData.message}` : '',
       ].filter(Boolean);
@@ -567,7 +564,7 @@ export default function DevisPage() {
                     </p>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-5">
+                  <div className="grid md:grid-cols-2 gap-5">
                     <div>
                       <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600 mb-2">
                         <Globe size={14} style={{ color: "#2a8a8a" }} /> Destination *
@@ -581,22 +578,6 @@ export default function DevisPage() {
                         onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
                         onBlur={e => { e.target.style.border = formData.destination ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0"; }}
                         placeholder="Ex. France, Maroc, Dubaï…"
-                      />
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-1.5 text-sm font-medium text-gray-600 mb-2">
-                        <CalendarClock size={14} style={{ color: "#2a8a8a" }} /> Durée (jours) *
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        value={formData.duree}
-                        onChange={(e) => updateField('duree', e.target.value)}
-                        className="w-full rounded-2xl px-4 py-3.5 focus:outline-none text-sm transition-all"
-                        style={{ border: formData.duree ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0" }}
-                        onFocus={e => e.target.style.border = "1.5px solid #2a8a8a"}
-                        onBlur={e => { e.target.style.border = formData.duree ? "1.5px solid #2a8a8a" : "1.5px solid #e2e8f0"; }}
-                        placeholder="Ex. 15"
                       />
                     </div>
                     <div>

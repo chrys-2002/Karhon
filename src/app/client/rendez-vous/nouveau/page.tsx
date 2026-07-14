@@ -90,12 +90,12 @@ export default function NouveauRendezVous() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
+    <div className="min-h-screen pt-24 sm:pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
       <div className="max-w-xl mx-auto px-4 sm:px-6">
         <div className="mb-6"><BackButton label="Retour" /></div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-          <div className="px-7 py-6 text-white" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+          <div className="px-6 py-6 sm:px-7 text-white" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
                 <CalendarClock size={24} />
@@ -107,11 +107,12 @@ export default function NouveauRendezVous() {
             </div>
           </div>
 
-          <form onSubmit={envoyer} className="p-7 space-y-5">
+          <form onSubmit={envoyer} className="p-5 sm:p-7 space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Date <span style={{ color: "#2a8a8a" }}>*</span></label>
-                <DatePicker value={date} onChange={choisirDate} min={aujourdhui} desactiverWeekends placeholder="Choisir une date (hors week-end)" />
+                <DatePicker value={date} onChange={choisirDate} min={aujourdhui} desactiverWeekends placeholder="Choisir une date" />
+                <p className="text-xs text-gray-400 mt-1.5">Jours ouvrés uniquement (hors week-end).</p>
               </div>
               <Select label="Heure" name="heure" value={heure} onChange={(e) => setHeure(e.target.value)} options={heuresDispo} required />
             </div>
