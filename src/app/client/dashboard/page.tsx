@@ -156,10 +156,10 @@ export default function Dashboard() {
     // (ou une nouvelle offre, un changement de statut) apparaît sans rechargement.
     const chargerDonnees = () =>
       Promise.all([
-        fetch("/api/devis").then((res) => (res.ok ? res.json() : { devis: [] })),
-        fetch("/api/contrats").then((res) => (res.ok ? res.json() : { contrats: [] })),
-        fetch("/api/sinistres").then((res) => (res.ok ? res.json() : { sinistres: [] })),
-        fetch("/api/rendez-vous").then((res) => (res.ok ? res.json() : { rendezVous: [] })),
+        fetch("/api/devis", { cache: "no-store" }).then((res) => (res.ok ? res.json() : { devis: [] })),
+        fetch("/api/contrats", { cache: "no-store" }).then((res) => (res.ok ? res.json() : { contrats: [] })),
+        fetch("/api/sinistres", { cache: "no-store" }).then((res) => (res.ok ? res.json() : { sinistres: [] })),
+        fetch("/api/rendez-vous", { cache: "no-store" }).then((res) => (res.ok ? res.json() : { rendezVous: [] })),
       ])
         .then(([dDevis, dCon, dSin, dRdv]) => {
           if (annule) return;

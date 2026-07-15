@@ -41,7 +41,7 @@ import {
   ImageOff,
   Plus,
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { infoRelance } from "@/lib/contrats";
 import { PARTENAIRES } from "@/lib/partenaires";
 import DatePicker from "@/components/ui/DatePicker";
@@ -108,6 +108,7 @@ type DevisAdmin = {
   userId?: string;
   dateCreation: string;
   statut: string;
+  segment?: string | null;
   montantEstime: number | null;
   description: string;
   documents?: string[];
@@ -161,6 +162,17 @@ type ContratAdmin = {
   supprimeLe?: string | null;
   produit?: { nom?: string; type?: string };
   user?: UserAdmin;
+};
+
+type ClientAdmin = {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone?: string | null;
+  adresse?: string | null;
+  dateInscription: string;
+  _count?: { devis: number; contrats: number; sinistres: number };
 };
 
 type JournalEntree = {
@@ -745,7 +757,13 @@ export default function AdminPage() {
   const [archContrats, setArchContrats] = useState<ContratAdmin[]>([]);
   const [journal, setJournal] = useState<JournalEntree[]>([]);
   const [apercu, setApercu] = useState<Apercu | null>(null);
-  const [vue, setVue] = useState<"accueil" | "devis" | "sinistres" | "souscriptions" | "compagnies" | "messages" | "rdv" | "gerant">("accueil");
+  const [vue, setVue] = useState<"accueil" | "clients" | "devis" | "sinistres" | "souscriptions" | "compagnies" | "messages" | "rdv" | "gerant">("accueil");
+  // Liste des clients inscrits (chargée à la demande, onglet Clients).
+  const [clients, setClients] = useState<ClientAdmin[]>([]);
+  const [clientsCharges, setClientsCharges] = useState(false);
+  const [rechercheClients, setRechercheClients] = useState("");
+  // Onglet d'où l'on a ouvert la liste des clients (pour un retour au bon endroit).
+  const [retourClients, setRetourClients] = useState<string>("accueil");
   const [messagesNonLus, setMessagesNonLus] = useState(0);
   const [convCible, setConvCible] = useState<string | null>(null); // conversation à ouvrir (clic notif)
   const [cibleDossier, setCibleDossier] = useState<string | null>(null); // élément (devis/sinistre/rdv) à ouvrir et surligner au clic d'une notif
@@ -763,6 +781,16 @@ export default function AdminPage() {
   // Réinitialise tri + période + catégorie quand on change d'onglet.
   // La conversation ciblée n'est gardée que sur l'onglet Messages.
   useEffect(() => { setTriChamp("date"); setTriSens("desc"); setPeriode("tout"); setCategorieVue(null); if (vue !== "messages") setConvCible(null); }, [vue]);
+
+  // Charge la liste des clients quand on ouvre l'onglet Clients (une seule fois).
+  useEffect(() => {
+    if (vue !== "clients") return;
+    fetch("/api/clients", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { clients: [] }))
+      .then((d) => { if (Array.isArray(d.clients)) setClients(d.clients); })
+      .catch(() => {})
+      .finally(() => setClientsCharges(true));
+  }, [vue]);
 
   // Après enregistrement d'une souscription : amène le personnel PRÉCISÉMENT sur
   // le bloc d'envoi de l'attestation de la souscription créée. Cet effet est
@@ -874,6 +902,12 @@ export default function AdminPage() {
   }, [notif]);
   // Filtre actif : "tous" ou une valeur de statut. Piloté par les cartes.
   const [filtre, setFiltre] = useState<string>("tous");
+  // Cartes d'analyse (Accueil) : ligne dépliée au clic pour montrer le détail.
+  const [detailProduit, setDetailProduit] = useState<string | null>(null);
+  const [detailSinistre, setDetailSinistre] = useState<string | null>(null);
+  const [detailClient, setDetailClient] = useState<string | null>(null);
+  // Étape du parcours client dépliée (liste des clients concernés).
+  const [etapeDetail, setEtapeDetail] = useState<string | null>(null);
 
   // Affiche un message transitoire (auto-effacé après 6 s).
   const afficherNotif = (type: "ok" | "warn" | "err", texte: string) => {
@@ -1407,52 +1441,185 @@ export default function AdminPage() {
 
   // ── Analyse par compagnie : propositions + contrats + primes (rentabilité) ──
   const analyseCompagnies = (() => {
-    const m = new Map<string, { nom: string; envoyees: number; choisies: number; contrats: number; primes: number }>();
+    const m = new Map<string, { nom: string; envoyees: number; choisies: number; contrats: number; primes: number; clients: Set<string> }>();
     const get = (nom: string) => {
       let e = m.get(nom);
-      if (!e) { e = { nom, envoyees: 0, choisies: 0, contrats: 0, primes: 0 }; m.set(nom, e); }
+      if (!e) { e = { nom, envoyees: 0, choisies: 0, contrats: 0, primes: 0, clients: new Set<string>() }; m.set(nom, e); }
       return e;
     };
-    for (const c of compagniesStats) { const e = get(c.nom); e.envoyees = c.envoyees; e.choisies = c.choisies; }
+    // Propositions (offres) envoyées par compagnie + clients concernés.
+    for (const d of devis) {
+      for (const p of d.propositions ?? []) {
+        if (!p.compagnie) continue;
+        const e = get(p.compagnie);
+        e.envoyees++;
+        if (p.choisie) e.choisies++;
+        if (d.user?.email) e.clients.add(d.user.email);
+      }
+    }
+    // Contrats conclus par compagnie + primes + clients.
     for (const ct of contrats) {
       if (!ct.compagnie) continue;
       const e = get(ct.compagnie);
       e.contrats++;
       e.primes += typeof ct.primeAnnuelle === "number" ? ct.primeAnnuelle : 0;
+      if (ct.user?.email) e.clients.add(ct.user.email);
     }
-    return Array.from(m.values()).sort((a, b) => b.primes - a.primes || b.choisies - a.choisies || b.envoyees - a.envoyees);
+    return Array.from(m.values())
+      .map((e) => ({
+        nom: e.nom,
+        envoyees: e.envoyees,
+        choisies: e.choisies,
+        contrats: e.contrats,
+        primes: e.primes,
+        // Clients distincts liés à la compagnie (offre reçue ou contrat conclu).
+        nbClients: e.clients.size,
+      }))
+      .sort((a, b) => b.primes - a.primes || b.choisies - a.choisies || b.envoyees - a.envoyees);
   })();
   const primesTotales = analyseCompagnies.reduce((s, c) => s + c.primes, 0);
 
-  // ── Types d'assurance les plus demandés (par nombre de cotations) ──
-  const demandeParProduit = (() => {
-    const m = new Map<string, number>();
-    for (const d of devis) { const n = d.produit?.nom ?? "Autre"; m.set(n, (m.get(n) ?? 0) + 1); }
-    return Array.from(m.entries()).map(([nom, valeur]) => ({ nom, valeur })).sort((a, b) => b.valeur - a.valeur);
+  // ── Entonnoir de conversion Client → Cabinet ──
+  // Combien de clients franchissent chaque étape du parcours, de l'inscription
+  // à la souscription. Chaque étape compte des clients DISTINCTS (par e-mail).
+  // Un élément détaillé d'une étape : quel client, quel intitulé (type de cotation,
+  // compagnie de l'offre, n° de contrat), un complément et la date de création.
+  type EtapeItem = { client: string; titre: string; detail?: string; date: string };
+  const LIB_STATUT_DEVIS: Record<string, string> = {
+    en_attente: "En attente", en_cours: "En cours", envoye: "Offre envoyée",
+    choisi: "Offre choisie", paye: "Payé", accepte: "Souscrit", refuse: "Refusé",
+  };
+  const entonnoirClients = (() => {
+    const nomDe = (u?: { email?: string | null; nom?: string | null; prenom?: string | null }) =>
+      u?.email ? (`${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || u.email) : "Client";
+    const cotClients = new Set<string>();
+    const offClients = new Set<string>();
+    const cotItems: EtapeItem[] = [];
+    const offItems: EtapeItem[] = [];
+    for (const d of devis) {
+      if (!d.user?.email) continue;
+      cotClients.add(d.user.email);
+      cotItems.push({ client: nomDe(d.user), titre: d.produit?.nom ?? "Cotation", detail: LIB_STATUT_DEVIS[d.statut] ?? d.statut, date: d.dateCreation });
+      for (const p of d.propositions ?? []) {
+        offClients.add(d.user.email);
+        offItems.push({
+          client: nomDe(d.user),
+          titre: `Offre — ${p.compagnie ?? "compagnie"}`,
+          detail: p.choisie ? "Choisie par le client" : (p.prime != null ? `${p.prime.toLocaleString("fr-FR")} FCFA` : undefined),
+          date: d.dateCreation,
+        });
+      }
+    }
+    const conClients = new Set<string>();
+    const conItems: EtapeItem[] = [];
+    for (const c of contrats) {
+      if (!c.user?.email) continue;
+      conClients.add(c.user.email);
+      conItems.push({
+        client: nomDe(c.user),
+        titre: `${c.produit?.nom ?? "Contrat"} · N° ${c.numeroContrat}`,
+        detail: c.compagnie ?? undefined,
+        date: c.dateDebut,
+      });
+    }
+    const actifs = new Set<string>([...cotClients, ...conClients]);
+    for (const s of sinistres) if (s.user?.email) actifs.add(s.user.email);
+    const inscrits = apercu?.clients ?? actifs.size;
+    const tri = (arr: EtapeItem[]) => arr.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? "")); // plus récent d'abord
+    return [
+      // « inscrits » : total depuis l'aperçu ; la liste complète est dans l'onglet Clients (items === null → on y renvoie).
+      { cle: "inscrits", label: "Clients inscrits", valeur: inscrits, items: null as EtapeItem[] | null },
+      { cle: "cotation", label: "Ont demandé une cotation", valeur: cotClients.size, items: tri(cotItems) },
+      { cle: "offre", label: "Ont reçu une offre", valeur: offClients.size, items: tri(offItems) },
+      { cle: "souscrit", label: "Ont souscrit un contrat", valeur: conClients.size, items: tri(conItems) },
+    ];
   })();
 
+  // Petit utilitaire : agrège des lignes par (produit/type) puis, à l'intérieur,
+  // par client. Renvoie chaque groupe avec son total ET le détail des clients.
+  type DetailClient = { nom: string; email: string; count: number };
+  const grouperParCleEtClient = <T,>(
+    lignes: T[],
+    cle: (x: T) => string,
+    user: (x: T) => { email?: string; nom?: string; prenom?: string } | undefined
+  ) => {
+    const m = new Map<string, { valeur: number; clients: Map<string, DetailClient> }>();
+    for (const x of lignes) {
+      const k = cle(x);
+      let e = m.get(k);
+      if (!e) { e = { valeur: 0, clients: new Map() }; m.set(k, e); }
+      e.valeur++;
+      const u = user(x);
+      const email = u?.email ?? "—";
+      const nom = `${u?.prenom ?? ""} ${u?.nom ?? ""}`.trim() || email;
+      const c = e.clients.get(email);
+      if (c) c.count++; else e.clients.set(email, { nom, email, count: 1 });
+    }
+    return Array.from(m.entries())
+      .map(([nom, e]) => ({
+        nom,
+        valeur: e.valeur,
+        clients: Array.from(e.clients.values()).sort((a, b) => b.count - a.count),
+        nbClients: e.clients.size,
+      }))
+      .sort((a, b) => b.valeur - a.valeur);
+  };
+
+  // ── Types d'assurance les plus demandés (par nombre de cotations) ──
+  const demandeParProduit = grouperParCleEtClient(devis, (d) => d.produit?.nom ?? "Autre", (d) => d.user);
+
   // ── Sinistres par type d'assurance ──
-  const sinistresParType = (() => {
-    const m = new Map<string, number>();
-    for (const s of sinistres) { const n = s.typeAssurance ?? "Autre"; m.set(n, (m.get(n) ?? 0) + 1); }
-    return Array.from(m.entries()).map(([nom, valeur]) => ({ nom, valeur })).sort((a, b) => b.valeur - a.valeur);
-  })();
+  const sinistresParType = grouperParCleEtClient(sinistres, (s) => s.typeAssurance ?? "Autre", (s) => s.user);
 
   // ── Clients les plus actifs (cotations + contrats + sinistres) ──
   const clientsFrequents = (() => {
-    type C = { nom: string; email: string; cotations: number; contrats: number; sinistres: number };
+    type C = { nom: string; email: string; cotations: number; contrats: number; sinistres: number; produits: Map<string, number> };
     const m = new Map<string, C>();
     const get = (email: string, nomComplet: string) => {
       let e = m.get(email);
-      if (!e) { e = { nom: nomComplet || email, email, cotations: 0, contrats: 0, sinistres: 0 }; m.set(email, e); }
+      if (!e) { e = { nom: nomComplet || email, email, cotations: 0, contrats: 0, sinistres: 0, produits: new Map() }; m.set(email, e); }
       return e;
     };
-    for (const d of devis) if (d.user?.email) get(d.user.email, `${d.user.prenom ?? ""} ${d.user.nom ?? ""}`.trim()).cotations++;
+    for (const d of devis) if (d.user?.email) {
+      const e = get(d.user.email, `${d.user.prenom ?? ""} ${d.user.nom ?? ""}`.trim());
+      e.cotations++;
+      const p = d.produit?.nom ?? "Autre";
+      e.produits.set(p, (e.produits.get(p) ?? 0) + 1);
+    }
     for (const c of contrats) if (c.user?.email) get(c.user.email, `${c.user.prenom ?? ""} ${c.user.nom ?? ""}`.trim()).contrats++;
     for (const s of sinistres) if (s.user?.email) get(s.user.email, `${s.user.prenom ?? ""} ${s.user.nom ?? ""}`.trim()).sinistres++;
     return Array.from(m.values())
-      .map((c) => ({ ...c, total: c.cotations + c.contrats + c.sinistres }))
+      .map((c) => ({
+        ...c,
+        total: c.cotations + c.contrats + c.sinistres,
+        produits: Array.from(c.produits.entries()).map(([nom, count]) => ({ nom, count })).sort((a, b) => b.count - a.count),
+      }))
       .sort((a, b) => b.total - a.total);
+  })();
+
+  // ── Répartition des clients par type : particulier / entreprise ──
+  // Un client est classé « entreprise » dès qu'au moins une de ses cotations ou
+  // souscriptions relève d'un segment professionnel ou transport ; sinon particulier.
+  const repartitionClients = (() => {
+    const type = new Map<string, "entreprise" | "particulier">();
+    const marquer = (email?: string | null, seg?: string | null) => {
+      if (!email) return;
+      const estEntreprise = seg === "professionnel" || seg === "transport";
+      if (estEntreprise) type.set(email, "entreprise");
+      else if (!type.has(email)) type.set(email, "particulier");
+    };
+    for (const d of devis) marquer(d.user?.email, d.segment);
+    for (const c of contrats) marquer(c.user?.email, c.segment);
+    let entreprise = 0, particulier = 0;
+    for (const v of type.values()) { if (v === "entreprise") entreprise++; else particulier++; }
+    const total = entreprise + particulier;
+    return {
+      entreprise,
+      particulier,
+      total,
+      pctEntreprise: total ? Math.round((entreprise / total) * 100) : 0,
+      pctParticulier: total ? Math.round((particulier / total) * 100) : 0,
+    };
   })();
 
   const stats = [
@@ -1580,6 +1747,7 @@ export default function AdminPage() {
 
   const navItems: NavItem[] = [
     { cle: "accueil", label: "Accueil", Icon: BarChart3 },
+    { cle: "clients", label: "Clients", Icon: Users },
     { cle: "devis", label: "Cotations", Icon: ClipboardList, badge: devisATraiter },
     { cle: "sinistres", label: "Sinistres", Icon: AlertTriangle, badge: sinistresATraiter },
     { cle: "souscriptions", label: "Souscriptions", Icon: FileSignature },
@@ -1590,6 +1758,7 @@ export default function AdminPage() {
   ];
   const titresVue: Record<string, { t: string; s: string }> = {
     accueil: { t: "Vue d'ensemble", s: "Indicateurs clés et évolution de l'activité" },
+    clients: { t: "Clients", s: "Clients inscrits, coordonnées et date d'inscription" },
     devis: { t: "Cotations", s: "Demandes de cotation des clients" },
     sinistres: { t: "Sinistres", s: "Déclarations et suivi des dossiers" },
     souscriptions: { t: "Souscriptions", s: "Contrats actifs et renouvellements" },
@@ -1606,6 +1775,8 @@ export default function AdminPage() {
       items={navItems}
       actif={vue}
       onNaviger={(c, ref) => {
+        // Depuis la barre latérale : si on ouvre Clients, on mémorise l'onglet courant pour le retour.
+        if (c === "clients" && vue !== "clients") setRetourClients(vue);
         setVue(c as typeof vue);
         if (c === "devis") setFiltre("tous");
         if (ref) { setConvCible(ref); setCibleDossier(ref); }
@@ -1766,21 +1937,21 @@ export default function AdminPage() {
         {/* Vue d'ensemble : indicateurs clés (lecture seule) */}
         {apercu && (
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.05 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
-            {/* Clients */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+            {/* Clients → ouvre la liste des clients inscrits */}
+            <button type="button" onClick={() => { setRetourClients("accueil"); setVue("clients"); }} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-wide">Clients</p>
                   <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.clients}</p>
-                  <p className="text-xs text-gray-400 mt-1">inscrits</p>
+                  <p className="text-xs font-semibold mt-1 inline-flex items-center gap-1" style={{ color: "#2a8a8a" }}>Voir la liste <ArrowRight size={12} /></p>
                 </div>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <Users size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-            </div>
-            {/* Devis */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+            </button>
+            {/* Devis → onglet Cotations */}
+            <button type="button" onClick={() => { setFiltre("tous"); setVue("devis"); }} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-wide">Cotations</p>
@@ -1791,9 +1962,9 @@ export default function AdminPage() {
                   <ClipboardList size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-            </div>
-            {/* Souscriptions actives */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+            </button>
+            {/* Souscriptions actives → onglet Souscriptions */}
+            <button type="button" onClick={() => setVue("souscriptions")} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-wide">Souscriptions actives</p>
@@ -1804,9 +1975,9 @@ export default function AdminPage() {
                   <FileSignature size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-            </div>
-            {/* Sinistres + conversion */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border" style={{ borderColor: "#e0ecec" }}>
+            </button>
+            {/* Sinistres → onglet Sinistres */}
+            <button type="button" onClick={() => setVue("sinistres")} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-wide">Sinistres</p>
@@ -1817,7 +1988,7 @@ export default function AdminPage() {
                   <AlertTriangle size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-            </div>
+            </button>
           </motion.div>
         )}
 
@@ -1876,6 +2047,55 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* KPI : répartition des clients par type (particulier / entreprise) */}
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.13 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8 mb-8" style={{ borderColor: "#e0ecec" }}>
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+              <Users size={18} style={{ color: "#2a8a8a" }} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Répartition des clients</h2>
+              <p className="text-xs text-gray-400">Par type : particulier / entreprise</p>
+            </div>
+          </div>
+
+          {repartitionClients.total === 0 ? (
+            <p className="text-sm text-gray-400 py-6 text-center">Pas encore de client à classer.</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-5">
+                <div className="rounded-2xl p-4 sm:p-5" style={{ background: "#f5fbfb", border: "1px solid #d0ecec" }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <User size={16} style={{ color: "#2a8a8a" }} />
+                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2a8a8a" }}>Particuliers</p>
+                  </div>
+                  <p className="text-3xl font-extrabold" style={{ color: "#1a2e5a" }}>{repartitionClients.particulier}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{repartitionClients.pctParticulier}% des clients</p>
+                </div>
+                <div className="rounded-2xl p-4 sm:p-5" style={{ background: "#eef2ff", border: "1px solid #c7d2fe" }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Building2 size={16} style={{ color: "#4f46e5" }} />
+                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#4f46e5" }}>Entreprises</p>
+                  </div>
+                  <p className="text-3xl font-extrabold" style={{ color: "#1a2e5a" }}>{repartitionClients.entreprise}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{repartitionClients.pctEntreprise}% des clients</p>
+                </div>
+              </div>
+
+              {/* Barre proportionnelle */}
+              <div className="h-3 rounded-full overflow-hidden flex" style={{ background: "#eef4f4" }}>
+                <div className="h-full" style={{ width: `${repartitionClients.pctParticulier}%`, background: "linear-gradient(90deg, #1a2e5a, #2a8a8a)" }} />
+                <div className="h-full" style={{ width: `${repartitionClients.pctEntreprise}%`, background: "linear-gradient(90deg, #4f46e5, #6366f1)" }} />
+              </div>
+              <div className="flex items-center justify-between mt-2 text-[11px] text-gray-500">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#2a8a8a" }} /> Particuliers</span>
+                <span className="text-gray-400">{repartitionClients.total} client{repartitionClients.total > 1 ? "s" : ""} au total</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#4f46e5" }} /> Entreprises</span>
+              </div>
+            </>
+          )}
+        </motion.div>
+
         {/* Analyses métier : types demandés, sinistres par type, clients actifs */}
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {/* Types d'assurance les plus demandés (cotations) */}
@@ -1892,18 +2112,37 @@ export default function AdminPage() {
             {demandeParProduit.length === 0 ? (
               <p className="text-sm text-gray-400 py-6 text-center">Aucune cotation pour l&apos;instant.</p>
             ) : (
-              <ul className="space-y-2.5">
-                {demandeParProduit.slice(0, 6).map((p, i) => {
+              <ul className="space-y-2.5 max-h-80 overflow-y-auto pr-1 -mr-1">
+                {demandeParProduit.map((p, i) => {
                   const max = demandeParProduit[0].valeur || 1;
+                  const ouvert = detailProduit === p.nom;
                   return (
                     <li key={p.nom}>
-                      <div className="flex items-center justify-between text-sm mb-1">
-                        <span className="font-medium truncate pr-2" style={{ color: "#1a2e5a" }}>{i === 0 ? "🥇 " : ""}{p.nom}</span>
-                        <span className="font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{p.valeur}</span>
-                      </div>
-                      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#eef4f4" }}>
-                        <div className="h-full rounded-full" style={{ width: `${Math.round((p.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #1a2e5a, #2a8a8a)" }} />
-                      </div>
+                      <button type="button" onClick={() => setDetailProduit(ouvert ? null : p.nom)} className="w-full text-left">
+                        <div className="flex items-center justify-between text-sm mb-1">
+                          <span className="font-medium truncate pr-2 flex items-center gap-1" style={{ color: "#1a2e5a" }}>
+                            <ChevronDown size={13} className={`flex-shrink-0 transition-transform ${ouvert ? "" : "-rotate-90"}`} style={{ color: "#94a3b8" }} />
+                            {i === 0 ? "🥇 " : ""}{p.nom}
+                          </span>
+                          <span className="font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{p.valeur}</span>
+                        </div>
+                        <div className="h-2 rounded-full overflow-hidden" style={{ background: "#eef4f4" }}>
+                          <div className="h-full rounded-full" style={{ width: `${Math.round((p.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #1a2e5a, #2a8a8a)" }} />
+                        </div>
+                      </button>
+                      {ouvert && (
+                        <div className="mt-2 ml-4 pl-3 border-l space-y-1.5 pb-1" style={{ borderColor: "#e0ecec" }}>
+                          <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#94a3b8" }}>
+                            {p.nbClients} client{p.nbClients > 1 ? "s" : ""} · {p.valeur} cotation{p.valeur > 1 ? "s" : ""}
+                          </p>
+                          {p.clients.map((cl) => (
+                            <div key={cl.email} className="flex items-center justify-between text-xs">
+                              <span className="truncate pr-2" style={{ color: "#334155" }}>{cl.nom}</span>
+                              <span className="font-semibold flex-shrink-0" style={{ color: "#2a8a8a" }}>{cl.count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </li>
                   );
                 })}
@@ -1925,18 +2164,37 @@ export default function AdminPage() {
             {sinistresParType.length === 0 ? (
               <p className="text-sm text-gray-400 py-6 text-center">Aucun sinistre déclaré.</p>
             ) : (
-              <ul className="space-y-2.5">
-                {sinistresParType.slice(0, 6).map((s) => {
+              <ul className="space-y-2.5 max-h-80 overflow-y-auto pr-1 -mr-1">
+                {sinistresParType.map((s) => {
                   const max = sinistresParType[0].valeur || 1;
+                  const ouvert = detailSinistre === s.nom;
                   return (
                     <li key={s.nom}>
-                      <div className="flex items-center justify-between text-sm mb-1">
-                        <span className="font-medium capitalize truncate pr-2" style={{ color: "#1a2e5a" }}>{s.nom}</span>
-                        <span className="font-bold flex-shrink-0" style={{ color: "#dc2626" }}>{s.valeur}</span>
-                      </div>
-                      <div className="h-2 rounded-full overflow-hidden" style={{ background: "#fef2f2" }}>
-                        <div className="h-full rounded-full" style={{ width: `${Math.round((s.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #b91c1c, #f87171)" }} />
-                      </div>
+                      <button type="button" onClick={() => setDetailSinistre(ouvert ? null : s.nom)} className="w-full text-left">
+                        <div className="flex items-center justify-between text-sm mb-1">
+                          <span className="font-medium capitalize truncate pr-2 flex items-center gap-1" style={{ color: "#1a2e5a" }}>
+                            <ChevronDown size={13} className={`flex-shrink-0 transition-transform ${ouvert ? "" : "-rotate-90"}`} style={{ color: "#94a3b8" }} />
+                            {s.nom}
+                          </span>
+                          <span className="font-bold flex-shrink-0" style={{ color: "#dc2626" }}>{s.valeur}</span>
+                        </div>
+                        <div className="h-2 rounded-full overflow-hidden" style={{ background: "#fef2f2" }}>
+                          <div className="h-full rounded-full" style={{ width: `${Math.round((s.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #b91c1c, #f87171)" }} />
+                        </div>
+                      </button>
+                      {ouvert && (
+                        <div className="mt-2 ml-4 pl-3 border-l space-y-1.5 pb-1" style={{ borderColor: "#fecaca" }}>
+                          <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#94a3b8" }}>
+                            {s.nbClients} client{s.nbClients > 1 ? "s" : ""} · {s.valeur} déclaration{s.valeur > 1 ? "s" : ""}
+                          </p>
+                          {s.clients.map((cl) => (
+                            <div key={cl.email} className="flex items-center justify-between text-xs">
+                              <span className="truncate pr-2" style={{ color: "#334155" }}>{cl.nom}</span>
+                              <span className="font-semibold flex-shrink-0" style={{ color: "#dc2626" }}>{cl.count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </li>
                   );
                 })}
@@ -1958,17 +2216,43 @@ export default function AdminPage() {
             {clientsFrequents.length === 0 ? (
               <p className="text-sm text-gray-400 py-6 text-center">Aucun client pour l&apos;instant.</p>
             ) : (
-              <ul className="space-y-2">
-                {clientsFrequents.slice(0, 6).map((c, i) => (
-                  <li key={c.email} className="flex items-center gap-3">
-                    <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{c.nom}</p>
-                      <p className="text-[11px] text-gray-400 truncate">{c.cotations} cotation{c.cotations > 1 ? "s" : ""} · {c.contrats} contrat{c.contrats > 1 ? "s" : ""} · {c.sinistres} sinistre{c.sinistres > 1 ? "s" : ""}</p>
-                    </div>
-                    <span className="text-sm font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{c.total}</span>
-                  </li>
-                ))}
+              <ul className="space-y-2 max-h-80 overflow-y-auto pr-1 -mr-1">
+                {clientsFrequents.map((c, i) => {
+                  const ouvert = detailClient === c.email;
+                  return (
+                    <li key={c.email}>
+                      <button type="button" onClick={() => setDetailClient(ouvert ? null : c.email)} className="w-full flex items-center gap-3 text-left">
+                        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{c.nom}</p>
+                          <p className="text-[11px] text-gray-400 truncate">{c.cotations} cotation{c.cotations > 1 ? "s" : ""} · {c.contrats} contrat{c.contrats > 1 ? "s" : ""} · {c.sinistres} sinistre{c.sinistres > 1 ? "s" : ""}</p>
+                        </div>
+                        <span className="text-sm font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{c.total}</span>
+                        <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${ouvert ? "" : "-rotate-90"}`} style={{ color: "#94a3b8" }} />
+                      </button>
+                      {ouvert && (
+                        <div className="mt-2 ml-10 pl-3 border-l space-y-1.5 pb-1" style={{ borderColor: "#e0ecec" }}>
+                          <p className="text-[11px] text-gray-400 truncate">{c.email}</p>
+                          {c.produits.length > 0 && (
+                            <>
+                              <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#94a3b8" }}>Cotations par assurance</p>
+                              {c.produits.map((pr) => (
+                                <div key={pr.nom} className="flex items-center justify-between text-xs">
+                                  <span className="truncate pr-2" style={{ color: "#334155" }}>{pr.nom}</span>
+                                  <span className="font-semibold flex-shrink-0" style={{ color: "#2a8a8a" }}>{pr.count}</span>
+                                </div>
+                              ))}
+                            </>
+                          )}
+                          <div className="flex items-center gap-3 text-[11px] pt-1" style={{ color: "#334155" }}>
+                            <span><b>{c.contrats}</b> contrat{c.contrats > 1 ? "s" : ""}</span>
+                            <span><b>{c.sinistres}</b> sinistre{c.sinistres > 1 ? "s" : ""}</span>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </motion.div>
@@ -2000,6 +2284,90 @@ export default function AdminPage() {
           </motion.div>
         )}
         </>)}
+
+        {vue === "clients" && (() => {
+          const q = norm(rechercheClients.trim());
+          const mots = q.split(/\s+/).filter(Boolean);
+          const liste = clients.filter((c) =>
+            mots.every((t) => norm(`${c.prenom} ${c.nom} ${c.email} ${c.telephone ?? ""} ${c.adresse ?? ""}`).includes(t))
+          );
+          return (
+            <motion.div initial="hidden" animate="visible" variants={fadeUp}>
+            <button type="button" onClick={() => setVue(retourClients as typeof vue)} className="mb-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all hover:bg-gray-50" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>
+              <ArrowLeft size={16} style={{ color: "#2a8a8a" }} /> Retour
+            </button>
+            <div className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
+              <div className="px-5 sm:px-8 py-5 border-b flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between" style={{ borderColor: "#eef4f4" }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                    <Users size={18} style={{ color: "#2a8a8a" }} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Clients inscrits</h2>
+                    <p className="text-xs text-gray-400">{liste.length} client{liste.length > 1 ? "s" : ""}{q ? " trouvé" + (liste.length > 1 ? "s" : "") : ""}</p>
+                  </div>
+                </div>
+                <input
+                  value={rechercheClients}
+                  onChange={(e) => setRechercheClients(e.target.value)}
+                  placeholder="Rechercher un client…"
+                  className="w-full sm:w-72 px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                  style={{ borderColor: "#e0ecec" }}
+                />
+              </div>
+
+              {!clientsCharges ? (
+                <div className="py-16 text-center text-sm text-gray-400">Chargement des clients…</div>
+              ) : liste.length === 0 ? (
+                <div className="py-16 text-center text-sm text-gray-400">{q ? "Aucun client ne correspond à la recherche." : "Aucun client inscrit pour le moment."}</div>
+              ) : (
+                <>
+                  {/* En-têtes (ordinateur uniquement) */}
+                  <div className="hidden md:grid grid-cols-12 gap-3 px-8 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400 border-b" style={{ borderColor: "#f2f6f6" }}>
+                    <div className="col-span-3">Client</div>
+                    <div className="col-span-3">Email</div>
+                    <div className="col-span-2">Téléphone</div>
+                    <div className="col-span-2">Inscription</div>
+                    <div className="col-span-2 text-right">Activité</div>
+                  </div>
+                  <div className="divide-y divide-[#f2f6f6] max-h-[65vh] overflow-y-auto">
+                    {liste.map((c) => (
+                      <div key={c.id} className="px-5 sm:px-8 py-4 md:grid md:grid-cols-12 md:gap-3 md:items-center hover:bg-gray-50/60 transition-colors">
+                        <div className="md:col-span-3 flex items-center gap-3 min-w-0">
+                          <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                            {(c.prenom?.[0] ?? "").toUpperCase()}{(c.nom?.[0] ?? "").toUpperCase()}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{c.prenom} {c.nom}</p>
+                            {c.adresse && <p className="text-[11px] text-gray-400 truncate">{c.adresse}</p>}
+                          </div>
+                        </div>
+                        <div className="md:col-span-3 min-w-0 mt-2 md:mt-0">
+                          <span className="md:hidden text-[11px] text-gray-400 mr-1">Email :</span>
+                          <a href={`mailto:${c.email}`} className="text-sm truncate hover:underline" style={{ color: "#2a8a8a" }}>{c.email}</a>
+                        </div>
+                        <div className="md:col-span-2 mt-1 md:mt-0">
+                          <span className="md:hidden text-[11px] text-gray-400 mr-1">Tél :</span>
+                          <span className="text-sm" style={{ color: "#334155" }}>{c.telephone || "—"}</span>
+                        </div>
+                        <div className="md:col-span-2 mt-1 md:mt-0">
+                          <span className="md:hidden text-[11px] text-gray-400 mr-1">Inscrit le :</span>
+                          <span className="text-sm" style={{ color: "#334155" }}>{dateCourte(c.dateInscription)}</span>
+                        </div>
+                        <div className="md:col-span-2 mt-2 md:mt-0 flex md:justify-end gap-1.5">
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#eef4f4", color: "#2a8a8a" }} title="Cotations">{c._count?.devis ?? 0} cot.</span>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }} title="Contrats">{c._count?.contrats ?? 0} contr.</span>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#fee2e2", color: "#991b1b" }} title="Sinistres">{c._count?.sinistres ?? 0} sin.</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            </motion.div>
+          );
+        })()}
 
         {vue === "devis" && (<>
         {/* Statistiques cliquables (filtrent la liste) */}
@@ -2696,45 +3064,96 @@ export default function AdminPage() {
                   )}
                 </motion.div>
 
-                {/* Graphe comparatif sollicitations vs choix */}
+                {/* Entonnoir de conversion : parcours des clients de l'inscription à la souscription */}
                 <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
-                  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-                        <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Propositions et choix par compagnie</h2>
-                        <p className="text-xs text-gray-400">Comparaison des offres proposées et réellement retenues</p>
-                      </div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                      <TrendingUp size={18} style={{ color: "#2a8a8a" }} />
                     </div>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#2a8a8a" }} /> Proposées</span>
-                      <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#16a34a" }} /> Retenues</span>
+                    <div>
+                      <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Parcours des clients</h2>
+                      <p className="text-xs text-gray-400">De l&apos;inscription à la souscription — où perd-on des clients ?</p>
                     </div>
                   </div>
-                  <div className="h-[320px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={compagniesStats.slice(0, 8).map((c) => ({ nom: c.nom.split(" ")[0], Proposées: c.envoyees, Retenues: c.choisies }))} margin={{ top: 12, right: 8, left: -18, bottom: 0 }} barGap={4}>
-                        <defs>
-                          <linearGradient id="gradProposees" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#2a8a8a" stopOpacity={0.95} />
-                            <stop offset="100%" stopColor="#2a8a8a" stopOpacity={0.5} />
-                          </linearGradient>
-                          <linearGradient id="gradRetenues" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#16a34a" stopOpacity={0.95} />
-                            <stop offset="100%" stopColor="#16a34a" stopOpacity={0.5} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#eef4f4" vertical={false} />
-                        <XAxis dataKey="nom" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
-                        <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ borderRadius: 14, border: "1px solid #e6f0f0", fontSize: 12, boxShadow: "0 10px 30px rgba(26,46,90,0.12)" }} cursor={{ fill: "rgba(42,138,138,0.06)" }} />
-                        <Bar dataKey="Proposées" fill="url(#gradProposees)" radius={[8, 8, 0, 0]} maxBarSize={44} animationDuration={900} />
-                        <Bar dataKey="Retenues" fill="url(#gradRetenues)" radius={[8, 8, 0, 0]} maxBarSize={44} animationDuration={900} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+
+                  {(() => {
+                    const icones = [Users, ClipboardList, FileText, FileSignature];
+                    const couleurs = ["#1a2e5a", "#245e73", "#2a8a8a", "#16a34a"];
+                    const tauxGlobal = entonnoirClients[0].valeur
+                      ? Math.round((entonnoirClients[3].valeur / entonnoirClients[0].valeur) * 100)
+                      : 0;
+                    const elems: JSX.Element[] = [];
+                    entonnoirClients.forEach((et, i) => {
+                      // Connecteur (simple flèche) entre deux étapes.
+                      if (i > 0) {
+                        elems.push(
+                          <div key={`c${i}`} className="flex md:flex-col items-center justify-center md:px-1 py-1 md:py-0 flex-shrink-0">
+                            <ArrowRight size={18} className="hidden md:block text-gray-300" />
+                            <ChevronDown size={18} className="md:hidden text-gray-300" />
+                          </div>
+                        );
+                      }
+                      const Icone = icones[i];
+                      const actif = etapeDetail === et.cle;
+                      elems.push(
+                        <button
+                          key={et.cle}
+                          type="button"
+                          onClick={() => { if (et.items === null) { setRetourClients("compagnies"); setVue("clients"); } else setEtapeDetail(actif ? null : et.cle); }}
+                          className="flex-1 rounded-2xl border p-4 text-center min-w-0 transition-all hover:shadow-md hover:-translate-y-0.5"
+                          style={{ borderColor: actif ? couleurs[i] : "#eef4f4", background: "#fbfdfd", boxShadow: actif ? `0 0 0 2px ${couleurs[i]}55` : undefined }}
+                        >
+                          <div className="w-11 h-11 rounded-2xl flex items-center justify-center mx-auto mb-2 text-white" style={{ background: `linear-gradient(135deg, ${couleurs[i]}, ${couleurs[i]}bb)` }}>
+                            <Icone size={20} />
+                          </div>
+                          <p className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{et.valeur}</p>
+                          <p className="text-xs font-semibold mt-0.5" style={{ color: "#334155" }}>{et.label}</p>
+                          <p className="text-[10px] font-semibold mt-1.5" style={{ color: couleurs[i] }}>
+                            {et.items === null ? "Voir la liste →" : actif ? "Masquer ▲" : "Voir le détail ▾"}
+                          </p>
+                        </button>
+                      );
+                    });
+                    const sel = entonnoirClients.find((e) => e.cle === etapeDetail);
+                    return (
+                      <>
+                        <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
+                          Cliquez sur une étape pour voir les clients concernés.
+                        </p>
+                        <div className="flex flex-col md:flex-row md:items-stretch gap-2 md:gap-0">{elems}</div>
+
+                        {sel && sel.items && (
+                          <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: "#e0ecec", background: "#f8fbfb" }}>
+                            <div className="flex items-center justify-between gap-2 mb-2.5">
+                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{sel.label} · {sel.items.length} élément{sel.items.length > 1 ? "s" : ""}</p>
+                              <button type="button" onClick={() => setEtapeDetail(null)} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>Fermer</button>
+                            </div>
+                            {sel.items.length === 0 ? (
+                              <p className="text-sm text-gray-400">Aucun élément à cette étape.</p>
+                            ) : (
+                              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                                {sel.items.map((it, idx) => (
+                                  <div key={idx} className="flex items-center gap-3 rounded-xl bg-white border px-3 py-2" style={{ borderColor: "#eef4f4" }}>
+                                    <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: "linear-gradient(135deg,#1a2e5a,#2a8a8a)" }}>{(it.client[0] || "?").toUpperCase()}</span>
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{it.titre}</p>
+                                      <p className="text-[11px] text-gray-400 truncate">{it.client}{it.detail ? ` · ${it.detail}` : ""}</p>
+                                    </div>
+                                    <span className="text-[11px] font-medium flex-shrink-0" style={{ color: "#64748b" }}>{dateCourte(it.date)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="mt-6 pt-5 border-t flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
+                          <p className="text-sm text-gray-500">Taux de transformation global (inscrit → souscrit)</p>
+                          <p className="text-2xl font-extrabold" style={{ color: "#16a34a" }}>{tauxGlobal}%</p>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </motion.div>
 
                 {/* Classement interne */}
@@ -2760,7 +3179,11 @@ export default function AdminPage() {
                             <div className="h-full rounded-full" style={{ width: `${c.taux}%`, background: "linear-gradient(90deg, #2a8a8a, #16a34a)" }} />
                           </div>
                         </div>
-                        <div className="flex items-center gap-5 text-sm">
+                        <div className="flex items-center gap-4 sm:gap-5 text-sm">
+                          <div className="text-center">
+                            <p className="font-bold" style={{ color: "#4f46e5" }}>{analyseCompagnies.find((a) => a.nom === c.nom)?.nbClients ?? 0}</p>
+                            <p className="text-[10px] text-gray-400 uppercase">clients</p>
+                          </div>
                           <div className="text-center">
                             <p className="font-bold" style={{ color: "#2a8a8a" }}>{c.envoyees}</p>
                             <p className="text-[10px] text-gray-400 uppercase">proposées</p>
