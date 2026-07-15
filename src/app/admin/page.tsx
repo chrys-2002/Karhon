@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -3082,7 +3082,7 @@ export default function AdminPage() {
                     const tauxGlobal = entonnoirClients[0].valeur
                       ? Math.round((entonnoirClients[3].valeur / entonnoirClients[0].valeur) * 100)
                       : 0;
-                    const elems: JSX.Element[] = [];
+                    const elems: ReactNode[] = [];
                     entonnoirClients.forEach((et, i) => {
                       // Connecteur (simple flèche) entre deux étapes.
                       if (i > 0) {
