@@ -93,6 +93,7 @@ export default function Select({ label, name, value, onChange, options, required
             {options.map((option) => (
               <motion.button
                 key={option.value}
+                type="button"
                 whileHover={{ backgroundColor: "#f0f7f7" }}
                 onClick={() => {
                   onChange({ target: { name, value: option.value } });
