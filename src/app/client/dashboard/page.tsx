@@ -24,6 +24,7 @@ import {
   Check,
   CreditCard,
   X,
+  Trash2,
 } from "lucide-react";
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RTooltip,
@@ -124,6 +125,35 @@ const fadeUp = {
   hidden: { opacity: 0, y: 18 },
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.4, delay: i * 0.06 } }),
 };
+
+// Infobulle détaillée du graphe des échéances : liste les souscriptions
+// concernées par le mois survolé (produit, n° de contrat, compagnie, date).
+type EchDetail = { produit: string; numero: string; compagnie: string; date: string };
+function TooltipEcheances({ active, payload, label }: {
+  active?: boolean;
+  label?: string;
+  payload?: { payload: { echeances: number; details: EchDetail[] } }[];
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const point = payload[0].payload;
+  return (
+    <div className="rounded-2xl bg-white shadow-xl p-3 text-xs" style={{ border: "1px solid #e6f0f0", minWidth: 180, maxWidth: 260 }}>
+      <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>{label} · {point.echeances} échéance{point.echeances > 1 ? "s" : ""}</p>
+      {point.details.length === 0 ? (
+        <p className="text-gray-400">Aucun contrat ce mois-ci.</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {point.details.map((d, i) => (
+            <li key={i} className="leading-tight">
+              <p className="font-semibold" style={{ color: "#1a2e5a" }}>{d.produit}</p>
+              <p className="text-gray-400">N° {d.numero}{d.compagnie ? ` · ${d.compagnie}` : ""} · {d.date}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const router = useRouter();
@@ -281,6 +311,18 @@ export default function Dashboard() {
     router.push("/");
   };
 
+  // Suppression douce d'un rendez-vous : on le retire de la liste (archivage côté serveur).
+  const [rdvSuppr, setRdvSuppr] = useState<string | null>(null);
+  const archiverRdv = async (id: string) => {
+    if (!window.confirm("Retirer ce rendez-vous de votre liste ?")) return;
+    setRdvSuppr(id);
+    try {
+      const res = await fetch(`/api/rendez-vous/${id}`, { method: "DELETE" });
+      if (res.ok) setRdv((prev) => prev.filter((r) => r.id !== id));
+    } catch { /* on ignore : la liste se resynchronise au prochain rafraîchissement */ }
+    finally { setRdvSuppr(null); }
+  };
+
   // ── Indicateurs ──
   const dansFenetre90 = (iso?: string) => {
     if (!iso) return false;
@@ -327,19 +369,36 @@ export default function Dashboard() {
   ].filter((x) => x.valeur > 0);
   const totalActivite = repartition.reduce((s, x) => s + x.valeur, 0);
 
-  // Petite courbe « échéances » : nb de contrats arrivant à terme par mois (6 mois à venir).
+  // Courbe « échéances » sur 6 mois : nombre de contrats arrivant à terme chaque
+  // mois, ET la liste des souscriptions concernées (affichée dans l'infobulle).
   const moisLabels = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(); d.setMonth(d.getMonth() + i);
     return { key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleDateString("fr-FR", { month: "short", timeZone: "Africa/Abidjan" }) };
   });
-  const echeancesData = moisLabels.map((m) => ({
-    mois: m.label,
-    echeances: contrats.filter((c) => {
+  const echeancesData = moisLabels.map((m) => {
+    const dus = contrats.filter((c) => {
       if (c.statut !== "actif" || !c.dateFin) return false;
       const d = new Date(c.dateFin);
       return `${d.getFullYear()}-${d.getMonth()}` === m.key;
-    }).length,
-  }));
+    });
+    return {
+      mois: m.label,
+      echeances: dus.length,
+      details: dus.map((c) => ({
+        produit: c.produit?.nom ?? "Contrat",
+        numero: c.numeroContrat,
+        compagnie: c.compagnie ?? "",
+        date: c.dateFin ? fmtDate(c.dateFin) : "",
+      })),
+    };
+  });
+
+  // Liste détaillée des échéances à venir : contrats actifs dont le terme est à
+  // venir, du plus proche au plus lointain, avec le nombre de jours restants.
+  const echeancesListe = contrats
+    .filter((c) => c.statut === "actif" && c.dateFin && new Date(c.dateFin).getTime() > Date.now())
+    .map((c) => ({ contrat: c, jours: Math.ceil((new Date(c.dateFin as string).getTime() - Date.now()) / 86_400_000) }))
+    .sort((a, b) => a.jours - b.jours);
 
   const stats = [
     { label: "Souscriptions actives", value: contratsActifs, Icon: FileText, cible: "souscriptions" as const },
@@ -457,8 +516,8 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mb-3">Renouvellements sur les 6 prochains mois</p>
-              <div className="h-[200px]">
+              <p className="text-xs text-gray-400 mb-3">Renouvellements sur les 6 prochains mois — survolez pour le détail</p>
+              <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={echeancesData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                     <defs>
@@ -470,10 +529,45 @@ export default function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#eef4f4" vertical={false} />
                     <XAxis dataKey="mois" tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                    <RTooltip contentStyle={{ borderRadius: 12, border: "1px solid #e6f0f0", fontSize: 12 }} />
+                    <RTooltip content={<TooltipEcheances />} />
                     <Area type="monotone" dataKey="echeances" name="Échéances" stroke={TEAL} strokeWidth={2.5} fill="url(#gradEch)" animationDuration={900} />
                   </AreaChart>
                 </ResponsiveContainer>
+              </div>
+
+              {/* Détail des prochaines échéances sous le graphe */}
+              <div className="mt-4 pt-3 border-t" style={{ borderColor: "#eef4f4" }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Prochaines échéances</p>
+                {echeancesListe.length === 0 ? (
+                  <p className="text-sm text-gray-400">Aucune échéance à venir. Vos renouvellements apparaîtront ici.</p>
+                ) : (
+                  <ul className="space-y-2.5 max-h-[200px] overflow-y-auto pr-1 -mr-1">
+                    {echeancesListe.map(({ contrat: c, jours }) => {
+                    const urgence = jours <= 30
+                      ? { bg: "#fee2e2", fg: "#991b1b", label: "Urgent" }
+                      : jours <= 90
+                      ? { bg: "#fef3c7", fg: "#92600a", label: "Bientôt" }
+                      : { bg: "#eaf4f4", fg: TEAL, label: "À venir" };
+                    return (
+                      <li key={c.id} className="flex items-center gap-3 rounded-2xl border p-3" style={{ borderColor: "#eef4f4" }}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                          <FileText size={18} style={{ color: TEAL }} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold truncate" style={{ color: MARINE }}>{c.produit?.nom ?? "Contrat"}</p>
+                          <p className="text-[11px] text-gray-400 truncate">
+                            N° {c.numeroContrat}{c.compagnie ? ` · ${c.compagnie}` : ""} · échéance {fmtDate(c.dateFin)}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: urgence.bg, color: urgence.fg }}>{urgence.label}</span>
+                          <p className="text-[11px] text-gray-400 mt-1">dans {jours} j</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                )}
               </div>
             </motion.div>
           </div>
@@ -933,6 +1027,16 @@ export default function Dashboard() {
                         <ChevronDown size={16} className={`ml-1 flex-shrink-0 transition-transform duration-200 ${detailOuvert === r.id ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                       </button>
                       <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>{statut.replace(/_/g, " ")}</span>
+                      <button
+                        type="button"
+                        onClick={() => archiverRdv(r.id)}
+                        disabled={rdvSuppr === r.id}
+                        title="Retirer ce rendez-vous"
+                        className="flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:bg-red-50 disabled:opacity-50 flex-shrink-0"
+                        style={{ border: "1px solid #f7caca", color: "#b42318" }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                     <AnimatePresence initial={false}>
                       {detailOuvert === r.id && (

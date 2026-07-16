@@ -268,10 +268,16 @@ model RendezVous {
   statut    StatutRendezVous @default(en_attente)
   motif     String
   notes     String?
+  createdAt DateTime         @default(now()) // date de création de la demande
+
+  // Suppression douce (archivage) : le client peut retirer un rendez-vous de sa liste.
+  supprime   Boolean   @default(false)
+  supprimeLe DateTime?
 
   userId    String
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, createdAt])
   @@map("rendez_vous")
 }
 

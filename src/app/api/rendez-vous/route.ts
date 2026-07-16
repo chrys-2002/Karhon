@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
     // Pas de doublon : un seul rendez-vous actif par créneau.
     const dejaPris = await prisma.rendezVous.findFirst({
-      where: { dateHeure, statut: { in: ["en_attente", "confirme"] } },
+      where: { dateHeure, statut: { in: ["en_attente", "confirme"] }, supprime: false },
     });
     if (dejaPris) {
       return NextResponse.json({ erreur: "Ce créneau est déjà réservé. Choisissez-en un autre." }, { status: 409 });
@@ -96,7 +96,7 @@ export async function GET(req: Request) {
         return NextResponse.json({ creneauxPris: [] });
       }
       const pris = await prisma.rendezVous.findMany({
-        where: { dateHeure: { gte: debut, lte: fin }, statut: { in: ["en_attente", "confirme"] } },
+        where: { dateHeure: { gte: debut, lte: fin }, statut: { in: ["en_attente", "confirme"] }, supprime: false },
         select: { dateHeure: true },
       });
       const creneauxPris = pris.map((p) =>
@@ -107,8 +107,11 @@ export async function GET(req: Request) {
 
     const estStaff = ROLES_STAFF.includes(auth.role);
     const rendezVous = await prisma.rendezVous.findMany({
-      where: estStaff ? {} : { userId: auth.userId },
-      orderBy: { dateHeure: "asc" },
+      // On masque les rendez-vous archivés (suppression douce côté client).
+      where: estStaff ? { supprime: false } : { userId: auth.userId, supprime: false },
+      // Client : trié par date de création (le plus récent d'abord).
+      // Personnel : trié par créneau à venir.
+      orderBy: estStaff ? { dateHeure: "asc" } : { createdAt: "desc" },
       include: {
         user: estStaff
           ? { select: { nom: true, prenom: true, email: true, telephone: true } }
