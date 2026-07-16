@@ -873,6 +873,27 @@ export default function AdminPage() {
     return () => clearTimeout(t);
   }, [vue, estGerant, chargerJournal]);
 
+  // Suppression d'une entrée du journal d'audit (gérant).
+  const [journalSuppr, setJournalSuppr] = useState<string | null>(null);
+  const supprimerJournalEntree = async (id: string) => {
+    if (!window.confirm("Supprimer définitivement cette entrée du journal ?")) return;
+    setJournalSuppr(id);
+    try {
+      const r = await fetch(`/api/journal?id=${id}`, { method: "DELETE" });
+      if (r.ok) { setJournal((prev) => prev.filter((j) => j.id !== id)); setJournalTotal((t) => Math.max(0, t - 1)); }
+      else afficherNotif("err", "Suppression impossible.");
+    } catch { afficherNotif("err", "Erreur réseau."); }
+    finally { setJournalSuppr(null); }
+  };
+  const viderJournal = async () => {
+    if (!window.confirm("Vider entièrement le journal d'audit ? Cette action est irréversible.")) return;
+    try {
+      const r = await fetch(`/api/journal?all=1`, { method: "DELETE" });
+      if (r.ok) { setJournal([]); setJournalTotal(0); afficherNotif("ok", "Journal vidé."); }
+      else afficherNotif("err", "Impossible de vider le journal.");
+    } catch { afficherNotif("err", "Erreur réseau."); }
+  };
+
   // Revient à la page 1 quand la recherche, le filtre, le tri ou la période change.
   useEffect(() => { setJournalPage(1); }, [journalQ, journalAction, journalTri, journalSens, journalPeriode]);
 
@@ -3363,7 +3384,7 @@ export default function AdminPage() {
               ) : totalArchivesAffiches === 0 ? (
                 <div className="py-12 text-center text-sm text-gray-400">Aucun résultat dans les archives pour cette recherche.</div>
               ) : (
-                <div className="divide-y divide-[#eef4f4]">
+                <div className="divide-y divide-[#eef4f4] max-h-[26rem] overflow-y-auto">
                   {archivesTriees.map((a) => (
                     <LigneArchive
                       key={a.id} type={a.kind}
@@ -3382,14 +3403,27 @@ export default function AdminPage() {
             {/* Journal d'audit */}
             <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mt-8 bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
               <div className="px-6 sm:px-8 py-5 border-b" style={{ borderColor: "#eef4f4" }}>
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
-                    <History size={18} style={{ color: "#2a8a8a" }} />
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                      <History size={18} style={{ color: "#2a8a8a" }} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
+                      <p className="text-xs text-gray-400">{journalTotal.toLocaleString("fr-FR")} entrée{journalTotal > 1 ? "s" : ""} · recherche instantanée</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
-                    <p className="text-xs text-gray-400">{journalTotal.toLocaleString("fr-FR")} entrée{journalTotal > 1 ? "s" : ""} · recherche instantanée</p>
-                  </div>
+                  {journalTotal > 0 && (
+                    <button
+                      type="button"
+                      onClick={viderJournal}
+                      title="Supprimer toutes les entrées du journal"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:bg-red-50 flex-shrink-0"
+                      style={{ borderColor: "#f7caca", color: "#b42318" }}
+                    >
+                      <Trash2 size={14} /> Vider le journal
+                    </button>
+                  )}
                 </div>
 
                 {/* Recherche serveur + filtres par action */}
@@ -3455,7 +3489,7 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <>
-                  <div className="divide-y divide-[#eef4f4]">
+                  <div className="divide-y divide-[#eef4f4] max-h-[26rem] overflow-y-auto">
                     {journal.map((j) => {
                       const couleur = j.action === "purge" ? "#b42318" : j.action === "restauration" ? "#166534" : "#b45309";
                       const fond = j.action === "purge" ? "#fee2e2" : j.action === "restauration" ? "#dcfce7" : "#fef3c7";
@@ -3465,9 +3499,21 @@ export default function AdminPage() {
                             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full capitalize" style={{ background: fond, color: couleur }}>{j.action}</span>
                             <span className="text-sm text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
                           </div>
-                          <p className="text-xs text-gray-400">
-                            par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                          </p>
+                          <div className="flex items-center gap-3">
+                            <p className="text-xs text-gray-400">
+                              par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => supprimerJournalEntree(j.id)}
+                              disabled={journalSuppr === j.id}
+                              title="Supprimer cette entrée"
+                              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:bg-red-50 disabled:opacity-50 flex-shrink-0"
+                              style={{ border: "1px solid #f7caca", color: "#b42318" }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </div>
                       );
                     })}

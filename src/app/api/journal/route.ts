@@ -82,3 +82,29 @@ export async function GET(req: Request) {
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
   }
 }
+
+// ── DELETE : supprimer une entrée du journal (?id=…) ou tout vider (?all=1).
+//   Réservé au gérant.
+export async function DELETE(req: Request) {
+  const auth = await exigerGerant();
+  if (auth instanceof NextResponse) return auth;
+
+  try {
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id");
+    const all = url.searchParams.get("all") === "1";
+
+    if (all) {
+      const { count } = await prisma.journalAudit.deleteMany({});
+      return NextResponse.json({ ok: true, supprimees: count });
+    }
+    if (!id) {
+      return NextResponse.json({ erreur: "Identifiant manquant." }, { status: 400 });
+    }
+    await prisma.journalAudit.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[journal DELETE]", e);
+    return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
+  }
+}
