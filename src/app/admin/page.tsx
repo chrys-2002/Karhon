@@ -192,6 +192,7 @@ type RendezVousAdmin = {
   statut: string;
   motif: string;
   notes?: string | null;
+  createdAt?: string;
   user?: UserAdmin;
 };
 
@@ -929,6 +930,9 @@ export default function AdminPage() {
   const [detailClient, setDetailClient] = useState<string | null>(null);
   // Étape du parcours client dépliée (liste des clients concernés).
   const [etapeDetail, setEtapeDetail] = useState<string | null>(null);
+  // Rapport hebdomadaire : semaine consultée (0 = en cours, 1..3 = précédentes) + métrique dépliée.
+  const [rapportSemaine, setRapportSemaine] = useState(0);
+  const [rapportDetail, setRapportDetail] = useState<string | null>(null);
 
   // Affiche un message transitoire (auto-effacé après 6 s).
   const afficherNotif = (type: "ok" | "warn" | "err", texte: string) => {
@@ -1555,6 +1559,64 @@ export default function AdminPage() {
     ];
   })();
 
+  // ── Rapport hebdomadaire : activité de la semaine en cours ET des 3 semaines
+  // précédentes, avec le détail des éléments concernés. Visible par tout le personnel.
+  type RapItem = { titre: string; sous: string; date: string };
+  type RapRelance = { nom: string; contact: string; produit: string; numero: string; echeance: string; nb: number; date: string };
+  const rapportSemaines = (() => {
+    const now = Date.now();
+    const J7 = 7 * 86_400_000;
+    const fmt = (t: number) => new Date(t).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+    const nomC = (u?: { email?: string | null; nom?: string | null; prenom?: string | null }) =>
+      u?.email ? (`${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || u.email) : "Client";
+    const dansFen = (iso: string | null | undefined, a: number, b: number) => {
+      if (!iso) return false;
+      const t = new Date(iso).getTime();
+      return !Number.isNaN(t) && t >= a && t < b;
+    };
+    const compte = <T,>(arr: T[], getDate: (x: T) => string | null | undefined, a: number, b: number) =>
+      arr.filter((x) => dansFen(getDate(x), a, b)).length;
+
+    const semaines = [];
+    for (let w = 0; w < 4; w++) {
+      const fin = now - w * J7;
+      const debut = now - (w + 1) * J7;
+      const finPrec = debut;
+      const debutPrec = now - (w + 2) * J7;
+      const cot: RapItem[] = devis.filter((d) => dansFen(d.dateCreation, debut, fin)).map((d) => ({ titre: d.produit?.nom ?? "Cotation", sous: `${nomC(d.user)} · ${LIB_STATUT_DEVIS[d.statut] ?? d.statut}`, date: d.dateCreation }));
+      const sou: RapItem[] = contrats.filter((c) => dansFen(c.dateDebut, debut, fin)).map((c) => ({ titre: `${c.produit?.nom ?? "Contrat"} · N° ${c.numeroContrat}`, sous: `${nomC(c.user)}${c.compagnie ? ` · ${c.compagnie}` : ""}`, date: c.dateDebut }));
+      const sin: RapItem[] = sinistres.filter((s) => dansFen(s.dateDeclaration, debut, fin)).map((s) => ({ titre: s.typeAssurance ?? "Sinistre", sous: `${nomC(s.user)} · ${s.statut}`, date: s.dateDeclaration }));
+      const rdvL: RapItem[] = rendezVous.filter((r) => dansFen(r.createdAt ?? r.dateHeure, debut, fin)).map((r) => ({ titre: r.motif ?? "Rendez-vous", sous: `${nomC(r.user)} · ${r.statut}`, date: r.createdAt ?? r.dateHeure }));
+      // Relances effectuées cette semaine (renouvellements de contrats) : assuré, contact, échéance.
+      const relances: RapRelance[] = contrats
+        .filter((c) => dansFen(c.derniereRelance, debut, fin))
+        .map((c) => ({
+          nom: nomC(c.user),
+          contact: c.user?.telephone ?? "—",
+          produit: c.produit?.nom ?? "Contrat",
+          numero: c.numeroContrat,
+          echeance: c.dateFin,
+          nb: c.nombreRelances ?? 1,
+          date: c.derniereRelance ?? c.dateFin,
+        }))
+        .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+      const tri = (arr: RapItem[]) => arr.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+      semaines.push({
+        offset: w,
+        label: w === 0 ? "Cette semaine" : w === 1 ? "Semaine dernière" : `Il y a ${w} semaines`,
+        periode: `${fmt(debut)} au ${fmt(fin - 1)}`,
+        relances,
+        metriques: [
+          { cle: "cotations", label: "Cotations reçues", items: tri(cot), prec: compte(devis, (d) => d.dateCreation, debutPrec, finPrec) },
+          { cle: "souscriptions", label: "Souscriptions enregistrées", items: tri(sou), prec: compte(contrats, (c) => c.dateDebut, debutPrec, finPrec) },
+          { cle: "sinistres", label: "Sinistres déclarés", items: tri(sin), prec: compte(sinistres, (s) => s.dateDeclaration, debutPrec, finPrec) },
+          { cle: "rdv", label: "Rendez-vous demandés", items: tri(rdvL), prec: compte(rendezVous, (r) => r.createdAt ?? r.dateHeure, debutPrec, finPrec) },
+        ],
+      });
+    }
+    return semaines;
+  })();
+
   // Petit utilitaire : agrège des lignes par (produit/type) puis, à l'intérieur,
   // par client. Renvoie chaque groupe avec son total ET le détail des clients.
   type DetailClient = { nom: string; email: string; count: number };
@@ -2011,6 +2073,150 @@ export default function AdminPage() {
             </button>
           </motion.div>
         )}
+
+        {/* Rapport hebdomadaire de l'activité — visible par tout le personnel */}
+        <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.06 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8 mb-8" style={{ borderColor: "#e0ecec" }}>
+          {(() => {
+            const sem = rapportSemaines[rapportSemaine] ?? rapportSemaines[0];
+            const totalSem = sem.metriques.reduce((s, m) => s + m.items.length, 0);
+            return (
+              <>
+                <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                      <History size={18} style={{ color: "#2a8a8a" }} />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Rapport hebdomadaire</h2>
+                      <p className="text-xs text-gray-400">{sem.label} · {sem.periode} · visible par toute l&apos;équipe</p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-semibold px-3 py-1 rounded-full" style={{ background: "#eef4f4", color: "#2a8a8a" }}>{totalSem} action{totalSem > 1 ? "s" : ""}</span>
+                </div>
+
+                {/* Sélecteur de semaine (en cours + 3 précédentes) */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {rapportSemaines.map((s) => {
+                    const actif = s.offset === rapportSemaine;
+                    return (
+                      <button
+                        key={s.offset}
+                        type="button"
+                        onClick={() => { setRapportSemaine(s.offset); setRapportDetail(null); }}
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                        style={actif ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" } : { background: "#fff", color: "#1a2e5a", border: "1px solid #e0ecec" }}
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {sem.metriques.map((m) => {
+                    const delta = m.items.length - m.prec;
+                    const tendance = delta > 0
+                      ? { bg: "#dcfce7", fg: "#166534", texte: `+${delta}` }
+                      : delta < 0
+                      ? { bg: "#fee2e2", fg: "#991b1b", texte: `${delta}` }
+                      : { bg: "#eef4f4", fg: "#64748b", texte: "=" };
+                    const ouvert = rapportDetail === m.cle;
+                    return (
+                      <button
+                        key={m.cle}
+                        type="button"
+                        onClick={() => setRapportDetail(ouvert ? null : m.cle)}
+                        className="text-left rounded-2xl border p-4 transition-all hover:shadow-md"
+                        style={{ borderColor: ouvert ? "#2a8a8a" : "#eef4f4", background: "#fbfdfd", boxShadow: ouvert ? "0 0 0 2px rgba(42,138,138,0.30)" : undefined }}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-3xl font-extrabold" style={{ color: "#1a2e5a" }}>{m.items.length}</p>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: tendance.bg, color: tendance.fg }}>{tendance.texte}</span>
+                        </div>
+                        <p className="text-xs font-semibold mt-1" style={{ color: "#334155" }}>{m.label}</p>
+                        <p className="text-[10px] font-semibold mt-1.5" style={{ color: "#2a8a8a" }}>{ouvert ? "Masquer ▲" : "Voir le détail ▾"}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Détail de la métrique sélectionnée */}
+                {(() => {
+                  const m = sem.metriques.find((x) => x.cle === rapportDetail);
+                  if (!m) return null;
+                  return (
+                    <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: "#e0ecec", background: "#f8fbfb" }}>
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{m.label} · {sem.label} · {m.items.length}</p>
+                        <button type="button" onClick={() => setRapportDetail(null)} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>Fermer</button>
+                      </div>
+                      {m.items.length === 0 ? (
+                        <p className="text-sm text-gray-400">Rien sur cette période.</p>
+                      ) : (
+                        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                          {m.items.map((it, idx) => (
+                            <div key={idx} className="flex items-center gap-3 rounded-xl bg-white border px-3 py-2" style={{ borderColor: "#eef4f4" }}>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{it.titre}</p>
+                                <p className="text-[11px] text-gray-400 truncate">{it.sous}</p>
+                              </div>
+                              <span className="text-[11px] font-medium flex-shrink-0" style={{ color: "#64748b" }}>{dateCourte(it.date)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Tableau des relances de la semaine (renouvellements) */}
+                <div className="mt-6 pt-5 border-t" style={{ borderColor: "#eef4f4" }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <BellRing size={16} style={{ color: "#b45309" }} />
+                    <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Relances effectuées ({sem.relances.length})</h3>
+                  </div>
+                  {sem.relances.length === 0 ? (
+                    <p className="text-sm text-gray-400">Aucune relance sur cette période.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <div className="min-w-[520px]">
+                        <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                          <div className="col-span-4">Assuré</div>
+                          <div className="col-span-3">Contact</div>
+                          <div className="col-span-3">Échéance</div>
+                          <div className="col-span-2 text-right">Relances</div>
+                        </div>
+                        <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                          {sem.relances.map((r, idx) => (
+                            <div key={idx} className="grid grid-cols-12 gap-3 items-center rounded-xl bg-white border px-3 py-2.5" style={{ borderColor: "#eef4f4" }}>
+                              <div className="col-span-4 min-w-0">
+                                <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{r.nom}</p>
+                                <p className="text-[11px] text-gray-400 truncate">{r.produit} · N° {r.numero}</p>
+                              </div>
+                              <div className="col-span-3 min-w-0">
+                                {r.contact && r.contact !== "—" ? (
+                                  <a href={`tel:${r.contact.replace(/\s+/g, "")}`} className="text-sm hover:underline" style={{ color: "#2a8a8a" }}>{r.contact}</a>
+                                ) : (
+                                  <span className="text-sm text-gray-400">—</span>
+                                )}
+                              </div>
+                              <div className="col-span-3">
+                                <span className="text-sm" style={{ color: "#334155" }}>{dateCourte(r.echeance)}</span>
+                              </div>
+                              <div className="col-span-2 text-right">
+                                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>{r.nb}×</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
+        </motion.div>
 
         {/* Graphes : évolution (courbe) + répartition des devis (donut) */}
         {apercu && (
