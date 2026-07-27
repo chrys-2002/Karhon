@@ -375,10 +375,44 @@ export default function ContactPage() {
     e.target.style.boxShadow = 'none';
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  const [envoye, setEnvoye] = useState(false);
+  const [erreur, setErreur] = useState('');
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Formulaire contact:', formData);
-    alert('Message envoyé (simulation)');
+    setErreur('');
+
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
+    const telOk = formData.telephone.replace(/\D/g, '').length >= 8;
+    if (!formData.message.trim()) {
+      setErreur('Merci de décrire votre besoin dans le message.');
+      return;
+    }
+    if (!emailOk && !telOk) {
+      setErreur('Indiquez un email ou un téléphone valide pour être recontacté.');
+      return;
+    }
+
+    setEnvoiEnCours(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErreur(data.erreur ?? "Votre message n'a pas pu être envoyé. Réessayez.");
+        return;
+      }
+      setEnvoye(true);
+      setFormData({ nom: '', prenom: '', telephone: '', email: '', motif: '', message: '' });
+    } catch {
+      setErreur('Connexion impossible. Vérifiez votre réseau et réessayez.');
+    } finally {
+      setEnvoiEnCours(false);
+    }
   };
 
   return (
@@ -529,6 +563,25 @@ export default function ContactPage() {
                 Envoyez-nous un message
               </h3>
 
+              {envoye ? (
+                <div className="flex flex-col items-center justify-center text-center py-8">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg, #eaf4f4, #d0ecec)' }}>
+                    <CheckCircle size={34} style={{ color: '#2a8a8a' }} />
+                  </div>
+                  <h4 className="text-xl font-bold mb-2" style={{ color: '#1a2e5a' }}>Message envoyé</h4>
+                  <p className="text-gray-500 text-sm max-w-xs mb-6">
+                    Merci, nous avons bien reçu votre message. Un conseiller KARHON vous recontacte rapidement.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setEnvoye(false)}
+                    className="px-5 py-3 rounded-2xl font-semibold text-sm border-2 transition-all hover:bg-gray-50"
+                    style={{ borderColor: '#2a8a8a', color: '#2a8a8a' }}
+                  >
+                    Envoyer un autre message
+                  </button>
+                </div>
+              ) : (
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-2 gap-3">
                   <input
@@ -585,14 +638,22 @@ export default function ContactPage() {
                   onBlur={handleBlur}
                 />
 
+                {erreur && (
+                  <p className="rounded-2xl px-4 py-3 text-sm font-medium text-center" style={{ background: '#fdecec', color: '#b42318', border: '1px solid #f7caca' }}>
+                    {erreur}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full text-white font-semibold py-4 rounded-2xl transition-all text-base shadow-lg hover:scale-105 active:scale-95"
+                  disabled={envoiEnCours}
+                  className="w-full text-white font-semibold py-4 rounded-2xl transition-all text-base shadow-lg hover:scale-105 active:scale-95 disabled:opacity-70 disabled:hover:scale-100"
                   style={{ background: 'linear-gradient(135deg, #2a8a8a, #1a2e5a)' }}
                 >
-                  Envoyer le message
+                  {envoiEnCours ? 'Envoi en cours…' : 'Envoyer le message'}
                 </button>
               </form>
+              )}
             </div>
           </div>
         </div>

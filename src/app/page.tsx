@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { X, CheckCircle, ChevronLeft, ChevronRight, ArrowRight, ChevronDown, Handshake, Users, Zap, ShieldCheck, Target, Scale, BadgeDollarSign } from "lucide-react";
+import { X, CheckCircle, ArrowRight, ChevronDown, Handshake, Users, Zap, ShieldCheck, Target, Scale, BadgeDollarSign } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 // Interfaces pour typer les données
@@ -171,38 +171,10 @@ const pourquoi = [
 ];
 
 function Carousel({ produits, title, subtitle }: { produits: Product[]; title: string; subtitle: string }) {
-  const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(0);
+  // Vitrine produits en grille : plus de défilement automatique. Chaque produit
+  // est une carte élégante ; le détail s'ouvre dans une fenêtre au clic.
   const [selectedProduit, setSelectedProduit] = useState<Product | null>(null);
   const [expandedOption, setExpandedOption] = useState<string | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const startTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setDirection(1);
-      setCurrent(prev => (prev + 1) % produits.length);
-    }, 6000);
-  };
-
-  useEffect(() => {
-    startTimer();
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
-
-  const go = (dir: number) => {
-    setDirection(dir);
-    setCurrent(prev => (prev + dir + produits.length) % produits.length);
-    startTimer();
-  };
-
-  const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 120 : -120, opacity: 0, scale: 0.95 }),
-    center: { x: 0, opacity: 1, scale: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -120 : 120, opacity: 0, scale: 0.95 }),
-  };
-
-  const p = produits[current];
 
   return (
     <>
@@ -213,91 +185,66 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
             <h2 className="text-3xl sm:text-5xl font-bold" style={{ color: "#1a2e5a" }}>{title}</h2>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <div className="relative h-64 sm:h-80 lg:h-[480px] rounded-3xl overflow-hidden shadow-2xl">
-              <AnimatePresence custom={direction} mode="wait">
-                <motion.div key={current} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }} className="absolute inset-0">
-                  <Image src={p.image} alt={p.nom} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(26,46,90,0.4) 0%, rgba(42,138,138,0.2) 100%)" }} />
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.8)" }}>{p.tag}</span>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {produits.map((prod, idx) => (
+              <motion.div
+                key={prod.nom}
+                initial={{ opacity: 0, y: 26 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: (idx % 3) * 0.08 }}
+                className="group flex flex-col bg-white rounded-3xl overflow-hidden border shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                style={{ borderColor: "#e6f0f0" }}
+              >
+                <div className="relative h-44 sm:h-48 overflow-hidden">
+                  <Image src={prod.image} alt={prod.nom} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(26,46,90,0.85) 0%, rgba(26,46,90,0.15) 55%, transparent 100%)" }} />
+                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-[11px] font-bold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.85)" }}>{prod.tag}</span>
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <h3 className="text-xl font-bold text-white leading-tight">{prod.nom}</h3>
+                    <p className="text-white/75 text-xs mt-0.5">{prod.description}</p>
                   </div>
-                  <div className="absolute bottom-4 right-4">
-                    <span className="text-white/60 text-sm font-mono">{String(current + 1).padStart(2, "0")} / {String(produits.length).padStart(2, "0")}</span>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                </div>
 
-            <div className="flex flex-col justify-between h-full">
-              <AnimatePresence custom={direction} mode="wait">
-                <motion.div key={current + "text"} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.05 }} className="space-y-5">
-                  <div>
-                    <h3 className="text-2xl sm:text-4xl font-bold mb-2" style={{ color: "#1a2e5a" }}>{p.nom}</h3>
-                    <p className="text-base text-gray-500 font-medium">{p.description}</p>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{p.longDescription}</p>
-                  <div className="grid grid-cols-1 gap-2">
-                    {p.garanties.slice(0, 3).map((g: string, i: number) => (
-                      <motion.div key={g} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }} className="flex items-center gap-3 text-sm text-gray-700">
-                        <CheckCircle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />{g}
-                      </motion.div>
+                <div className="p-6 flex flex-col flex-1">
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">{prod.longDescription}</p>
+
+                  <div className="space-y-2 mb-4">
+                    {prod.garanties.slice(0, 3).map((g: string) => (
+                      <div key={g} className="flex items-center gap-2.5 text-sm text-gray-700">
+                        <CheckCircle size={15} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
+                        <span className="truncate">{g}</span>
+                      </div>
                     ))}
-                    {p.garanties.length > 3 && <p className="text-xs text-gray-400 pl-7">+{p.garanties.length - 3} garanties supplémentaires</p>}
+                    {prod.garanties.length > 3 && (
+                      <p className="text-xs text-gray-400 pl-[26px]">+{prod.garanties.length - 3} garanties supplémentaires</p>
+                    )}
                   </div>
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {p.options.map((o: ProductOption, i: number) => (
-                      <motion.span
+
+                  <div className="flex flex-wrap gap-1.5 mb-5">
+                    {prod.options.map((o: ProductOption) => (
+                      <button
                         key={o.label}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 + i * 0.06 }}
-                        className="px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer hover:bg-blue-50 transition-all"
-                        style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}
-                        onClick={() => {
-                          setSelectedProduit(p);
-                          setExpandedOption(o.label);
-                        }}
+                        type="button"
+                        onClick={() => { setSelectedProduit(prod); setExpandedOption(o.label); }}
+                        className="px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all hover:bg-[#f0f7f7]"
+                        style={{ borderColor: "#cfe3e3", color: "#2a8a8a" }}
                       >
                         {o.label}
-                      </motion.span>
+                      </button>
                     ))}
                   </div>
-                  <div className="flex gap-3 pt-2">
-                    <button onClick={() => setSelectedProduit(p)} className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm text-white transition-all hover:scale-105 active:scale-95 shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
-                      Voir les détails <ArrowRight size={15} />
+
+                  <div className="flex gap-2 mt-auto pt-1">
+                    <button onClick={() => setSelectedProduit(prod)} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-semibold text-xs text-white transition-all hover:shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                      Voir les détails <ArrowRight size={14} />
                     </button>
-                    <Link href="/devis" className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm border-2 transition-all hover:scale-105 active:scale-95" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
-                      Cotation gratuite
+                    <Link href="/devis" className="inline-flex items-center justify-center px-4 py-2.5 rounded-2xl font-semibold text-xs border-2 transition-all hover:bg-[#f0f7f7]" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
+                      Cotation
                     </Link>
                   </div>
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="flex items-center gap-4 mt-8">
-                <button onClick={() => go(-1)} className="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 active:scale-95" style={{ borderColor: "#1a2e5a", color: "#1a2e5a" }}>
-                  <ChevronLeft size={18} />
-                </button>
-                <button onClick={() => go(1)} className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
-                  <ChevronRight size={18} />
-                </button>
-                <div className="flex gap-2 ml-2">
-                  {produits.map((_, i) => (
-                    <button key={i} onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); startTimer(); }} className="transition-all duration-300 rounded-full" style={{ width: i === current ? "28px" : "8px", height: "8px", backgroundColor: i === current ? "#2a8a8a" : "#d1e8e8" }} />
-                  ))}
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10 grid grid-cols-4 gap-3">
-            {produits.map((prod, i) => (
-              <motion.button key={i} onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); startTimer(); }} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="relative h-16 sm:h-20 rounded-xl overflow-hidden transition-all" style={{ outline: i === current ? "3px solid #2a8a8a" : "3px solid transparent", outlineOffset: "2px", opacity: i === current ? 1 : 0.6 }}>
-                <Image src={prod.image} alt={prod.nom} fill sizes="(max-width: 768px) 25vw, 150px" className="object-cover" />
-                <div className="absolute inset-0 flex items-end p-1.5" style={{ background: "linear-gradient(to top, rgba(26,46,90,0.7) 0%, transparent 60%)" }}>
-                  <span className="text-white text-[10px] font-semibold leading-tight">{prod.nom}</span>
-                </div>
-              </motion.button>
+              </motion.div>
             ))}
           </div>
         </div>

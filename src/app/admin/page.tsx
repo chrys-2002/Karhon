@@ -1505,7 +1505,10 @@ export default function AdminPage() {
   // à la souscription. Chaque étape compte des clients DISTINCTS (par e-mail).
   // Un élément détaillé d'une étape : quel client, quel intitulé (type de cotation,
   // compagnie de l'offre, n° de contrat), un complément et la date de création.
-  type EtapeItem = { client: string; titre: string; detail?: string; date: string };
+  // Une ligne de détail : intitulé (produit, compagnie, n° de contrat), complément et date.
+  type EtapeLigne = { titre: string; detail?: string; date: string };
+  // Un client d'une étape, avec toutes ses lignes (regroupées, pas de doublon).
+  type EtapeClient = { client: string; email: string; lignes: EtapeLigne[] };
   const LIB_STATUT_DEVIS: Record<string, string> = {
     en_attente: "En attente", en_cours: "En cours", envoye: "Offre envoyée",
     choisi: "Offre choisie", paye: "Payé", accepte: "Souscrit", refuse: "Refusé",
@@ -1513,46 +1516,42 @@ export default function AdminPage() {
   const entonnoirClients = (() => {
     const nomDe = (u?: { email?: string | null; nom?: string | null; prenom?: string | null }) =>
       u?.email ? (`${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || u.email) : "Client";
-    const cotClients = new Set<string>();
-    const offClients = new Set<string>();
-    const cotItems: EtapeItem[] = [];
-    const offItems: EtapeItem[] = [];
+    const mCot = new Map<string, EtapeClient>();
+    const mOff = new Map<string, EtapeClient>();
+    const mCon = new Map<string, EtapeClient>();
+    const dans = (m: Map<string, EtapeClient>, email: string, nom: string) => {
+      let e = m.get(email);
+      if (!e) { e = { client: nom, email, lignes: [] }; m.set(email, e); }
+      return e;
+    };
+    // Un client = une seule entrée, même s'il a fait plusieurs demandes.
     for (const d of devis) {
       if (!d.user?.email) continue;
-      cotClients.add(d.user.email);
-      cotItems.push({ client: nomDe(d.user), titre: d.produit?.nom ?? "Cotation", detail: LIB_STATUT_DEVIS[d.statut] ?? d.statut, date: d.dateCreation });
-      for (const p of d.propositions ?? []) {
-        offClients.add(d.user.email);
-        offItems.push({
-          client: nomDe(d.user),
-          titre: `Offre — ${p.compagnie ?? "compagnie"}`,
-          detail: p.choisie ? "Choisie par le client" : (p.prime != null ? `${p.prime.toLocaleString("fr-FR")} FCFA` : undefined),
-          date: d.dateCreation,
-        });
+      dans(mCot, d.user.email, nomDe(d.user)).lignes.push({ titre: d.produit?.nom ?? "Cotation", detail: LIB_STATUT_DEVIS[d.statut] ?? d.statut, date: d.dateCreation });
+      const props = d.propositions ?? [];
+      if (props.length > 0) {
+        const e = dans(mOff, d.user.email, nomDe(d.user));
+        for (const p of props) e.lignes.push({ titre: `Offre — ${p.compagnie ?? "compagnie"}`, detail: p.choisie ? "Choisie par le client" : (p.prime != null ? `${p.prime.toLocaleString("fr-FR")} FCFA` : undefined), date: d.dateCreation });
       }
     }
-    const conClients = new Set<string>();
-    const conItems: EtapeItem[] = [];
     for (const c of contrats) {
       if (!c.user?.email) continue;
-      conClients.add(c.user.email);
-      conItems.push({
-        client: nomDe(c.user),
-        titre: `${c.produit?.nom ?? "Contrat"} · N° ${c.numeroContrat}`,
-        detail: c.compagnie ?? undefined,
-        date: c.dateDebut,
-      });
+      dans(mCon, c.user.email, nomDe(c.user)).lignes.push({ titre: `${c.produit?.nom ?? "Contrat"} · N° ${c.numeroContrat}`, detail: c.compagnie ?? undefined, date: c.dateDebut });
     }
-    const actifs = new Set<string>([...cotClients, ...conClients]);
+    const actifs = new Set<string>([...mCot.keys(), ...mCon.keys()]);
     for (const s of sinistres) if (s.user?.email) actifs.add(s.user.email);
     const inscrits = apercu?.clients ?? actifs.size;
-    const tri = (arr: EtapeItem[]) => arr.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? "")); // plus récent d'abord
+    // Trie les lignes de chaque client (récent d'abord), puis les clients par leur ligne la plus récente.
+    const finalise = (m: Map<string, EtapeClient>) =>
+      Array.from(m.values())
+        .map((e) => ({ ...e, lignes: e.lignes.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? "")) }))
+        .sort((a, b) => (b.lignes[0]?.date ?? "").localeCompare(a.lignes[0]?.date ?? ""));
     return [
-      // « inscrits » : total depuis l'aperçu ; la liste complète est dans l'onglet Clients (items === null → on y renvoie).
-      { cle: "inscrits", label: "Clients inscrits", valeur: inscrits, items: null as EtapeItem[] | null },
-      { cle: "cotation", label: "Ont demandé une cotation", valeur: cotClients.size, items: tri(cotItems) },
-      { cle: "offre", label: "Ont reçu une offre", valeur: offClients.size, items: tri(offItems) },
-      { cle: "souscrit", label: "Ont souscrit un contrat", valeur: conClients.size, items: tri(conItems) },
+      // « inscrits » : total depuis l'aperçu ; la liste complète est dans l'onglet Clients (clients === null → on y renvoie).
+      { cle: "inscrits", label: "Clients inscrits", valeur: inscrits, clients: null as EtapeClient[] | null },
+      { cle: "cotation", label: "Ont demandé une cotation", valeur: mCot.size, clients: finalise(mCot) },
+      { cle: "offre", label: "Ont reçu une offre", valeur: mOff.size, clients: finalise(mOff) },
+      { cle: "souscrit", label: "Ont souscrit un contrat", valeur: mCon.size, clients: finalise(mCon) },
     ];
   })();
 
@@ -3120,7 +3119,7 @@ export default function AdminPage() {
                         <button
                           key={et.cle}
                           type="button"
-                          onClick={() => { if (et.items === null) { setRetourClients("compagnies"); setVue("clients"); } else setEtapeDetail(actif ? null : et.cle); }}
+                          onClick={() => { if (et.clients === null) { setRetourClients("compagnies"); setVue("clients"); } else setEtapeDetail(actif ? null : et.cle); }}
                           className="flex-1 rounded-2xl border p-4 text-center min-w-0 transition-all hover:shadow-md hover:-translate-y-0.5"
                           style={{ borderColor: actif ? couleurs[i] : "#eef4f4", background: "#fbfdfd", boxShadow: actif ? `0 0 0 2px ${couleurs[i]}55` : undefined }}
                         >
@@ -3130,7 +3129,7 @@ export default function AdminPage() {
                           <p className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{et.valeur}</p>
                           <p className="text-xs font-semibold mt-0.5" style={{ color: "#334155" }}>{et.label}</p>
                           <p className="text-[10px] font-semibold mt-1.5" style={{ color: couleurs[i] }}>
-                            {et.items === null ? "Voir la liste →" : actif ? "Masquer ▲" : "Voir le détail ▾"}
+                            {et.clients === null ? "Voir la liste →" : actif ? "Masquer ▲" : "Voir le détail ▾"}
                           </p>
                         </button>
                       );
@@ -3143,24 +3142,34 @@ export default function AdminPage() {
                         </p>
                         <div className="flex flex-col md:flex-row md:items-stretch gap-2 md:gap-0">{elems}</div>
 
-                        {sel && sel.items && (
+                        {sel && sel.clients && (
                           <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: "#e0ecec", background: "#f8fbfb" }}>
                             <div className="flex items-center justify-between gap-2 mb-2.5">
-                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{sel.label} · {sel.items.length} élément{sel.items.length > 1 ? "s" : ""}</p>
+                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{sel.label} · {sel.clients.length} client{sel.clients.length > 1 ? "s" : ""}</p>
                               <button type="button" onClick={() => setEtapeDetail(null)} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>Fermer</button>
                             </div>
-                            {sel.items.length === 0 ? (
-                              <p className="text-sm text-gray-400">Aucun élément à cette étape.</p>
+                            {sel.clients.length === 0 ? (
+                              <p className="text-sm text-gray-400">Aucun client à cette étape.</p>
                             ) : (
-                              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                                {sel.items.map((it, idx) => (
-                                  <div key={idx} className="flex items-center gap-3 rounded-xl bg-white border px-3 py-2" style={{ borderColor: "#eef4f4" }}>
-                                    <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: "linear-gradient(135deg,#1a2e5a,#2a8a8a)" }}>{(it.client[0] || "?").toUpperCase()}</span>
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{it.titre}</p>
-                                      <p className="text-[11px] text-gray-400 truncate">{it.client}{it.detail ? ` · ${it.detail}` : ""}</p>
+                              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                                {sel.clients.map((cl) => (
+                                  <div key={cl.email} className="rounded-xl bg-white border px-3 py-2.5" style={{ borderColor: "#eef4f4" }}>
+                                    <div className="flex items-center gap-2.5 mb-1.5">
+                                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: "linear-gradient(135deg,#1a2e5a,#2a8a8a)" }}>{(cl.client[0] || "?").toUpperCase()}</span>
+                                      <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{cl.client}</p>
+                                        <p className="text-[11px] text-gray-400 truncate">{cl.email}</p>
+                                      </div>
+                                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#eef4f4", color: "#2a8a8a" }}>{cl.lignes.length}</span>
                                     </div>
-                                    <span className="text-[11px] font-medium flex-shrink-0" style={{ color: "#64748b" }}>{dateCourte(it.date)}</span>
+                                    <div className="pl-9 space-y-1">
+                                      {cl.lignes.map((li, k) => (
+                                        <div key={k} className="flex items-center justify-between gap-2 text-xs">
+                                          <span className="truncate" style={{ color: "#334155" }}>{li.titre}{li.detail ? ` · ${li.detail}` : ""}</span>
+                                          <span className="flex-shrink-0" style={{ color: "#94a3b8" }}>{dateCourte(li.date)}</span>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                 ))}
                               </div>
