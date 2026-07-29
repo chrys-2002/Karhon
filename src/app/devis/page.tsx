@@ -552,8 +552,8 @@ export default function DevisPage() {
                       Joignez votre carte grise et votre visite technique (PDF ou image). Vous pouvez les prendre en photo depuis votre mobile.
                     </p>
                   </div>
-                  <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} required />
-                  <DocumentUpload label="Visite technique" value={docVisite} onChange={setDocVisite} required />
+                  <DocumentUpload label="Carte grise" value={docCarteGrise} onChange={setDocCarteGrise} required onNonConnecte={() => setBesoinCompte(true)} />
+                  <DocumentUpload label="Visite technique" value={docVisite} onChange={setDocVisite} required onNonConnecte={() => setBesoinCompte(true)} />
                 </motion.div>
               )}
 
@@ -616,6 +616,7 @@ export default function DevisPage() {
                     value={docPasseport}
                     onChange={setDocPasseport}
                     required
+                    onNonConnecte={() => setBesoinCompte(true)}
                   />
                 </motion.div>
               )}

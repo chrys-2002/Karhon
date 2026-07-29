@@ -22,6 +22,7 @@ type Props = {
   hint?: string;                   // petite aide sous le titre
   required?: boolean;
   max?: number;                    // nombre de fichiers autorisés (défaut 1)
+  onNonConnecte?: () => void;      // appelé si l'upload échoue faute de connexion (401)
 };
 
 const TYPES_OK = ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"];
@@ -74,6 +75,13 @@ function envoyerFichier(file: File, onProgress: (pct: number) => void): Promise<
       if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
     };
     xhr.onload = () => {
+      // Non connecté : message clair et actionnable (au lieu de « Non authentifié »).
+      if (xhr.status === 401) {
+        const err = new Error("Vous n'êtes pas connecté. Connectez-vous, ou créez un compte si vous n'en avez pas encore, pour importer vos documents.") as Error & { auth?: boolean };
+        err.auth = true;
+        reject(err);
+        return;
+      }
       try {
         const data = JSON.parse(xhr.responseText);
         if (xhr.status >= 200 && xhr.status < 300 && data.url) resolve(data.url as string);
@@ -94,6 +102,7 @@ export default function DocumentUpload({
   hint,
   required = false,
   max = 1,
+  onNonConnecte,
 }: Props) {
   const [enCours, setEnCours] = useState(false);
   const [progression, setProgression] = useState(0);
@@ -133,7 +142,9 @@ export default function DocumentUpload({
       }
       if (ajoutees.length) onChange([...value, ...ajoutees]);
     } catch (e) {
-      setErreur((e as Error).message || "Échec de l'envoi. Réessayez.");
+      const err = e as Error & { auth?: boolean };
+      setErreur(err.message || "Échec de l'envoi. Réessayez.");
+      if (err.auth) onNonConnecte?.(); // ouvre la fenêtre connexion / création de compte
       if (ajoutees.length) onChange([...value, ...ajoutees]);
     } finally {
       setEnCours(false);
