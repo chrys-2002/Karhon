@@ -43,11 +43,20 @@ export async function POST(req: Request) {
       subject: `Contact site — ${motifLisible} — ${nomComplet}`,
       html: gabaritNotification({ titre: `Nouveau message — ${motifLisible}`, message: corps }),
       text: corps,
+      // « Répondre » renverra directement vers le visiteur (si email valide).
+      replyTo: emailOk ? email.trim() : undefined,
     });
 
     if (!envoi.ok) {
       console.error("[contact] email:", envoi.erreur);
-      return NextResponse.json({ erreur: "Votre message n'a pas pu être envoyé pour le moment. Réessayez ou appelez-nous." }, { status: 502 });
+      return NextResponse.json(
+        {
+          erreur: "Votre message n'a pas pu être envoyé pour le moment. Réessayez ou appelez-nous.",
+          // Détail technique (diagnostic) : à retirer une fois l'envoi opérationnel.
+          detail: envoi.erreur,
+        },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({ ok: true });

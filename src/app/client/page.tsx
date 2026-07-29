@@ -15,6 +15,14 @@ export default function ClientLoginPage() {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({ email: "", password: "", nom: "", prenom: "", telephone: "", confirmPassword: "" });
 
+  // Ouvre directement l'onglet Inscription si l'URL le demande (?inscription=1),
+  // par exemple depuis le formulaire de devis quand l'utilisateur n'a pas de compte.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("inscription") === "1") {
+      setIsLogin(false);
+    }
+  }, []);
+
   // Affiche un message clair si on revient d'un échec de connexion Google.
   useEffect(() => {
     const err = new URLSearchParams(window.location.search).get("erreur");

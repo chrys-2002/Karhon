@@ -35,10 +35,18 @@ export async function POST(
       return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     }
 
-    // Validation de chaque proposition : au moins une fiche de cotation.
-    // La compagnie n'est plus obligatoire (le rédacteur envoie juste la cotation).
+    // Validation de chaque proposition : compagnie, prime ET fiche de cotation
+    // sont désormais obligatoires.
     const aCreer: { devisId: string; compagnie: string; documents: string[]; prime: number | null; message: string | null }[] = [];
     for (const p of brut) {
+      const compagnie = typeof p?.compagnie === "string" ? p.compagnie.trim() : "";
+      if (!compagnie) {
+        return NextResponse.json({ erreur: "La compagnie est obligatoire pour chaque proposition." }, { status: 400 });
+      }
+      const prime = typeof p?.prime === "number" ? p.prime : Number(p?.prime);
+      if (!Number.isFinite(prime) || prime < 0) {
+        return NextResponse.json({ erreur: "La prime est obligatoire et doit être un montant valide." }, { status: 400 });
+      }
       const docsValides = Array.isArray(p?.documents)
         ? p.documents.filter((d: unknown): d is string => typeof d === "string" && BLOB_OK.test(d)).slice(0, 6)
         : [];
@@ -47,9 +55,9 @@ export async function POST(
       }
       aCreer.push({
         devisId: id,
-        compagnie: typeof p.compagnie === "string" ? p.compagnie.slice(0, 80) : "",
+        compagnie: compagnie.slice(0, 80),
         documents: docsValides,
-        prime: typeof p.prime === "number" ? p.prime : null,
+        prime,
         message: typeof p.message === "string" && p.message.trim() ? p.message.slice(0, 500) : null,
       });
     }

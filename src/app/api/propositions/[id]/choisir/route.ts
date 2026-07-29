@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { exigerAuth } from "@/lib/session";
 import { notifierAgents } from "@/lib/notifications";
 
-const MODES: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money" };
+const MODES: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money", especes: "Espèces" };
 
 export async function POST(
   req: Request,

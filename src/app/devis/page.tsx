@@ -168,6 +168,8 @@ export default function DevisPage() {
   const [produitsDB, setProduitsDB] = useState<ProduitDB[]>([]);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState('');
+  // Affiché quand l'envoi échoue faute de connexion (pas de compte ou non connecté).
+  const [besoinCompte, setBesoinCompte] = useState(false);
   // Pièces jointes pour un devis automobile.
   const [docCarteGrise, setDocCarteGrise] = useState<string[]>([]);
   const [docVisite, setDocVisite] = useState<string[]>([]);
@@ -215,10 +217,19 @@ export default function DevisPage() {
   // Sélection d'un produit : on choisit puis on amène directement l'utilisateur
   // au formulaire correspondant (utile surtout sur mobile, où il est plus bas).
   const formSectionRef = useRef<HTMLDivElement>(null);
+  const continuerRef = useRef<HTMLDivElement>(null);
   const choisirProduit = (id: string) => {
     updateField('produit', id);
     setTimeout(() => {
       formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 90);
+  };
+  // Sélection d'une catégorie (étape 1) : on amène l'utilisateur au bouton
+  // « Continuer » pour qu'il sache clairement quoi faire ensuite (surtout mobile).
+  const choisirCategorie = (id: string) => {
+    setFormData((prev) => ({ ...prev, categorie: id, produit: '' }));
+    setTimeout(() => {
+      continuerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 90);
   };
 
@@ -342,9 +353,9 @@ export default function DevisPage() {
       });
 
       if (res.status === 401) {
-        // Non connecté : on redirige vers l'espace client pour se connecter.
-        setErreur("Vous devez être connecté pour envoyer une demande. Redirection…");
-        setTimeout(() => router.push('/client'), 1500);
+        // Non connecté ou pas de compte : on l'explique clairement, avec le choix
+        // de se connecter ou de créer un compte (sans redirection brutale).
+        setBesoinCompte(true);
         return;
       }
       if (!res.ok) {
@@ -362,7 +373,7 @@ export default function DevisPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-28 pb-20">
-      <div className="container mx-auto px-6 max-w-5xl">
+      <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
 
         <div className="mb-6">
           {/* Recule d'une étape ; à l'étape 1, quitte la page normalement. */}
@@ -383,7 +394,7 @@ export default function DevisPage() {
         </motion.div>
 
         {/* Progress Bar */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-3xl shadow-xl p-4 sm:p-8 mb-8">
           <div className="flex justify-between items-center">
             {[
               { num: 1, label: 'Catégorie' },
@@ -393,21 +404,21 @@ export default function DevisPage() {
               <div key={s.num} className="flex items-center flex-1">
                 <div className="flex flex-col items-center">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all"
+                    className="w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-sm sm:text-lg transition-all flex-shrink-0"
                     style={{
                       background: step >= s.num ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "#f1f5f9",
                       color: step >= s.num ? "#fff" : "#94a3b8",
                       boxShadow: step >= s.num ? "0 4px 15px rgba(26,46,90,0.25)" : "none",
                     }}
                   >
-                    {step > s.num ? <Check size={22} /> : s.num}
+                    {step > s.num ? <Check size={18} /> : s.num}
                   </div>
-                  <span className="mt-2 text-sm font-medium" style={{ color: step >= s.num ? "#1a2e5a" : "#94a3b8" }}>
+                  <span className="mt-2 text-[11px] sm:text-sm font-medium text-center leading-tight" style={{ color: step >= s.num ? "#1a2e5a" : "#94a3b8" }}>
                     {s.label}
                   </span>
                 </div>
                 {index < 2 && (
-                  <div className="flex-1 h-1 mx-4 rounded transition-all" style={{ background: step > s.num ? "linear-gradient(90deg, #1a2e5a, #2a8a8a)" : "#e2e8f0" }} />
+                  <div className="flex-1 h-1 mx-2 sm:mx-4 rounded transition-all" style={{ background: step > s.num ? "linear-gradient(90deg, #1a2e5a, #2a8a8a)" : "#e2e8f0" }} />
                 )}
               </div>
             ))}
@@ -415,12 +426,12 @@ export default function DevisPage() {
         </div>
 
         {/* Formulaire */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+        <div className="bg-white rounded-3xl shadow-2xl p-5 sm:p-8 md:p-12">
 
           {/* ÉTAPE 1 */}
           {step === 1 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-3xl font-bold text-center mb-3" style={{ color: "#1a2e5a" }}>
+              <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "#1a2e5a" }}>
                 Quel type d&apos;assurance recherchez-vous ?
               </h2>
               <p className="text-center text-gray-400 mb-10">Sélectionnez la catégorie qui correspond à votre besoin</p>
@@ -433,8 +444,8 @@ export default function DevisPage() {
                       key={cat.id}
                       whileHover={{ scale: 1.03, y: -4 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setFormData(prev => ({ ...prev, categorie: cat.id, produit: '' }))}
-                      className="rounded-3xl p-8 text-center cursor-pointer transition-all"
+                      onClick={() => choisirCategorie(cat.id)}
+                      className="rounded-3xl p-6 sm:p-8 text-center cursor-pointer transition-all"
                       style={{
                         border: isSelected ? "2px solid #2a8a8a" : "2px solid #e2e8f0",
                         background: isSelected ? "linear-gradient(135deg, rgba(26,46,90,0.04), rgba(42,138,138,0.06))" : "#fff",
@@ -459,7 +470,7 @@ export default function DevisPage() {
                 })}
               </div>
 
-              <div className="flex justify-end mt-10">
+              <div ref={continuerRef} className="flex justify-end mt-10 scroll-mt-24">
                 <button
                   onClick={() => setStep(2)}
                   disabled={!canGoToStep2}
@@ -480,7 +491,7 @@ export default function DevisPage() {
           {/* ÉTAPE 2 */}
           {step === 2 && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-3xl font-bold text-center mb-3" style={{ color: "#1a2e5a" }}>
+              <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "#1a2e5a" }}>
                 Précisez votre besoin
               </h2>
               <p className="text-center text-gray-400 mb-10">Choisissez un produit et renseignez vos coordonnées</p>
@@ -828,6 +839,32 @@ export default function DevisPage() {
           <p className="text-gray-400 mt-2 text-sm">Ou écrivez-nous à infos@karhonassurance.com</p>
         </motion.div>
       </div>
+
+      {/* Fenêtre : connexion / création de compte requise pour envoyer */}
+      {besoinCompte && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ background: "rgba(15,23,42,0.5)" }} onClick={() => setBesoinCompte(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+              <User size={30} style={{ color: "#2a8a8a" }} />
+            </div>
+            <h3 className="text-xl font-bold mb-2" style={{ color: "#1a2e5a" }}>Connexion nécessaire</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              Pour envoyer votre demande, vous devez être connecté à votre espace client. Si vous n&apos;avez pas encore de compte, créez-en un en quelques secondes : vous pourrez ensuite suivre votre cotation et échanger avec un conseiller.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button type="button" onClick={() => router.push('/client')} className="flex-1 py-3 rounded-2xl font-semibold text-sm text-white transition-all hover:shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                Se connecter
+              </button>
+              <button type="button" onClick={() => router.push('/client?inscription=1')} className="flex-1 py-3 rounded-2xl font-semibold text-sm border-2 transition-all hover:bg-gray-50" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
+                Créer un compte
+              </button>
+            </div>
+            <button type="button" onClick={() => setBesoinCompte(false)} className="mt-4 text-xs font-semibold text-gray-400 hover:text-gray-600">
+              Revenir au formulaire
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

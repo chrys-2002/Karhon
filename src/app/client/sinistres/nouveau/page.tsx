@@ -106,7 +106,13 @@ export default function NouveauSinistre() {
         }),
       });
 
-      if (res.status === 401) { router.push("/client"); return; }
+      if (res.status === 401) {
+        // Session expirée ou non connecté : on l'explique avant de renvoyer vers la connexion.
+        setErreur("Vous devez être connecté pour envoyer votre déclaration. Votre session a peut-être expiré, reconnectez-vous. Redirection…");
+        setIsSubmitting(false);
+        setTimeout(() => router.push("/client"), 1800);
+        return;
+      }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setErreur(data.erreur || "Une erreur est survenue. Veuillez réessayer.");

@@ -76,13 +76,16 @@ export async function PATCH(
       return NextResponse.json({ contrat });
     }
 
-    // Le rédacteur joint l'attestation d'assurance (document Vercel Blob) et le
-    // client en est notifié. Format attendu : "Libellé|url".
+    // Le rédacteur joint une OU PLUSIEURS attestations (documents Vercel Blob) et
+    // le client en est notifié. Format : "Libellé|url", plusieurs séparés par un
+    // saut de ligne.
     if (typeof body?.attestation === "string" && body.attestation.trim()) {
-      const att = body.attestation.trim().slice(0, 600);
-      if (!/https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\//i.test(att)) {
+      const BLOB = /https:\/\/[a-z0-9.-]+\.blob\.vercel-storage\.com\//i;
+      const lignes = body.attestation.trim().slice(0, 3000).split("\n").map((l: string) => l.trim()).filter(Boolean);
+      if (lignes.length === 0 || !lignes.every((l: string) => BLOB.test(l))) {
         return NextResponse.json({ erreur: "Document d'attestation invalide." }, { status: 400 });
       }
+      const att = lignes.join("\n");
       const contrat = await prisma.contrat.update({
         where: { id },
         data: { attestation: att },

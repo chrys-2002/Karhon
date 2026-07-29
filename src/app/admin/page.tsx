@@ -350,7 +350,7 @@ const STATUTS: StatutInfo[] = [
 ];
 
 // Libellés lisibles des modes de paiement.
-const MODE_LABEL: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money" };
+const MODE_LABEL: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money", especes: "Espèces" };
 
 // Libellés + couleurs des statuts de sinistre (alignés sur l'enum StatutSinistre).
 const STATUTS_SINISTRE: StatutInfo[] = [
@@ -1022,12 +1022,29 @@ export default function AdminPage() {
   // Envoie UNE OU PLUSIEURS propositions pour le devis sélectionné.
   const envoyerProposition = async () => {
     if (!propPour) return;
-    // Validation : chaque proposition doit avoir au moins une fiche de cotation.
-    const valides = propProps.filter((p) => p.docs.length > 0);
-    if (valides.length === 0) {
-      setNotif({ type: "warn", texte: "Joignez au moins une fiche de cotation (PDF)." });
+    // On ne garde que les lignes réellement renseignées (au moins un champ rempli).
+    const lignes = propProps.filter((p) => p.compagnie.trim() || p.docs.length > 0 || p.prime.trim() || p.message.trim());
+    if (lignes.length === 0) {
+      setNotif({ type: "warn", texte: "Renseignez au moins une proposition." });
       return;
     }
+    // Validation : compagnie, prime ET fiche de cotation sont obligatoires pour chaque proposition.
+    for (const p of lignes) {
+      if (!p.compagnie.trim()) {
+        setNotif({ type: "warn", texte: "Sélectionnez la compagnie pour chaque proposition." });
+        return;
+      }
+      const prime = Number(p.prime);
+      if (!p.prime.trim() || Number.isNaN(prime) || prime < 0) {
+        setNotif({ type: "warn", texte: "Indiquez une prime valide pour chaque proposition." });
+        return;
+      }
+      if (p.docs.length === 0) {
+        setNotif({ type: "warn", texte: "Joignez la fiche de cotation (PDF) pour chaque proposition." });
+        return;
+      }
+    }
+    const valides = lignes;
     setPropEnvoi(true);
     try {
       const res = await fetch(`/api/devis/${propPour.id}/propositions`, {
@@ -1037,7 +1054,7 @@ export default function AdminPage() {
           propositions: valides.map((p) => ({
             compagnie: p.compagnie.trim(),
             documents: p.docs.map((u, k) => `${p.docs.length > 1 ? `Cotation ${k + 1}` : "Cotation"}|${u}`),
-            prime: p.prime ? Number(p.prime) : undefined,
+            prime: Number(p.prime),
             message: p.message,
           })),
         }),
@@ -1091,7 +1108,8 @@ export default function AdminPage() {
   const envoyerAttestation = async (c: ContratAdmin) => {
     const urls = attestationInputs[c.id] ?? [];
     if (!urls.length) { setNotif({ type: "warn", texte: "Joignez d'abord le document d'attestation." }); return; }
-    const valeur = `Attestation|${urls[0]}`;
+    // Plusieurs documents possibles : "Libellé|url" séparés par un saut de ligne.
+    const valeur = urls.map((u, i) => `${urls.length > 1 ? `Attestation ${i + 1}` : "Attestation"}|${u}`).join("\n");
     setActionId(c.id);
     try {
       const res = await fetch(`/api/contrats/${c.id}`, {
@@ -1615,6 +1633,30 @@ export default function AdminPage() {
       });
     }
     return semaines;
+  })();
+
+  // Échéances à venir dans les 7 prochains jours : contrats actifs dont le terme
+  // approche, pour anticiper les relances (assuré, contact, échéance, jours restants).
+  const echeancesSemaine = (() => {
+    const now = Date.now();
+    const J7 = 7 * 86_400_000;
+    const nomC = (u?: { email?: string | null; nom?: string | null; prenom?: string | null }) =>
+      u?.email ? (`${u.prenom ?? ""} ${u.nom ?? ""}`.trim() || u.email) : "Client";
+    return contrats
+      .filter((c) => {
+        if (c.statut !== "actif" || !c.dateFin) return false;
+        const t = new Date(c.dateFin).getTime();
+        return !Number.isNaN(t) && t >= now && t <= now + J7;
+      })
+      .map((c) => ({
+        nom: nomC(c.user),
+        contact: c.user?.telephone ?? "—",
+        produit: c.produit?.nom ?? "Contrat",
+        numero: c.numeroContrat,
+        echeance: c.dateFin,
+        jours: Math.ceil((new Date(c.dateFin).getTime() - now) / 86_400_000),
+      }))
+      .sort((a, b) => a.jours - b.jours);
   })();
 
   // Petit utilitaire : agrège des lignes par (produit/type) puis, à l'intérieur,
@@ -2213,6 +2255,53 @@ export default function AdminPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Échéances à venir dans les 7 prochains jours (seulement sur la semaine en cours) */}
+                {rapportSemaine === 0 && (
+                  <div className="mt-6 pt-5 border-t" style={{ borderColor: "#eef4f4" }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <CalendarClock size={16} style={{ color: "#2a8a8a" }} />
+                      <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Échéances à venir cette semaine ({echeancesSemaine.length})</h3>
+                    </div>
+                    {echeancesSemaine.length === 0 ? (
+                      <p className="text-sm text-gray-400">Aucune échéance de contrat dans les 7 prochains jours.</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <div className="min-w-[520px]">
+                          <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                            <div className="col-span-4">Assuré</div>
+                            <div className="col-span-3">Contact</div>
+                            <div className="col-span-3">Échéance</div>
+                            <div className="col-span-2 text-right">Dans</div>
+                          </div>
+                          <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                            {echeancesSemaine.map((e, idx) => (
+                              <div key={idx} className="grid grid-cols-12 gap-3 items-center rounded-xl bg-white border px-3 py-2.5" style={{ borderColor: "#eef4f4" }}>
+                                <div className="col-span-4 min-w-0">
+                                  <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{e.nom}</p>
+                                  <p className="text-[11px] text-gray-400 truncate">{e.produit} · N° {e.numero}</p>
+                                </div>
+                                <div className="col-span-3 min-w-0">
+                                  {e.contact && e.contact !== "—" ? (
+                                    <a href={`tel:${e.contact.replace(/\s+/g, "")}`} className="text-sm hover:underline" style={{ color: "#2a8a8a" }}>{e.contact}</a>
+                                  ) : (
+                                    <span className="text-sm text-gray-400">—</span>
+                                  )}
+                                </div>
+                                <div className="col-span-3">
+                                  <span className="text-sm" style={{ color: "#334155" }}>{dateCourte(e.echeance)}</span>
+                                </div>
+                                <div className="col-span-2 text-right">
+                                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: e.jours <= 2 ? "#fee2e2" : "#fef3c7", color: e.jours <= 2 ? "#991b1b" : "#92600a" }}>{e.jours} j</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             );
           })()}
@@ -3166,15 +3255,17 @@ export default function AdminPage() {
                       <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>Attestation</span>
                       {c.attestation ? (
                         <>
-                          <a href={c.attestation.split("|")[1] ?? c.attestation} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ color: "#166534", background: "#dcfce7" }}>
-                            <FileText size={13} /> Attestation jointe — voir
-                          </a>
+                          {c.attestation.split("\n").filter(Boolean).map((doc, k, arr) => (
+                            <a key={k} href={doc.split("|")[1] ?? doc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ color: "#166534", background: "#dcfce7" }}>
+                              <FileText size={13} /> {arr.length > 1 ? (doc.split("|")[0] || `Attestation ${k + 1}`) : "Attestation jointe"} — voir
+                            </a>
+                          ))}
                           <span className="text-xs text-gray-400">Le client a été notifié.</span>
                         </>
                       ) : (
                         <div className="flex flex-wrap items-end gap-2">
                           <div className="w-60">
-                            <DocumentUpload label="Joindre l'attestation (PDF ou image)" value={attestationInputs[c.id] ?? []} onChange={(v) => setAttestationInputs((s) => ({ ...s, [c.id]: v }))} />
+                            <DocumentUpload label="Joindre l'attestation (PDF ou image)" hint="Vous pouvez sélectionner plusieurs fichiers à la fois." value={attestationInputs[c.id] ?? []} onChange={(v) => setAttestationInputs((s) => ({ ...s, [c.id]: v }))} max={5} />
                           </div>
                           <button type="button" disabled={actionId === c.id || !(attestationInputs[c.id]?.length)} onClick={() => envoyerAttestation(c)} className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all disabled:opacity-50" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                             {actionId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Envoyer au client
@@ -3817,7 +3908,7 @@ export default function AdminPage() {
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Nom de la compagnie <span className="text-gray-400 font-normal">(optionnel)</span></label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Nom de la compagnie <span style={{ color: "#dc2626" }}>*</span></label>
                         <input
                           type="text" value={p.compagnie} onChange={(e) => majProp(i, "compagnie", e.target.value)} placeholder="ex. NSIA, SUNU, Sanlam Allianz…"
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
@@ -3833,7 +3924,7 @@ export default function AdminPage() {
                       />
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA, optionnel)</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA) <span style={{ color: "#dc2626" }}>*</span></label>
                           <input
                             type="number" value={p.prime} onChange={(e) => majProp(i, "prime", e.target.value)} placeholder="ex. 120000"
                             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"

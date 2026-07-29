@@ -34,7 +34,7 @@ import {
 type Utilisateur = { nom?: string; prenom?: string; email?: string; role?: string };
 
 // Libellés des modes de paiement.
-const MODE_LABEL: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money" };
+const MODE_LABEL: Record<string, string> = { carte: "Carte bancaire", wave: "Wave", orange_money: "Orange Money", especes: "Espèces" };
 // Libellés lisibles des statuts de cotation côté client.
 const STATUT_COTATION: Record<string, string> = {
   en_attente: "En attente",
@@ -50,6 +50,7 @@ const MODES_PAIEMENT = [
   { v: "carte", label: "Carte bancaire", desc: "Visa / Mastercard, paiement en ligne sécurisé" },
   { v: "wave", label: "Wave", desc: "Paiement mobile Wave" },
   { v: "orange_money", label: "Orange Money", desc: "Paiement mobile Orange Money" },
+  { v: "especes", label: "Espèces", desc: "Règlement en espèces au cabinet" },
 ];
 
 type Proposition = {
@@ -651,17 +652,18 @@ export default function Dashboard() {
                         <Link href={`/client/recu/${c.id}`} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                           <Printer size={14} /> Voir le reçu
                         </Link>
-                        {c.attestation && (
+                        {c.attestation && c.attestation.split("\n").filter(Boolean).map((doc, k, arr) => (
                           <a
-                            href={c.attestation.split("|")[1] ?? c.attestation}
+                            key={k}
+                            href={doc.split("|")[1] ?? doc}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
                             style={{ background: "#dcfce7", color: "#166534" }}
                           >
-                            <FileText size={14} /> Mon attestation
+                            <FileText size={14} /> {arr.length > 1 ? (doc.split("|")[0] || `Attestation ${k + 1}`) : "Mon attestation"}
                           </a>
-                        )}
+                        ))}
                       </div>
                     </div>
                     <AnimatePresence initial={false}>

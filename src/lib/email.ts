@@ -1,55 +1,62 @@
 // ─────────────────────────────────────────────────────────────
 // Service d'envoi d'emails — KARHON Assurances
 //
-// Utilise l'API REST de Resend (https://resend.com) directement via fetch,
-// sans dépendance npm supplémentaire. La clé reste 100 % côté serveur.
+// Envoi via SMTP (serveur de messagerie Ikoula / MailEnable) à l'aide de
+// Nodemailer. La plateforme ouvre une connexion SMTP authentifiée avec la
+// boîte du domaine et expédie le message.
 //
-// Configuration (.env) :
-//   RESEND_API_KEY = re_xxxxxxxx           (obligatoire pour envoyer)
-//   EMAIL_FROM     = "KARHON Assurances <contact@tondomaine.com>"
-//                    (l'expéditeur ; le domaine doit être vérifié chez Resend.
-//                     À défaut, Resend n'autorise que onboarding@resend.dev
-//                     vers l'adresse du propriétaire du compte.)
+// Configuration (.env / variables Vercel) :
+//   SMTP_HOST  = serveur d'envoi Ikoula        (ex. smtp.karhonassurance.com)
+//   SMTP_PORT  = 587 (STARTTLS) ou 465 (SSL)
+//   SMTP_USER  = infos@karhonassurance.com     (adresse complète de la boîte)
+//   SMTP_PASS  = mot de passe de la boîte mail
+//   EMAIL_FROM = "KARHON Assurances <infos@karhonassurance.com>"
 //
-// Dégradation propre : si RESEND_API_KEY est absent, on NE plante PAS —
-// la fonction renvoie { ok:false, erreur } pour que la relance interne
-// (marquage + WhatsApp) fonctionne quand même.
+// Dégradation propre : si la configuration SMTP est absente, on NE plante PAS,
+// la fonction renvoie { ok:false, erreur } pour que le reste continue à marcher.
 // ─────────────────────────────────────────────────────────────
+import nodemailer from "nodemailer";
 
 type ParamsEmail = {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  replyTo?: string; // adresse à laquelle « Répondre » renvoie (ex. le visiteur)
 };
 
 type ResultatEmail = { ok: true } | { ok: false; erreur: string };
 
-export async function envoyerEmail({ to, subject, html, text }: ParamsEmail): Promise<ResultatEmail> {
-  const cle = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "KARHON Assurances <onboarding@resend.dev>";
+export async function envoyerEmail({ to, subject, html, text, replyTo }: ParamsEmail): Promise<ResultatEmail> {
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT ?? "587");
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.EMAIL_FROM ?? (user ? `KARHON Assurances <${user}>` : undefined);
 
-  if (!cle) {
-    return { ok: false, erreur: "Service email non configuré (RESEND_API_KEY manquant)." };
+  if (!host || !user || !pass || !from) {
+    return { ok: false, erreur: "Service email non configuré (SMTP_HOST / SMTP_USER / SMTP_PASS / EMAIL_FROM manquants)." };
   }
 
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${cle}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to, subject, html, text }),
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465, // 465 = connexion SSL directe ; 587 = STARTTLS
+      auth: { user, pass },
+      // Beaucoup de serveurs mutualisés (MailEnable/Ikoula) présentent un
+      // certificat auto-signé ou au nom du serveur : on tolère la validation
+      // pour éviter les échecs de connexion.
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 15_000,
+      greetingTimeout: 15_000,
+      socketTimeout: 20_000,
     });
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      return { ok: false, erreur: data?.message || `Échec de l'envoi (HTTP ${res.status}).` };
-    }
+    await transporter.sendMail({ from, to, subject, html, text, replyTo });
     return { ok: true };
   } catch (e) {
-    return { ok: false, erreur: (e as Error).message || "Erreur réseau lors de l'envoi." };
+    return { ok: false, erreur: (e as Error).message || "Erreur lors de l'envoi SMTP." };
   }
 }
 
