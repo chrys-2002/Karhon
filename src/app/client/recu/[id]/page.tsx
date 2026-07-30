@@ -109,9 +109,12 @@ export default function RecuPage() {
 
       {/* Le reçu */}
       <div id="recu" className="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-        <div className="px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+        <div className="recu-header px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+          {/* À l'écran : logo blanc sur le fond dégradé. À l'impression : logo couleur sur fond blanc. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-10" />
+          <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-10 print:hidden" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/logo/karhon-couleur.svg" alt="KARHON Assurances" className="h-10 hidden print:block" />
           <div className="text-right text-white">
             <p className="text-xs uppercase tracking-widest text-white/70">Reçu de souscription</p>
             <p className="font-bold">N° {contrat.numeroContrat}</p>
@@ -193,8 +196,21 @@ export default function RecuPage() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: #fff !important; }
-          #recu { box-shadow: none !important; border: none !important; }
+          html, body { background: #fff !important; }
+          /* Compacte le reçu pour qu'il tienne sur UNE seule page. */
+          html { font-size: 12.5px; }
+          @page { size: A4; margin: 12mm; }
+          /* Force l'impression des couleurs/fonds (sinon textes et logo invisibles). */
+          #recu {
+            box-shadow: none !important;
+            border: none !important;
+            break-inside: avoid;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          /* En-tête : fond blanc + texte foncé + logo couleur, bien visibles sur papier. */
+          #recu .recu-header { background: #fff !important; }
+          #recu .recu-header * { color: #1a2e5a !important; }
         }
       `}</style>
     </div>
