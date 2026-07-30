@@ -8,6 +8,18 @@
 
 html {
   scroll-behavior: smooth;
+  /* Agrandissement léger et global de tous les textes (base 16px → 17px). */
+  font-size: 106.25%;
+}
+
+/* Garde-fou responsive global : empêche le défilement horizontal sur mobile
+   et garantit que les images/vidéos ne dépassent jamais de l'écran. */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+img, svg, video, canvas {
+  max-width: 100%;
 }
 
 /* Respect des préférences d'accessibilité : on coupe tout si l'utilisateur

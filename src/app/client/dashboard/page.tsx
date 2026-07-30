@@ -825,8 +825,15 @@ export default function Dashboard() {
                                           {p.documents.map((doc) => {
                                             const [lbl, url] = doc.split("|");
                                             return (
-                                              <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg" style={{ color: TEAL, background: "#eaf4f4" }}>
-                                                <FileText size={12} /> Lire {lbl || "la cotation"}
+                                              <a
+                                                key={url}
+                                                href={url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl text-white shadow-md transition-transform hover:scale-105 ${!p.choisie ? "animate-pulse" : ""}`}
+                                                style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
+                                              >
+                                                <FileText size={13} /> Lire {lbl || "la cotation"}
                                               </a>
                                             );
                                           })}

@@ -109,7 +109,7 @@ export default function RecuPage() {
 
       {/* Le reçu */}
       <div id="recu" className="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-        <div className="px-8 py-6 flex items-center justify-between" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+        <div className="px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-10" />
           <div className="text-right text-white">
@@ -118,7 +118,7 @@ export default function RecuPage() {
           </div>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-5 sm:p-8 space-y-6">
           <div className="flex items-center gap-2 text-sm" style={{ color: "#166534" }}>
             <ShieldCheck size={18} /> <span className="font-semibold">Souscription confirmée</span>
           </div>
@@ -163,7 +163,7 @@ export default function RecuPage() {
 
           {/* Signature numérique + QR de vérification */}
           {contrat.signature && (
-            <div className="flex items-center gap-4 rounded-2xl p-4 border-t pt-5" style={{ borderColor: "#eef4f4" }}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-2xl p-4 border-t pt-5" style={{ borderColor: "#eef4f4" }}>
               {qr && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={qr} alt="QR de vérification" className="w-24 h-24 flex-shrink-0" />
@@ -171,10 +171,10 @@ export default function RecuPage() {
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 mb-1" style={{ color: "#166534" }}>
                   <ShieldCheck size={15} />
-                  <span className="text-xs font-bold uppercase tracking-wide">Reçu signé numériquement</span>
+                  <span className="text-xs font-bold uppercase tracking-wide">Reçu signé</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Scannez ce QR code pour vérifier l&apos;authenticité de ce reçu en ligne.
+                  Scannez ce QR code pour vérifier l&apos;authenticité de ce reçu.
                 </p>
                 <p className="text-[11px] text-gray-400 mt-1">Code de signature</p>
                 <p className="text-sm font-mono font-semibold tracking-wider break-all" style={{ color: MARINE }}>{contrat.signature}</p>

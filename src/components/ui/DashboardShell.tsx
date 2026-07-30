@@ -181,8 +181,8 @@ export default function DashboardShell({
   // Alerte à l'arrivée d'une nouvelle notification : son (3 notes montantes) +
   // vibration sur les mobiles compatibles. Réutilise le contexte audio débloqué.
   const jouerSon = () => {
-    // Vibration mobile (Android/Chrome) — alerte tactile même si le son est coupé.
-    try { navigator.vibrate?.([180, 90, 180, 90, 260]); } catch {}
+    // Vibration mobile (Android/Chrome) — alerte tactile d'environ 2 s.
+    try { navigator.vibrate?.([300, 120, 300, 120, 300, 120, 300, 120, 400]); } catch {}
     try {
       const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AC) return;
@@ -197,11 +197,16 @@ export default function DashboardShell({
         o.frequency.value = freq;
         g.gain.setValueAtTime(0.0001, ctx.currentTime + debut);
         g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + debut + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + debut + 0.24);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + debut + 0.22);
         o.start(ctx.currentTime + debut);
-        o.stop(ctx.currentTime + debut + 0.26);
+        o.stop(ctx.currentTime + debut + 0.24);
       };
-      bip(784, 0); bip(1047, 0.16); bip(1319, 0.32);
+      // Mélodie de notes montantes répétée pour durer un peu plus de 2 secondes.
+      const notes = [784, 1047, 1319, 1047];
+      const pas = 0.2;
+      for (let i = 0, t = 0; t < 2.2; i++, t += pas) {
+        bip(notes[i % notes.length], t);
+      }
     } catch {}
   };
 
