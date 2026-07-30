@@ -1121,7 +1121,19 @@ export default function AdminPage() {
       if (!res.ok) { setNotif({ type: "err", texte: data.erreur ?? "Échec de l'envoi." }); return; }
       setContrats((prev) => prev.map((x) => (x.id === c.id ? { ...x, attestation: valeur } : x)));
       setAttestationInputs((s) => { const n = { ...s }; delete n[c.id]; return n; });
-      setNotif({ type: "ok", texte: "Attestation envoyée au client." });
+
+      // Envoi automatique par WhatsApp si le client a un numéro (sinon on ignore).
+      const prenom = c.user?.prenom ?? "";
+      const message =
+        `Bonjour ${prenom}, voici votre attestation d'assurance pour ${c.produit?.nom ?? "votre contrat"} ` +
+        `(n° ${c.numeroContrat}) chez KARHON Assurances :\n${urls.join("\n")}`;
+      const lien = lienWhatsApp(c.user?.telephone, message);
+      if (lien) {
+        window.open(lien, "_blank", "noopener,noreferrer");
+        setNotif({ type: "ok", texte: "Attestation envoyée au client + WhatsApp ouvert." });
+      } else {
+        setNotif({ type: "ok", texte: "Attestation envoyée au client (pas de numéro pour WhatsApp)." });
+      }
     } catch { setNotif({ type: "err", texte: "Erreur réseau." }); }
     finally { setActionId(null); }
   };

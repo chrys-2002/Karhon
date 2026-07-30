@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Printer, ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import QRCode from "qrcode";
 
 const MARINE = "#1a2e5a";
 const TEAL = "#2a8a8a";
@@ -34,6 +35,7 @@ type Contrat = {
   segment?: string | null;
   statut: string;
   produit?: { nom?: string };
+  signature?: string; // code de signature numérique (calculé côté serveur)
 };
 type Client = { nom?: string; prenom?: string; email?: string; telephone?: string };
 
@@ -46,6 +48,16 @@ export default function RecuPage() {
   const [contrat, setContrat] = useState<Contrat | null>(null);
   const [client, setClient] = useState<Client | null>(null);
   const [chargement, setChargement] = useState(true);
+  const [qr, setQr] = useState<string>("");
+
+  // Génère le QR code de vérification dès que le reçu (avec sa signature) est chargé.
+  useEffect(() => {
+    if (!contrat?.signature) return;
+    const url = `${window.location.origin}/verifier/${contrat.id}?s=${contrat.signature}`;
+    QRCode.toDataURL(url, { margin: 1, width: 200, color: { dark: "#1a2e5a", light: "#ffffff" } })
+      .then(setQr)
+      .catch(() => setQr(""));
+  }, [contrat]);
 
   useEffect(() => {
     let annule = false;
@@ -146,6 +158,27 @@ export default function RecuPage() {
                 <span className="font-bold" style={{ color: MARINE }}>{contrat.compagnie}</span>
               )}
               <p className="text-xs text-gray-500">Contrat conclu avec {contrat.compagnie}, partenaire de KARHON Assurances.</p>
+            </div>
+          )}
+
+          {/* Signature numérique + QR de vérification */}
+          {contrat.signature && (
+            <div className="flex items-center gap-4 rounded-2xl p-4 border-t pt-5" style={{ borderColor: "#eef4f4" }}>
+              {qr && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={qr} alt="QR de vérification" className="w-24 h-24 flex-shrink-0" />
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 mb-1" style={{ color: "#166534" }}>
+                  <ShieldCheck size={15} />
+                  <span className="text-xs font-bold uppercase tracking-wide">Reçu signé numériquement</span>
+                </div>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Scannez ce QR code pour vérifier l&apos;authenticité de ce reçu en ligne.
+                </p>
+                <p className="text-[11px] text-gray-400 mt-1">Code de signature</p>
+                <p className="text-sm font-mono font-semibold tracking-wider break-all" style={{ color: MARINE }}>{contrat.signature}</p>
+              </div>
             </div>
           )}
 

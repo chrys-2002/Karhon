@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { exigerAuth, exigerAdmin, estGerant } from "@/lib/session";
 import { ajouterMois } from "@/lib/contrats";
 import { estPartenaireValide } from "@/lib/partenaires";
+import { signerRecu } from "@/lib/signature";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 
@@ -126,7 +127,9 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.json({ contrats });
+    // On joint à chaque contrat son code de signature (pour le reçu et le QR de vérification).
+    const avecSignature = contrats.map((c) => ({ ...c, signature: signerRecu(c) }));
+    return NextResponse.json({ contrats: avecSignature });
   } catch (e) {
     console.error("[contrats GET]", e);
     return NextResponse.json({ erreur: "Erreur serveur." }, { status: 500 });
