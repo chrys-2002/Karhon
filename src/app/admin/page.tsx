@@ -612,7 +612,7 @@ function ConversionModal({
   devis: DevisAdmin;
   enCours: boolean;
   onClose: () => void;
-  onSubmit: (p: { devisId: string; dureeMois: number; primeAnnuelle: number; dateDebut: string; compagnie: string }) => void;
+  onSubmit: (p: { devisId: string; dureeMois: number; primeAnnuelle: number; dateDebut: string; compagnie: string; numeroPolice: string }) => void;
 }) {
   const aujourdhui = new Date().toISOString().split("T")[0];
   // Valeurs déjà connues depuis les étapes précédentes de la cotation :
@@ -626,6 +626,7 @@ function ConversionModal({
   );
   const [dateDebut, setDateDebut] = useState(aujourdhui);
   const [compagnie, setCompagnie] = useState(propChoisie?.compagnie ?? "");
+  const [numeroPolice, setNumeroPolice] = useState("");
 
   const valide = prime !== "" && Number(prime) >= 0 && dateDebut !== "" && compagnie !== "";
 
@@ -710,13 +711,24 @@ function ConversionModal({
               <label className="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
               <DatePicker value={dateDebut} onChange={setDateDebut} placeholder="Choisir une date" />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">N° de police (compagnie)</label>
+              <input
+                type="text"
+                value={numeroPolice}
+                onChange={(e) => setNumeroPolice(e.target.value)}
+                placeholder="Numéro de police délivré par la compagnie"
+                className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none"
+                style={{ borderColor: "#e0ecec" }}
+              />
+            </div>
           </div>
 
           <div className="flex gap-3 pt-1">
             <button
               type="button"
               disabled={!valide || enCours}
-              onClick={() => onSubmit({ devisId: devis.id, dureeMois, primeAnnuelle: Number(prime), dateDebut, compagnie })}
+              onClick={() => onSubmit({ devisId: devis.id, dureeMois, primeAnnuelle: Number(prime), dateDebut, compagnie, numeroPolice: numeroPolice.trim() })}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
             >
@@ -1388,6 +1400,7 @@ export default function AdminPage() {
     primeAnnuelle: number;
     dateDebut: string;
     compagnie: string;
+    numeroPolice?: string;
   }) => {
     setActionId(payload.devisId);
     try {

@@ -202,6 +202,7 @@ model Contrat {
   primeAnnuelle Float
   segment       SegmentContrat @default(particulier) // particulier (perso) ou professionnel (flotte)
   compagnie     String?       // compagnie partenaire avec qui le contrat est conclu
+  numeroPolice  String?       // numéro de police délivré par la compagnie (figure aussi sur le reçu)
   telephoneContact String?    // numéro de contact du client (repris du devis, pour les relances)
   statut        StatutContrat @default(actif)
   options       String[]

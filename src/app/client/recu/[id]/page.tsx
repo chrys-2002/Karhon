@@ -32,6 +32,7 @@ type Contrat = {
   dureeMois: number;
   primeAnnuelle: number;
   compagnie?: string | null;
+  numeroPolice?: string | null;
   segment?: string | null;
   statut: string;
   produit?: { nom?: string };
@@ -110,12 +111,18 @@ export default function RecuPage() {
       {/* Le reçu */}
       <div id="recu" className="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
         <div className="recu-header px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
-          {/* À l'écran : logo blanc sur le fond dégradé. À l'impression : logo couleur sur fond blanc. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-10 print:hidden" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo/karhon-couleur.svg" alt="KARHON Assurances" className="h-10 hidden print:block" />
-          <div className="text-right text-white">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* À l'écran : logo blanc sur le fond dégradé. À l'impression : logo couleur sur fond blanc. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-14 print:hidden" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo/karhon-couleur.svg" alt="KARHON Assurances" className="h-14 hidden print:block" />
+            <div className="leading-tight text-white">
+              <p className="text-lg font-extrabold tracking-wide">KARHON</p>
+              <p className="text-[10px] tracking-[0.25em] uppercase text-white/80">Assurances</p>
+            </div>
+          </div>
+          <div className="text-right text-white flex-shrink-0">
             <p className="text-xs uppercase tracking-widest text-white/70">Reçu de souscription</p>
             <p className="font-bold">N° {contrat.numeroContrat}</p>
           </div>
@@ -139,6 +146,7 @@ export default function RecuPage() {
               ["Catégorie", segment],
               ["Compagnie", contrat.compagnie || "—"],
               ["N° de contrat", contrat.numeroContrat],
+              ...(contrat.numeroPolice ? [["N° de police", contrat.numeroPolice]] as [string, string][] : []),
               ["Date d'effet", fmtDate(contrat.dateDebut)],
               ["Échéance", fmtDate(contrat.dateFin)],
               ["Durée", `${contrat.dureeMois} mois`],
@@ -211,6 +219,9 @@ export default function RecuPage() {
           /* En-tête : fond blanc + texte foncé + logo couleur, bien visibles sur papier. */
           #recu .recu-header { background: #fff !important; }
           #recu .recu-header * { color: #1a2e5a !important; }
+          /* Tout le texte du reçu bien foncé et lisible à l'impression. */
+          #recu p, #recu span, #recu div { color: #1f2937 !important; }
+          #recu .text-gray-400, #recu .text-gray-500 { color: #475569 !important; }
         }
       `}</style>
     </div>

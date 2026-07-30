@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   if (auth instanceof NextResponse) return auth;
 
   try {
-    const { devisId, dureeMois, primeAnnuelle, dateDebut, options, compagnie } = await req.json();
+    const { devisId, dureeMois, primeAnnuelle, dateDebut, options, compagnie, numeroPolice } = await req.json();
 
     // 1) Validation de base.
     if (!devisId || !dureeMois || primeAnnuelle == null) {
@@ -78,6 +78,7 @@ export async function POST(req: Request) {
           // Catégorie héritée automatiquement de la demande de devis du client.
           segment: devis.segment ?? "particulier",
           compagnie,
+          numeroPolice: typeof numeroPolice === "string" && numeroPolice.trim() ? numeroPolice.trim().slice(0, 80) : null,
           telephoneContact: devis.telephoneContact ?? null,
           options: Array.isArray(options) ? options.filter((o) => typeof o === "string").slice(0, 20) : [],
           userId: devis.userId,

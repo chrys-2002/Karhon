@@ -618,7 +618,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
-              {contrats.map((c) => {
+              {[...contrats].sort((a, b) => new Date(b.dateDebut ?? 0).getTime() - new Date(a.dateDebut ?? 0).getTime()).map((c) => {
                 const ouvert = contratOuvert === c.id;
                 const segLabel = c.segment === "professionnel" ? "Professionnel — flotte / pack auto" : c.segment === "transport" ? "Transport professionnel" : "Particulier (usage personnel)";
                 const lignes: [string, string][] = [
