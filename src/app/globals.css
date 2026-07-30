@@ -11,6 +11,19 @@ html {
   /* Sur mobile on garde la taille standard (16px) pour ne pas serrer la mise en page. */
   font-size: 100%;
 }
+
+/* Filet de sécurité responsive : aucune page ne défile horizontalement.
+   (On le met sur body, PAS sur les cartes : ça n'écrase aucune hauteur d'image
+   et ça ne masque pas de texte en flux normal, ça empêche seulement le
+   débordement latéral d'un élément trop large sur mobile.) */
+body {
+  overflow-x: hidden;
+}
+/* Les médias ne débordent jamais de leur conteneur. On ne touche PAS à la
+   hauteur (height:auto écraserait les tailles fixes comme les logos). */
+img, video, canvas {
+  max-width: 100%;
+}
 /* Agrandissement léger des textes uniquement à partir des tablettes/écrans larges. */
 @media (min-width: 640px) {
   html {
@@ -18,12 +31,6 @@ html {
   }
 }
 
-/* Garde-fou responsive global : les médias ne dépassent jamais de l'écran.
-   (On n'utilise PAS overflow-x:hidden global, qui masquerait du texte débordant.) */
-img, video, canvas {
-  max-width: 100%;
-  height: auto;
-}
 
 /* Respect des préférences d'accessibilité : on coupe tout si l'utilisateur
    a demandé moins d'animations. */

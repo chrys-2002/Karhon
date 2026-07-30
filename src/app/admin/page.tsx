@@ -2327,7 +2327,7 @@ export default function AdminPage() {
         {/* Graphes : évolution (courbe) + répartition des devis (donut) */}
         {apercu && (
           <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="min-w-0 overflow-hidden lg:col-span-2 bg-white rounded-3xl shadow-sm border p-5 sm:p-8" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
@@ -2337,7 +2337,7 @@ export default function AdminPage() {
               <GrapheTrimestriel data={apercu.trimestres} />
             </motion.div>
 
-            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.12 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.12 }} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-8" style={{ borderColor: "#e0ecec" }}>
               <h2 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Répartition des cotations</h2>
               <p className="text-xs text-gray-400 mb-3">Par statut</p>
               {(() => {
@@ -2431,7 +2431,7 @@ export default function AdminPage() {
         {/* Analyses métier : types demandés, sinistres par type, clients actifs */}
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {/* Types d'assurance les plus demandés (cotations) */}
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.14 }} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e0ecec" }}>
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.14 }} className="min-w-0 bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e0ecec" }}>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <ClipboardList size={18} style={{ color: "#2a8a8a" }} />
@@ -2483,7 +2483,7 @@ export default function AdminPage() {
           </motion.div>
 
           {/* Sinistres par type d'assurance */}
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.18 }} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e0ecec" }}>
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.18 }} className="min-w-0 bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e0ecec" }}>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fee2e2, #fecaca)" }}>
                 <AlertTriangle size={18} style={{ color: "#dc2626" }} />
@@ -2535,7 +2535,7 @@ export default function AdminPage() {
           </motion.div>
 
           {/* Clients les plus actifs */}
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.22 }} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e0ecec" }}>
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.22 }} className="min-w-0 bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e0ecec" }}>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Users size={18} style={{ color: "#2a8a8a" }} />
@@ -3338,7 +3338,7 @@ export default function AdminPage() {
                 </motion.div>
 
                 {/* Rentabilité par compagnie : primes générées (barres horizontales) */}
-                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.06 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.06 }} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-8" style={{ borderColor: "#e0ecec" }}>
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #dcfce7, #bbf7d0)" }}>
@@ -3362,8 +3362,8 @@ export default function AdminPage() {
                       moyenne: c.contrats ? Math.round(c.primes / c.contrats) : 0,
                     }));
                     return (
-                      <div className="flex flex-col sm:flex-row items-center gap-6">
-                        <div className="w-full sm:w-[46%] h-[240px] relative">
+                      <div className="flex flex-col sm:flex-row items-center gap-6 min-w-0">
+                        <div className="w-full sm:w-[46%] min-w-0 h-[240px] relative">
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Pie data={parts} dataKey="primes" nameKey="nom" cx="50%" cy="50%" innerRadius={64} outerRadius={94} paddingAngle={3} stroke="none" animationDuration={900}>
@@ -3399,7 +3399,7 @@ export default function AdminPage() {
                 </motion.div>
 
                 {/* Entonnoir de conversion : parcours des clients de l'inscription à la souscription */}
-                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="bg-white rounded-3xl shadow-sm border p-6 sm:p-8" style={{ borderColor: "#e0ecec" }}>
+                <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.08 }} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-8" style={{ borderColor: "#e0ecec" }}>
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                       <TrendingUp size={18} style={{ color: "#2a8a8a" }} />

@@ -450,7 +450,7 @@ export default function Dashboard() {
                 key={label}
                 custom={i} initial="hidden" animate="visible" variants={fadeUp}
                 onClick={() => setVue(cible)}
-                className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border text-left transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-95 flex flex-col"
+                className="min-w-0 bg-white rounded-3xl p-5 sm:p-6 shadow-sm border text-left transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-95 flex flex-col"
                 style={{ borderColor: "#e6f0f0" }}
               >
                 {/* Chiffre + icône en haut : alignés dans toutes les cartes. Libellé en dessous. */}
@@ -467,7 +467,7 @@ export default function Dashboard() {
 
           {/* Graphes : répartition (donut) + échéances (aire) */}
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-            <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e6f0f0" }}>
+            <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e6f0f0" }}>
               <h3 className="text-base font-bold mb-1" style={{ color: MARINE }}>Répartition de votre activité</h3>
               <p className="text-xs text-gray-400 mb-3">Vos demandes et contrats en un coup d&apos;œil</p>
               {totalActivite === 0 ? (
@@ -478,8 +478,8 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-400">Rien à afficher pour l&apos;instant.</p>
                 </div>
               ) : (
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className="w-full sm:w-1/2 h-[200px] relative">
+                <div className="flex flex-col sm:flex-row items-center gap-4 min-w-0">
+                  <div className="w-full sm:w-1/2 min-w-0 h-[200px] relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie data={repartition} dataKey="valeur" nameKey="nom" cx="50%" cy="50%" innerRadius={56} outerRadius={82} paddingAngle={3} stroke="none" animationDuration={900}>
@@ -507,7 +507,7 @@ export default function Dashboard() {
               )}
             </motion.div>
 
-            <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border p-6" style={{ borderColor: "#e6f0f0" }}>
+            <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e6f0f0" }}>
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-base font-bold" style={{ color: MARINE }}>Échéances à venir</h3>
                 {echeancesProches > 0 && (
