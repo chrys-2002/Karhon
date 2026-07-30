@@ -12,14 +12,11 @@ html {
   font-size: 106.25%;
 }
 
-/* Garde-fou responsive global : empêche le défilement horizontal sur mobile
-   et garantit que les images/vidéos ne dépassent jamais de l'écran. */
-html, body {
+/* Garde-fou responsive global : les médias ne dépassent jamais de l'écran.
+   (On n'utilise PAS overflow-x:hidden global, qui masquerait du texte débordant.) */
+img, video, canvas {
   max-width: 100%;
-  overflow-x: hidden;
-}
-img, svg, video, canvas {
-  max-width: 100%;
+  height: auto;
 }
 
 /* Respect des préférences d'accessibilité : on coupe tout si l'utilisateur
