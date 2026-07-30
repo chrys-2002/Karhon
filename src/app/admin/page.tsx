@@ -2087,56 +2087,48 @@ export default function AdminPage() {
         {apercu && (
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.05 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
             {/* Clients → ouvre la liste des clients inscrits */}
-            <button type="button" onClick={() => { setRetourClients("accueil"); setVue("clients"); }} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-gray-400 text-xs uppercase tracking-wide">Clients</p>
-                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.clients}</p>
-                  <p className="text-xs font-semibold mt-1 inline-flex items-center gap-1" style={{ color: "#2a8a8a" }}>Voir la liste <ArrowRight size={12} /></p>
-                </div>
+            <button type="button" onClick={() => { setRetourClients("accueil"); setVue("clients"); }} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.clients}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <Users size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
+              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Clients</p>
+              <p className="text-xs font-semibold mt-1 inline-flex items-center gap-1" style={{ color: "#2a8a8a" }}>Voir la liste <ArrowRight size={12} /></p>
             </button>
             {/* Devis → onglet Cotations */}
-            <button type="button" onClick={() => { setFiltre("tous"); setVue("devis"); }} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-gray-400 text-xs uppercase tracking-wide">Cotations</p>
-                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.devisTotal}</p>
-                  <p className="text-xs text-gray-400 mt-1">{apercu.devisParStatut["en_attente"] ?? 0} en attente · {apercu.devisParStatut["accepte"] ?? 0} acceptés</p>
-                </div>
+            <button type="button" onClick={() => { setFiltre("tous"); setVue("devis"); }} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.devisTotal}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <ClipboardList size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
+              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Cotations</p>
+              <p className="text-xs text-gray-400 mt-1">{apercu.devisParStatut["en_attente"] ?? 0} en attente · {apercu.devisParStatut["accepte"] ?? 0} acceptés</p>
             </button>
             {/* Souscriptions actives → onglet Souscriptions */}
-            <button type="button" onClick={() => setVue("souscriptions")} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-gray-400 text-xs uppercase tracking-wide">Souscriptions actives</p>
-                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.contratsActifs}</p>
-                  <p className="text-xs text-gray-400 mt-1">{apercu.echeancesProches} échéance{apercu.echeancesProches > 1 ? "s" : ""} ≤ 90 j</p>
-                </div>
+            <button type="button" onClick={() => setVue("souscriptions")} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.contratsActifs}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <FileSignature size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
+              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Souscriptions actives</p>
+              <p className="text-xs text-gray-400 mt-1">{apercu.echeancesProches} échéance{apercu.echeancesProches > 1 ? "s" : ""} ≤ 90 j</p>
             </button>
             {/* Sinistres → onglet Sinistres */}
-            <button type="button" onClick={() => setVue("sinistres")} className="text-left bg-white rounded-3xl p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5" style={{ borderColor: "#e0ecec" }}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-gray-400 text-xs uppercase tracking-wide">Sinistres</p>
-                  <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{apercu.sinistresEnCours}</p>
-                  <p className="text-xs text-gray-400 mt-1 inline-flex items-center gap-1"><TrendingUp size={12} style={{ color: "#16a34a" }} /> {apercu.tauxConversion}% conversion</p>
-                </div>
+            <button type="button" onClick={() => setVue("sinistres")} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.sinistresEnCours}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <AlertTriangle size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
+              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Sinistres</p>
+              <p className="text-xs text-gray-400 mt-1 inline-flex items-center gap-1"><TrendingUp size={12} style={{ color: "#16a34a" }} /> {apercu.tauxConversion}% conversion</p>
             </button>
           </motion.div>
         )}

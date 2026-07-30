@@ -8,8 +8,14 @@
 
 html {
   scroll-behavior: smooth;
-  /* Agrandissement léger et global de tous les textes (base 16px → 17px). */
-  font-size: 106.25%;
+  /* Sur mobile on garde la taille standard (16px) pour ne pas serrer la mise en page. */
+  font-size: 100%;
+}
+/* Agrandissement léger des textes uniquement à partir des tablettes/écrans larges. */
+@media (min-width: 640px) {
+  html {
+    font-size: 106.25%;
+  }
 }
 
 /* Garde-fou responsive global : les médias ne dépassent jamais de l'écran.

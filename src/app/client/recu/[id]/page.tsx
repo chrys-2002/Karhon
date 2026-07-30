@@ -110,19 +110,19 @@ export default function RecuPage() {
 
       {/* Le reçu */}
       <div id="recu" className="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
-        <div className="recu-header px-5 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+        <div className="recu-header px-5 sm:px-8 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
           <div className="flex items-center gap-3 min-w-0">
             {/* À l'écran : logo blanc sur le fond dégradé. À l'impression : logo couleur sur fond blanc. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-14 print:hidden" />
+            <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-12 sm:h-14 flex-shrink-0 print:hidden" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo/karhon-couleur.svg" alt="KARHON Assurances" className="h-14 hidden print:block" />
+            <img src="/images/logo/karhon-couleur.svg" alt="KARHON Assurances" className="h-12 sm:h-14 flex-shrink-0 hidden print:block" />
             <div className="leading-tight text-white">
               <p className="text-lg font-extrabold tracking-wide">KARHON</p>
               <p className="text-[10px] tracking-[0.25em] uppercase text-white/80">Assurances</p>
             </div>
           </div>
-          <div className="text-right text-white flex-shrink-0">
+          <div className="text-left sm:text-right text-white sm:flex-shrink-0">
             <p className="text-xs uppercase tracking-widest text-white/70">Reçu de souscription</p>
             <p className="font-bold">N° {contrat.numeroContrat}</p>
           </div>

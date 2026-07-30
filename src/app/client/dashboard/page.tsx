@@ -450,18 +450,17 @@ export default function Dashboard() {
                 key={label}
                 custom={i} initial="hidden" animate="visible" variants={fadeUp}
                 onClick={() => setVue(cible)}
-                className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border text-left transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
+                className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border text-left transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-95 flex flex-col"
                 style={{ borderColor: "#e6f0f0" }}
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-gray-400 text-[11px] uppercase tracking-wide">{label}</p>
-                    <p className="text-3xl font-extrabold mt-2" style={{ color: MARINE }}><Compteur value={value} /></p>
-                  </div>
+                {/* Chiffre + icône en haut : alignés dans toutes les cartes. Libellé en dessous. */}
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <p className="text-3xl font-extrabold" style={{ color: MARINE }}><Compteur value={value} /></p>
                   <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                     <Icon size={20} style={{ color: TEAL }} />
                   </div>
                 </div>
+                <p className="text-gray-400 text-[11px] uppercase tracking-wide leading-tight">{label}</p>
               </motion.button>
             ))}
           </div>
