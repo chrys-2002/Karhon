@@ -517,7 +517,7 @@ export default function DashboardShell({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.98 }}
                       transition={{ duration: 0.16 }}
-                      className="absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border overflow-hidden z-50"
+                      className="fixed left-3 right-3 top-16 sm:absolute sm:top-auto sm:left-auto sm:right-0 sm:mt-2 sm:w-[340px] bg-white rounded-2xl shadow-2xl border overflow-hidden z-50"
                       style={{ borderColor: "#e6f0f0" }}
                     >
                       <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "#eef4f4" }}>
@@ -604,7 +604,7 @@ export default function DashboardShell({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.98 }}
                       transition={{ duration: 0.16 }}
-                      className="absolute right-0 mt-2 w-[280px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border overflow-hidden z-50"
+                      className="fixed left-3 right-3 top-16 sm:absolute sm:top-auto sm:left-auto sm:right-0 sm:mt-2 sm:w-[280px] bg-white rounded-2xl shadow-2xl border overflow-hidden z-50"
                       style={{ borderColor: "#e6f0f0" }}
                     >
                       <div className="p-4 flex items-center gap-3 border-b" style={{ borderColor: "#eef4f4", background: "linear-gradient(135deg, #f8fbfb, #ffffff)" }}>
