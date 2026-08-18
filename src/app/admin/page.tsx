@@ -1163,7 +1163,7 @@ export default function AdminPage() {
       (p.message ? `\n${p.message}\n` : "") +
       `\nÀ votre disposition,\n` +
       `KARHON Assurances — Cabinet de courtage, Abidjan\n` +
-      `Tel : +2250787103939 / +2250576367272`;
+      `Tel : +2250787103939 / +2250576367272 / +2250105137059`;
 
     const tel = d.telephoneContact || d.user?.telephone;
     const lien = lienWhatsApp(tel, message);

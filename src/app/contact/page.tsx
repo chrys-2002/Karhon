@@ -467,6 +467,13 @@ export default function ContactPage() {
                         >
                           +225 05 76 36 72 72
                         </a>
+                        <a
+                          href="tel:+2250105137059"
+                          className="block font-bold hover:underline"
+                          style={{ color: '#1a2e5a' }}
+                        >
+                          +225 01 05 13 70 59
+                        </a>
                       </>
                     ),
                   },
@@ -478,7 +485,7 @@ export default function ContactPage() {
                   {
                     Icon: MapPin,
                     title: 'Adresse',
-                    content: <p className="text-gray-600 text-sm">Rue Manglé Yves Éric Akran, Angré 8ème Tranche — Cocody, BP V 236 Abidjan</p>,
+                    content: <p className="text-gray-600 text-sm">Rue Manglé Yves Éric Akran, Angré 8ème Tranche Cocody, BP V 236 Abidjan</p>,
                   },
                   {
                     Icon: Clock,

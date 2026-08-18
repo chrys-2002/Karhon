@@ -836,6 +836,12 @@ export default function DevisPage() {
               </div>
               +225 05 76 36 72 72
             </a>
+            <a href="tel:+2250105137059" className="inline-flex items-center gap-3 text-2xl font-bold transition-all hover:scale-105" style={{ color: "#1a2e5a" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
+                <Phone size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
+              </div>
+              +225 01 05 13 70 59
+            </a>
           </div>
           <p className="text-gray-400 mt-2 text-sm">Ou écrivez-nous à infos@karhonassurance.com</p>
         </motion.div>

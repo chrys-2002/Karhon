@@ -6,9 +6,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { exigerAuth, exigerStaff } from "@/lib/session";
+import { notifierClient } from "@/lib/notifications";
 
 const ROLES_STAFF = ["agent", "gerant", "admin"];
 const STATUTS = ["en_attente", "confirme", "annule", "termine"] as const;
+
+// Libellés utilisés dans les notifications envoyées au client selon le nouveau statut.
+const LIBELLE_STATUT: Record<string, string> = {
+  confirme: "confirmé",
+  annule: "annulé",
+  termine: "marqué comme terminé",
+  en_attente: "remis en attente",
+};
 
 export async function PATCH(
   req: Request,
@@ -28,8 +37,27 @@ export async function PATCH(
     const maj = await prisma.rendezVous.update({
       where: { id },
       data: { statut },
-      include: { user: { select: { nom: true, prenom: true, email: true, telephone: true } } },
+      include: { user: { select: { id: true, nom: true, prenom: true, email: true, telephone: true } } },
     });
+
+    // Prévient le client (in-app + e-mail) du changement de statut de son rendez-vous.
+    if (maj.user?.id) {
+      const quand = new Date(maj.dateHeure).toLocaleString("fr-FR", {
+        timeZone: "Africa/Abidjan",
+        day: "2-digit",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      await notifierClient({
+        userId: maj.user.id,
+        email: maj.user.email,
+        type: "rendezvous",
+        titre: "Votre rendez-vous a été mis à jour",
+        message: `Votre rendez-vous du ${quand} (${maj.motif}) a été ${LIBELLE_STATUT[statut] ?? statut}.`,
+        ref: maj.id,
+      });
+    }
 
     return NextResponse.json({ rendezVous: maj });
   } catch (e) {

@@ -119,6 +119,20 @@ const produits = [
     description: "Prend en charge l'organisation et les frais d'obsèques.",
     garanties: ["Capital obsèques", "Organisation", "Assistance aux proches"],
   },
+  {
+    nom: "Assurance Prêt Bancaire",
+    type: "VIE" as const,
+    categorie: "vie",
+    description: "Garantit le remboursement de vos engagements bancaires en cas de décès ou d'invalidité.",
+    garanties: ["Décès", "Invalidité totale", "Solde restant dû couvert", "Tranquillité familiale"],
+  },
+  {
+    nom: "Assurance Caution",
+    type: "VIE" as const,
+    categorie: "vie",
+    description: "Se substitue à vous pour garantir vos engagements financiers envers un tiers.",
+    garanties: ["Garantie locative", "Garantie de marché", "Garantie douanière", "Libération de trésorerie"],
+  },
 ];
 
 async function main() {

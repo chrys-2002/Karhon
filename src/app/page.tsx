@@ -87,6 +87,54 @@ const produitsIARD: Product[] = [
       { label: "Scolaire", description: "Assurance spécialement conçue pour les voyages scolaires. Couvre les accidents, la responsabilité civile et l'assistance spécifique aux mineurs." }
     ],
   },
+  {
+    nom: "Responsabilité Civile",
+    description: "Dommages causés à autrui",
+    image: "/images/accueil/rc.jpg",
+    tag: "IARD",
+    longDescription: "Couvre les dommages corporels, matériels ou immatériels que vous pourriez causer à un tiers dans le cadre de votre vie privée. Une protection essentielle pour vous et votre famille au quotidien.",
+    garanties: ["Dommages Corporels", "Dommages Matériels", "Défense Pénale & Recours", "Protection de la Famille"],
+    options: [
+      { label: "Individuelle", description: "Couvre uniquement la personne souscriptrice pour les dommages causés à un tiers dans sa vie privée." },
+      { label: "Familiale", description: "Étend la couverture à l'ensemble des membres du foyer (conjoint, enfants), y compris les animaux domestiques." }
+    ],
+  },
+  {
+    nom: "Assurance Maritime",
+    description: "Marchandises et corps de navire",
+    image: "/images/accueil/maritime.jpg",
+    tag: "IARD",
+    longDescription: "Couvre les marchandises transportées par voie maritime ainsi que le corps des navires contre les avaries, pertes et risques liés au transport. Indispensable pour les importateurs, exportateurs et armateurs.",
+    garanties: ["Facultés (Marchandises)", "Corps de Navire", "Avaries Communes & Particulières", "Responsabilité Civile Maritime"],
+    options: [
+      { label: "Facultés", description: "Couvre les marchandises transportées par mer contre la perte, le vol ou l'avarie durant le trajet." },
+      { label: "Corps de Navire", description: "Couvre le navire lui-même contre les dommages matériels, l'échouement, l'incendie ou le naufrage." }
+    ],
+  },
+  {
+    nom: "Multirisque Professionnel",
+    description: "Locaux et activité professionnelle",
+    image: "/images/accueil/multirisque-pro.jpg",
+    tag: "IARD",
+    longDescription: "Protection globale des locaux, du matériel et de l'activité de votre entreprise contre les principaux risques : incendie, vol, bris de matériel et pertes d'exploitation.",
+    garanties: ["Incendie & Explosion", "Vol & Vandalisme", "Bris de Matériel", "Pertes d'Exploitation"],
+    options: [
+      { label: "Essentielle", description: "Couverture de base des locaux et du matériel contre l'incendie et le vol. Adaptée aux petites structures." },
+      { label: "Étendue", description: "Ajoute la couverture des pertes d'exploitation et du bris de matériel. Recommandée pour les entreprises avec un fort enjeu opérationnel." }
+    ],
+  },
+  {
+    nom: "Individuelle Accident",
+    description: "Indemnisation en cas d'accident",
+    image: "/images/accueil/accident.jpg",
+    tag: "IARD",
+    longDescription: "Garantit le versement d'un capital ou d'une rente en cas d'accident corporel survenu dans la vie privée ou professionnelle, entraînant invalidité ou décès.",
+    garanties: ["Invalidité Permanente", "Décès Accidentel", "Frais Médicaux", "Capital ou Rente"],
+    options: [
+      { label: "Capital Fixe", description: "Verse un capital déterminé à l'avance en cas d'invalidité ou de décès accidentel." },
+      { label: "Capital Progressif", description: "Le capital versé évolue selon la gravité de l'accident et le degré d'invalidité constaté." }
+    ],
+  },
 ];
 
 const produitsVIE: Product[] = [
@@ -140,6 +188,30 @@ const produitsVIE: Product[] = [
       { label: "Individuelle", description: "Couverture pour une seule personne. Capital versé aux bénéficiaires désignés pour prendre en charge les frais funéraires." },
       { label: "Famille", description: "Couverture étendue à tous les membres de la famille (conjoint et enfants). Solution économique pour protéger toute la famille." },
       { label: "Groupe Entreprise", description: "Couverture collective pour les employés d'une entreprise. Avantage social majeur qui protège les familles des salariés." }
+    ],
+  },
+  {
+    nom: "Assurance Prêt Bancaire",
+    description: "Protection de vos engagements bancaires",
+    image: "/images/accueil/pret-bancaire.jpg",
+    tag: "VIE",
+    longDescription: "Garantit le remboursement de vos engagements bancaires (prêt personnel, découvert, ligne de crédit) en cas de décès ou d'invalidité, pour protéger votre famille de la dette restante.",
+    garanties: ["Décès", "Invalidité Totale", "Solde Restant Dû Couvert", "Tranquillité Familiale"],
+    options: [
+      { label: "Prêt Personnel", description: "Couvre le remboursement d'un prêt à la consommation en cas de décès ou d'invalidité de l'emprunteur." },
+      { label: "Ligne de Crédit", description: "Sécurise une facilité de caisse ou une ligne de crédit renouvelable contre les aléas de la vie." }
+    ],
+  },
+  {
+    nom: "Assurance Caution",
+    description: "Garantie pour vos engagements contractuels",
+    image: "/images/accueil/caution.jpg",
+    tag: "VIE",
+    longDescription: "Se substitue à vous pour garantir vos engagements financiers envers un tiers (bailleur, administration, partenaire commercial) en cas de défaillance, sans immobiliser votre trésorerie.",
+    garanties: ["Garantie Locative", "Garantie de Marché", "Garantie Douanière", "Libération de Trésorerie"],
+    options: [
+      { label: "Caution Locative", description: "Remplace le dépôt de garantie classique auprès d'un bailleur, sans bloquer votre épargne." },
+      { label: "Caution Professionnelle", description: "Garantit vos engagements contractuels ou administratifs dans le cadre de votre activité professionnelle." }
     ],
   },
 ];

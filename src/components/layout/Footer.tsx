@@ -167,6 +167,10 @@ function LocationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                   <Phone size={16} style={{ color: "#2a8a8a" }} strokeWidth={2} />
                   <span className="text-sm font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span>
                 </a>
+                <a href="tel:+2250105137059" className="flex items-center gap-3 p-4 rounded-xl transition-all hover:scale-[1.02]" style={{ backgroundColor: "#f0f7f7", border: "1px solid #d0ecec" }}>
+                  <Phone size={16} style={{ color: "#2a8a8a" }} strokeWidth={2} />
+                  <span className="text-sm font-semibold" style={{ color: "#1a2e5a" }}>+225 01 05 13 70 59</span>
+                </a>
               </div>
             </div>
 
@@ -194,6 +198,7 @@ export default function Footer() {
   const contacts = [
     { Icon: Phone, text: "+225 07 87 10 39 39", href: "tel:+2250787103939" },
     { Icon: Phone, text: "+225 05 76 36 72 72", href: "tel:+2250576367272" },
+    { Icon: Phone, text: "+225 01 05 13 70 59", href: "tel:+2250105137059" },
     { Icon: Mail, text: "infos@karhonassurance.com", href: "mailto:infos@karhonassurance.com" },
   ];
 

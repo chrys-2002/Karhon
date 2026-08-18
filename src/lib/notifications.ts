@@ -32,6 +32,7 @@ const ONGLET_AGENT: Record<string, string> = {
 const ONGLET_CLIENT: Record<string, string> = {
   proposition: "devis",
   message: "messages",
+  rendezvous: "rdv",
 };
 
 // Construit un lien interne avec onglet + référence éventuelle (ex. conversation).

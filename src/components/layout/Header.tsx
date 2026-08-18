@@ -301,14 +301,16 @@ export default function Header() {
             <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
               <Link
                 href={espaceHref}
-                className="block w-full text-white text-center py-3 rounded-xl font-semibold transition-all"
+                className="relative block w-full text-white text-center py-3 rounded-xl font-semibold transition-all"
                 style={{
                   background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)",
                   boxShadow: pathname === "/client" ? "0 0 0 3px rgba(42,138,138,0.3)" : "none",
                 }}
                 onClick={onEspaceClick}
+                aria-label={connecte && nonLues > 0 ? `Mon espace, ${nonLues} notifications non lues` : undefined}
               >
                 {connecte ? "Mon espace" : "Espace Client"}
+                {connecte && <Pastille />}
               </Link>
 
               {connecte && (

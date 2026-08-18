@@ -121,6 +121,7 @@ export default function AproposPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="tel:+2250787103939" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 07 87 10 39 39</a>
             <a href="tel:+2250576367272" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 05 76 36 72 72</a>
+            <a href="tel:+2250105137059" className="inline-block font-bold text-xl px-10 py-4 rounded-2xl transition hover:scale-105" style={{ backgroundColor: "#ffffff", color: "#1a2e5a" }}>+225 01 05 13 70 59</a>
           </div>
         </motion.div>
 

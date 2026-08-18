@@ -107,8 +107,9 @@ export function gabaritRelance(opts: {
       <p>Nous revenons vers vous concernant <strong>${sujet}</strong>.</p>
       <p style="white-space:pre-line">${message}</p>
       <p style="margin-top:24px">Pour toute question, contactez-nous au
-        <strong style="color:#1a2e5a">+225 07 87 10 39 39</strong> ou
-        <strong style="color:#1a2e5a">+225 05 76 36 72 72</strong>.</p>
+        <strong style="color:#1a2e5a">+225 07 87 10 39 39</strong>,
+        <strong style="color:#1a2e5a">+225 05 76 36 72 72</strong> ou
+        <strong style="color:#1a2e5a">+225 01 05 13 70 59</strong>.</p>
       <p style="margin-top:24px;color:#6b7280">Bien cordialement,<br/>L'équipe KARHON Assurances</p>
     </div>
     <div style="background:#f5fbfb;padding:16px 28px;color:#9ca3af;font-size:12px;text-align:center">

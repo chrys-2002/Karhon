@@ -170,7 +170,7 @@ export default function ImprimerContrat() {
         {/* Pied de page */}
         <div className="px-8 py-4 text-center" style={{ background: "#f5fbfb" }}>
           <p className="text-xs text-gray-500">
-            Abidjan, Cocody — Angré 8ème Tranche (BP V 236) · +225 07 87 10 39 39 · +225 05 76 36 72 72 · infos@karhonassurance.com
+            Abidjan, Cocody — Angré 8ème Tranche (BP V 236) · +225 07 87 10 39 39 · +225 05 76 36 72 72 · +225 01 05 13 70 59 · infos@karhonassurance.com
           </p>
         </div>
       </div>

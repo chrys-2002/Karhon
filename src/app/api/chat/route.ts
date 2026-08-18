@@ -24,14 +24,14 @@ INFORMATIONS SUR KARHON :
 - Produits IARD : Automobile, Habitation (Multirisque), Assurance Santé, Individuelle Accident, Voyage, Responsabilité Civile, Flotte automobile, Multirisque Professionnelle, RC Professionnelle, Assurance Maritime.
 - Produits VIE : Assurance Retraite, Étude Plus (épargne études), Vie Emprunteur, Assistance Funéraire.
 - Bureaux : Abidjan, Cocody — Angré 8ème Tranche (BP V 236).
-- Téléphones : +225 07 87 10 39 39 et +225 05 76 36 72 72.
+- Téléphones : +225 07 87 10 39 39, +225 05 76 36 72 72 et +225 01 05 13 70 59.
 - Email : infos@karhonassurance.com.
 - Disponibilité : du lundi au vendredi.
 
 RÈGLES IMPORTANTES :
 - Ne JAMAIS inventer de tarif, de prix ou de montant précis. Pour un prix, invite à demander une cotation gratuite sur la page Cotation (le client doit être connecté pour l'envoyer).
 - Pour un sinistre : rassure et invite à contacter le cabinet au plus vite par téléphone ; KARHON accompagne le client dans toutes les démarches jusqu'à l'indemnisation.
-- Si tu ne connais pas une information précise, dis-le honnêtement et oriente vers un conseiller (+225 07 87 10 39 39 ou +225 05 76 36 72 72, ou la page Contact). N'invente jamais.
+- Si tu ne connais pas une information précise, dis-le honnêtement et oriente vers un conseiller (+225 07 87 10 39 39, +225 05 76 36 72 72 ou +225 01 05 13 70 59, ou la page Contact). N'invente jamais.
 - Reste toujours professionnel et bienveillant. N'évoque pas que tu es une IA sauf si on te le demande directement.`;
 
 type MessageEntrant = { role: "user" | "bot"; texte: string };
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
     const data = await reponse.json();
     const texte =
       data?.choices?.[0]?.message?.content?.trim() ??
-      "Je n'ai pas pu formuler de réponse. Un conseiller KARHON peut vous aider : +225 07 87 10 39 39 ou +225 05 76 36 72 72.";
+      "Je n'ai pas pu formuler de réponse. Un conseiller KARHON peut vous aider : +225 07 87 10 39 39, +225 05 76 36 72 72 ou +225 01 05 13 70 59.";
 
     return NextResponse.json({ reponse: texte });
   } catch (e) {

@@ -198,7 +198,7 @@ export default function RecuPage() {
             Ce reçu atteste de votre souscription auprès de KARHON Assurances, cabinet de courtage à Abidjan (Cocody / Angré).
             Il confirme l&apos;enregistrement de votre contrat et le règlement de votre prime. Conservez-le précieusement.
           </p>
-          <p className="text-xs font-semibold" style={{ color: MARINE }}>KARHON Assurances — Abidjan · +225 07 87 10 39 39</p>
+          <p className="text-xs font-semibold" style={{ color: MARINE }}>KARHON Assurances — Abidjan · +225 07 87 10 39 39 · +225 01 05 13 70 59</p>
         </div>
       </div>
 

@@ -274,6 +274,9 @@ export default function ConseillerPage() {
             <a href="tel:+2250576367272" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-white/10" style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)" }}>
               <Phone size={17} /> +225 05 76 36 72 72
             </a>
+            <a href="tel:+2250105137059" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:bg-white/10" style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)" }}>
+              <Phone size={17} /> +225 01 05 13 70 59
+            </a>
           </div>
         </div>
       </section>

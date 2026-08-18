@@ -101,7 +101,7 @@ export default function VerifierPage() {
           )}
 
           <p className="text-[11px] text-gray-400 text-center mt-6">
-            KARHON Assurances — Abidjan, Cocody / Angré · +225 07 87 10 39 39
+            KARHON Assurances — Abidjan, Cocody / Angré · +225 07 87 10 39 39 · +225 01 05 13 70 59
           </p>
         </div>
       </div>

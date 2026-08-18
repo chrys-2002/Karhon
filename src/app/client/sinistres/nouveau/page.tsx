@@ -320,7 +320,7 @@ export default function NouveauSinistre() {
             <div className="flex items-start gap-3 rounded-2xl p-4" style={{ backgroundColor: "#f0f7f7" }}>
               <Phone size={18} style={{ color: "#2a8a8a" }} className="flex-shrink-0 mt-0.5" />
               <p className="text-xs text-gray-600 leading-relaxed">
-                Pour un sinistre urgent, contactez-nous directement au <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span> ou <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span>.
+                Pour un sinistre urgent, contactez-nous directement au <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span>, <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span> ou <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 01 05 13 70 59</span>.
               </p>
             </div>
 

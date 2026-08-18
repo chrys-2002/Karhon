@@ -62,7 +62,7 @@ export async function POST(
       `${corps}\n\n` +
       `À votre disposition,\n` +
       `KARHON Assurances — Cabinet de courtage, Abidjan\n` +
-      `Tel : +2250787103939 / +2250576367272`;
+      `Tel : +2250787103939 / +2250576367272 / +2250105137059`;
 
     // 2) Marque la relance (date + compteur).
     const maj = await prisma.contrat.update({
