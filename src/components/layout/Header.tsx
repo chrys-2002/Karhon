@@ -215,7 +215,7 @@ export default function Header() {
                   boxShadow: pathname === "/client" ? "0 0 0 3px rgba(42,138,138,0.3)" : "none",
                 }}
               >
-                {connecte ? "Mon espace" : "Espace Client"}
+                {connecte ? "Mon espace" : "Connexion"}
                 {connecte && <Pastille />}
               </Link>
             </div>
@@ -309,7 +309,7 @@ export default function Header() {
                 onClick={onEspaceClick}
                 aria-label={connecte && nonLues > 0 ? `Mon espace, ${nonLues} notifications non lues` : undefined}
               >
-                {connecte ? "Mon espace" : "Espace Client"}
+                {connecte ? "Mon espace" : "Connexion"}
                 {connecte && <Pastille />}
               </Link>
 
