@@ -148,8 +148,8 @@ export default function NouveauSinistre() {
           >
             <CheckCircle2 size={40} style={{ color: "#2a8a8a" }} />
           </motion.div>
-          <h2 className="text-2xl font-bold mb-3" style={{ color: "#1a2e5a" }}>Déclaration enregistrée</h2>
-          <p className="text-gray-500 text-sm leading-relaxed">
+          <h2 className="text-3xl font-extrabold mb-3" style={{ color: "#1a2e5a" }}>Déclaration enregistrée</h2>
+          <p className="text-gray-700 text-base leading-relaxed">
             Un conseiller KARHON vous recontacte rapidement pour la suite des démarches. Redirection vers votre espace…
           </p>
         </motion.div>
@@ -177,8 +177,8 @@ export default function NouveauSinistre() {
                 <ShieldAlert size={24} color="#ffffff" strokeWidth={1.6} />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-bold text-white">Déclaration de sinistre</h1>
-                <p className="text-white/60 text-xs sm:text-sm mt-1">Un sinistre se déclare sur l&apos;une de vos souscriptions.</p>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Déclaration de sinistre</h1>
+                <p className="text-white/60 text-sm sm:text-base mt-1">Un sinistre se déclare sur l&apos;une de vos souscriptions.</p>
               </div>
             </div>
           </div>
@@ -189,13 +189,13 @@ export default function NouveauSinistre() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FolderOpen size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription active</p>
-              <p className="text-gray-500 text-sm max-w-sm mb-6">
+              <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription active</p>
+              <p className="text-gray-700 text-base max-w-sm mb-6">
                 Un sinistre ne peut être déclaré que sur une souscription existante. Demandez d&apos;abord une cotation pour souscrire.
               </p>
               <Link
                 href="/devis"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-base transition-all hover:scale-[1.02]"
                 style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
               >
                 Demander une cotation <ArrowRight size={16} />
@@ -219,13 +219,13 @@ export default function NouveauSinistre() {
 
             <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center gap-2 text-base font-semibold text-gray-700 mb-2">
                   <CalendarDays size={15} style={{ color: "#2a8a8a" }} /> Date du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
                 </label>
                 <DatePicker value={formData.date} onChange={(v) => setChamp("date", v)} max={aujourdhui} />
               </div>
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center gap-2 text-base font-semibold text-gray-700 mb-2">
                   <Clock size={15} style={{ color: "#2a8a8a" }} /> Heure <span style={{ color: "#2a8a8a" }}>*</span>
                 </label>
                 <input
@@ -233,7 +233,7 @@ export default function NouveauSinistre() {
                   required
                   value={formData.heure}
                   onChange={(e) => setChamp("heure", e.target.value)}
-                  className="w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none"
+                  className="w-full px-4 py-3 bg-white border rounded-xl text-base text-gray-700 transition-all focus:outline-none"
                   style={{ borderColor: "#e0ecec" }}
                   onFocus={(e) => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(42,138,138,0.18)")}
                   onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
@@ -242,7 +242,7 @@ export default function NouveauSinistre() {
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-base font-semibold text-gray-700 mb-2">
                 <MapPin size={15} style={{ color: "#2a8a8a" }} /> Lieu du sinistre <span style={{ color: "#2a8a8a" }}>*</span>
               </label>
               <input
@@ -251,7 +251,7 @@ export default function NouveauSinistre() {
                 placeholder="Ex. Boulevard de Marseille, Marcory, Abidjan"
                 value={formData.lieu}
                 onChange={(e) => setChamp("lieu", e.target.value)}
-                className="w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none"
+                className="w-full px-4 py-3 bg-white border rounded-xl text-base text-gray-700 transition-all focus:outline-none"
                 style={{ borderColor: "#e0ecec" }}
                 onFocus={(e) => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(42,138,138,0.18)")}
                 onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
@@ -259,7 +259,7 @@ export default function NouveauSinistre() {
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center gap-2 text-base font-semibold text-gray-700 mb-2">
                 <FileText size={15} style={{ color: "#2a8a8a" }} /> Circonstances <span style={{ color: "#2a8a8a" }}>*</span>
               </label>
               <textarea
@@ -268,7 +268,7 @@ export default function NouveauSinistre() {
                 value={formData.description}
                 onChange={(e) => setChamp("description", e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-700 transition-all focus:outline-none resize-none"
+                className="w-full px-4 py-3 bg-white border rounded-xl text-base text-gray-700 transition-all focus:outline-none resize-none"
                 style={{ borderColor: "#e0ecec" }}
                 onFocus={(e) => (e.currentTarget.style.boxShadow = "0 0 0 3px rgba(42,138,138,0.18)")}
                 onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
@@ -279,9 +279,9 @@ export default function NouveauSinistre() {
             <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: "#fbfdfd", border: "1px solid #e6f0f0" }}>
               <div className="flex items-center gap-2">
                 <FileText size={16} style={{ color: "#2a8a8a" }} />
-                <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Photos du sinistre</h3>
+                <h3 className="text-base font-extrabold" style={{ color: "#1a2e5a" }}>Photos du sinistre</h3>
               </div>
-              <p className="text-xs text-gray-500 -mt-1">
+              <p className="text-sm text-gray-700 -mt-1">
                 Montrez les faits en images (PDF ou photos). Cela aide nos équipes à traiter votre dossier plus vite.
               </p>
               <DocumentUpload
@@ -303,9 +303,9 @@ export default function NouveauSinistre() {
               >
                 <div className="flex items-center gap-2">
                   <Car size={16} style={{ color: "#2a8a8a" }} />
-                  <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Pièces du véhicule</h3>
+                  <h3 className="text-base font-extrabold" style={{ color: "#1a2e5a" }}>Pièces du véhicule</h3>
                 </div>
-                <p className="text-xs text-gray-500 -mt-3">
+                <p className="text-sm text-gray-700 -mt-3">
                   Photographiez ou importez vos documents (PDF ou image). Cela accélère le traitement de votre dossier.
                 </p>
 
@@ -319,13 +319,13 @@ export default function NouveauSinistre() {
 
             <div className="flex items-start gap-3 rounded-2xl p-4" style={{ backgroundColor: "#f0f7f7" }}>
               <Phone size={18} style={{ color: "#2a8a8a" }} className="flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Pour un sinistre urgent, contactez-nous directement au <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span>, <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span> ou <span className="font-semibold" style={{ color: "#1a2e5a" }}>+225 01 05 13 70 59</span>.
+              <p className="text-sm text-gray-800 leading-relaxed">
+                Pour un sinistre urgent, contactez-nous directement au <span className="font-bold" style={{ color: "#1a2e5a" }}>+225 07 87 10 39 39</span>, <span className="font-bold" style={{ color: "#1a2e5a" }}>+225 05 76 36 72 72</span> ou <span className="font-bold" style={{ color: "#1a2e5a" }}>+225 01 05 13 70 59</span>.
               </p>
             </div>
 
             {erreur && (
-              <div className="rounded-2xl px-4 py-3 text-sm font-medium" style={{ backgroundColor: "#fdecec", color: "#b42318", border: "1px solid #f7caca" }}>
+              <div className="rounded-2xl px-4 py-3 text-base font-semibold" style={{ backgroundColor: "#fdecec", color: "#b42318", border: "1px solid #f7caca" }}>
                 {erreur}
               </div>
             )}
@@ -336,7 +336,7 @@ export default function NouveauSinistre() {
                 disabled={isSubmitting}
                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.97 }}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold text-white text-sm shadow-lg disabled:opacity-70"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-white text-base shadow-lg disabled:opacity-70"
                 style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
               >
                 {isSubmitting ? "Envoi en cours…" : (<>Déclarer le sinistre <Send size={16} /></>)}
@@ -344,7 +344,7 @@ export default function NouveauSinistre() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3.5 border-2 rounded-2xl font-semibold text-sm transition-all hover:bg-gray-50"
+                className="px-6 py-3.5 border-2 rounded-2xl font-bold text-base transition-all hover:bg-gray-50"
                 style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}
               >
                 Annuler

@@ -68,14 +68,14 @@ export default function MenuCategorie({ value, onChange, disabled }: Props) {
       className="fixed z-[70] w-44 bg-white rounded-xl shadow-2xl border overflow-hidden"
       style={{ top: coords.top, bottom: coords.bottom, left: coords.left, borderColor: "#e0ecec" }}
     >
-      <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">Catégorie</p>
+      <p className="px-3 pt-2 pb-1 text-sm font-extrabold uppercase tracking-wide text-gray-600">Catégorie</p>
       {Object.entries(CATEGORIES_SEGMENT).map(([k, v]) => {
         const sel = k === value;
         return (
           <button
             key={k}
             onClick={() => { setOpen(false); if (k !== value) onChange(k); }}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors hover:bg-gray-50"
+            className="w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors hover:bg-gray-50"
             style={sel ? { backgroundColor: "#eaf4f4", color: "#1a2e5a", fontWeight: 600 } : { color: "#374151" }}
           >
             <span className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export default function MenuCategorie({ value, onChange, disabled }: Props) {
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
         title="Changer la catégorie"
-        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full transition-all hover:shadow-sm disabled:opacity-50"
+        className="inline-flex items-center gap-1 text-sm font-bold px-2.5 py-0.5 rounded-full transition-all hover:shadow-sm disabled:opacity-50"
         style={{ background: cur.fond, color: cur.couleur }}
       >
         {cur.court}

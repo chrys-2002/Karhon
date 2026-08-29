@@ -94,14 +94,14 @@ export default function FiltreTri({ options, champ, sens, periode, onChamp, onSe
       style={{ top: coords.top, bottom: coords.bottom, left: coords.left, width: coords.width, maxHeight: coords.maxH, borderColor: "#e0ecec", WebkitOverflowScrolling: "touch" }}
     >
       {/* Période */}
-      <p className="px-4 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-400">Période</p>
+      <p className="px-4 pt-3 pb-1.5 text-sm font-extrabold uppercase tracking-wide text-gray-600">Période</p>
       {PERIODES.map((p) => {
         const sel = p.value === periode;
         return (
           <button
             key={p.value}
             onClick={() => onPeriode(p.value)}
-            className="w-full flex items-center justify-between px-4 py-2 text-xs text-left transition-colors hover:bg-gray-50"
+            className="w-full flex items-center justify-between px-4 py-2 text-sm text-left transition-colors hover:bg-gray-50"
             style={sel ? { backgroundColor: "#eaf4f4", color: MARINE, fontWeight: 600 } : { color: "#374151" }}
           >
             {p.label}
@@ -111,14 +111,14 @@ export default function FiltreTri({ options, champ, sens, periode, onChamp, onSe
       })}
 
       {/* Trier par */}
-      <p className="px-4 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-400 border-t" style={{ borderColor: "#eef4f4" }}>Trier par</p>
+      <p className="px-4 pt-3 pb-1.5 text-sm font-extrabold uppercase tracking-wide text-gray-600 border-t" style={{ borderColor: "#eef4f4" }}>Trier par</p>
       {options.map((o) => {
         const sel = o.value === champ;
         return (
           <button
             key={o.value}
             onClick={() => onChamp(o.value)}
-            className="w-full flex items-center justify-between px-4 py-2 text-xs text-left transition-colors hover:bg-gray-50"
+            className="w-full flex items-center justify-between px-4 py-2 text-sm text-left transition-colors hover:bg-gray-50"
             style={sel ? { backgroundColor: "#eaf4f4", color: MARINE, fontWeight: 600 } : { color: "#374151" }}
           >
             {o.label}
@@ -128,18 +128,18 @@ export default function FiltreTri({ options, champ, sens, periode, onChamp, onSe
       })}
 
       {/* Ordre */}
-      <p className="px-4 pt-3 pb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-400 border-t" style={{ borderColor: "#eef4f4" }}>Ordre</p>
+      <p className="px-4 pt-3 pb-1.5 text-sm font-extrabold uppercase tracking-wide text-gray-600 border-t" style={{ borderColor: "#eef4f4" }}>Ordre</p>
       <div className="px-3 pb-3 flex gap-2">
         <button
           onClick={() => { if (sens !== "asc") onSens(); }}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold border transition-all"
           style={sens === "asc" ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff", borderColor: "transparent" } : { borderColor: "#e0ecec", color: MARINE }}
         >
           <ArrowUp size={13} /> Croissant
         </button>
         <button
           onClick={() => { if (sens !== "desc") onSens(); }}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold border transition-all"
           style={sens === "desc" ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff", borderColor: "transparent" } : { borderColor: "#e0ecec", color: MARINE }}
         >
           <ArrowDown size={13} /> Décroissant
@@ -154,12 +154,12 @@ export default function FiltreTri({ options, champ, sens, periode, onChamp, onSe
         ref={btnRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 text-xs font-semibold rounded-xl border px-3 py-2 bg-white transition-all hover:shadow-sm active:scale-95"
+        className="flex items-center gap-2 text-sm font-bold rounded-xl border px-3 py-2 bg-white transition-all hover:shadow-sm active:scale-95"
         style={filtreActif ? { borderColor: TEAL, color: MARINE, background: "#f0f9f9" } : { borderColor: "#e0ecec", color: MARINE }}
       >
         <SlidersHorizontal size={14} style={{ color: TEAL }} />
         <span className="hidden sm:inline">Filtrer &amp; trier</span>
-        <span className="text-gray-400 font-normal hidden md:inline">· {champCourant?.label}</span>
+        <span className="text-gray-600 font-medium hidden md:inline">· {champCourant?.label}</span>
         {sens === "asc" ? <ArrowUp size={13} style={{ color: TEAL }} /> : <ArrowDown size={13} style={{ color: TEAL }} />}
         <ChevronDown size={14} style={{ color: TEAL }} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>

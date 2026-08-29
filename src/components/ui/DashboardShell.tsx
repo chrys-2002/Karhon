@@ -338,14 +338,14 @@ export default function DashboardShell({
             <ShieldCheck size={22} />
           </div>
           <div className="min-w-0">
-            <p className="font-extrabold text-[15px] leading-tight tracking-tight" style={{ color: MARINE }}>
+            <p className="font-black text-base leading-tight tracking-tight" style={{ color: MARINE }}>
               KARHON
             </p>
-            <p className="text-[11px] text-gray-400 truncate">{marque}</p>
+            <p className="text-sm text-gray-600 truncate">{marque}</p>
           </div>
         </Link>
         {mobile && (
-          <button onClick={() => setMenuMobile(false)} className="ml-auto p-2 -mr-2 text-gray-400 hover:text-gray-600" aria-label="Fermer">
+          <button onClick={() => setMenuMobile(false)} className="ml-auto p-2 -mr-2 text-gray-600 hover:text-gray-600" aria-label="Fermer">
             <X size={20} />
           </button>
         )}
@@ -359,7 +359,7 @@ export default function DashboardShell({
             <button
               key={it.cle}
               onClick={() => { onNaviger(it.cle); if (mobile) setMenuMobile(false); }}
-              className="relative w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-colors group"
+              className="relative w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-base font-bold transition-colors group"
               style={{ color: estActif ? "#ffffff" : MARINE }}
             >
               {estActif && (
@@ -376,7 +376,7 @@ export default function DashboardShell({
               <span className="relative z-10 flex-1 text-left">{it.label}</span>
               {typeof it.badge === "number" && it.badge > 0 && (
                 <span
-                  className="relative z-10 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full text-[11px] font-bold"
+                  className="relative z-10 min-w-[22px] h-[22px] px-1.5 inline-flex items-center justify-center rounded-full text-sm font-extrabold"
                   style={estActif ? { background: "rgba(255,255,255,0.25)", color: "#fff" } : { background: "#fee2e2", color: "#dc2626" }}
                 >
                   {it.badge}
@@ -392,14 +392,14 @@ export default function DashboardShell({
       <div className="px-3 pb-4">
         <div className="rounded-2xl p-3 flex items-center gap-3 border" style={{ background: "#f8fbfb", borderColor: "#eef4f4" }}>
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0"
             style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}
           >
             {initiales(user)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold truncate" style={{ color: MARINE }}>{nomAffiche}</p>
-            <p className="text-[11px] text-gray-400 truncate">{roleAffiche}</p>
+            <p className="text-base font-bold truncate" style={{ color: MARINE }}>{nomAffiche}</p>
+            <p className="text-sm text-gray-600 truncate">{roleAffiche}</p>
           </div>
           <button
             onClick={() => setConfirmDeco(true)}
@@ -454,15 +454,15 @@ export default function DashboardShell({
           <div className="flex items-center gap-3 px-4 sm:px-6 lg:px-8 h-16">
             <button
               onClick={() => setMenuMobile(true)}
-              className="lg:hidden p-2 -ml-2 rounded-xl text-gray-500 hover:bg-gray-100"
+              className="lg:hidden p-2 -ml-2 rounded-xl text-gray-700 hover:bg-gray-100"
               aria-label="Ouvrir le menu"
             >
               <Menu size={22} />
             </button>
 
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold leading-tight truncate" style={{ color: MARINE }}>{titre}</h1>
-              {sousTitre && <p className="text-[11px] sm:text-xs text-gray-400 truncate">{sousTitre}</p>}
+              <h1 className="text-lg sm:text-xl font-extrabold leading-tight truncate" style={{ color: MARINE }}>{titre}</h1>
+              {sousTitre && <p className="text-sm sm:text-sm text-gray-600 truncate">{sousTitre}</p>}
             </div>
 
             {/* Recherche (centrée, masquée si non fournie) */}
@@ -475,13 +475,13 @@ export default function DashboardShell({
                     value={recherche.value}
                     onChange={(e) => recherche.onChange(e.target.value)}
                     placeholder={recherche.placeholder ?? "Rechercher…"}
-                    className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-white border focus:outline-none focus:ring-2 transition-all"
+                    className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-base bg-white border focus:outline-none focus:ring-2 transition-all"
                     style={{ borderColor: "#e6f0f0" }}
                   />
                   {recherche.value && (
                     <button
                       onClick={() => recherche.onChange("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600"
                       aria-label="Effacer"
                     >
                       <X size={15} />
@@ -496,13 +496,13 @@ export default function DashboardShell({
               <div ref={refCloche} className="relative">
                 <button
                   onClick={() => setClocheOuverte((o) => !o)}
-                  className="relative p-2.5 rounded-xl text-gray-500 transition-colors hover:bg-gray-100"
+                  className="relative p-2.5 rounded-xl text-gray-700 transition-colors hover:bg-gray-100"
                   aria-label="Notifications"
                 >
                   <Bell size={19} />
                   {nonLues > 0 && (
                     <>
-                      <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 inline-flex items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: "#dc2626" }}>
+                      <span className="absolute top-0.5 right-0.5 min-w-[20px] h-5 px-1 inline-flex items-center justify-center rounded-full text-xs font-extrabold text-white" style={{ background: "#dc2626" }}>
                         {nonLues > 9 ? "9+" : nonLues}
                       </span>
                       <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-ping" style={{ background: "#dc2626" }} />
@@ -521,7 +521,7 @@ export default function DashboardShell({
                       style={{ borderColor: "#e6f0f0" }}
                     >
                       <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "#eef4f4" }}>
-                        <p className="font-bold text-sm" style={{ color: MARINE }}>Notifications</p>
+                        <p className="font-extrabold text-base" style={{ color: MARINE }}>Notifications</p>
                         <div className="flex items-center gap-3">
                           <button
                             onClick={basculerSon}
@@ -533,7 +533,7 @@ export default function DashboardShell({
                             {sonActif ? <Volume2 size={16} /> : <VolumeX size={16} />}
                           </button>
                           {nonLues > 0 && (
-                            <button onClick={marquerTout} className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors hover:opacity-80" style={{ color: TEAL }}>
+                            <button onClick={marquerTout} className="inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:opacity-80" style={{ color: TEAL }}>
                               <CheckCheck size={14} /> Tout marquer lu
                             </button>
                           )}
@@ -545,7 +545,7 @@ export default function DashboardShell({
                             <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                               <Inbox size={22} style={{ color: TEAL }} />
                             </div>
-                            <p className="text-sm text-gray-400">Aucune notification</p>
+                            <p className="text-base text-gray-600">Aucune notification</p>
                           </div>
                         ) : (
                           <ul>
@@ -562,9 +562,9 @@ export default function DashboardShell({
                                       <IconeN size={16} style={{ color: TEAL }} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                      <p className="text-sm font-semibold leading-snug" style={{ color: MARINE }}>{n.titre}</p>
-                                      <p className="text-xs text-gray-500 leading-snug mt-0.5 line-clamp-2">{n.message}</p>
-                                      <p className="text-[11px] text-gray-400 mt-1">{tempsRelatif(n.createdAt)}</p>
+                                      <p className="text-base font-bold leading-snug" style={{ color: MARINE }}>{n.titre}</p>
+                                      <p className="text-sm text-gray-700 leading-snug mt-0.5 line-clamp-2">{n.message}</p>
+                                      <p className="text-sm text-gray-600 mt-1">{tempsRelatif(n.createdAt)}</p>
                                     </div>
                                     {!n.lu && <span className="w-2 h-2 rounded-full flex-shrink-0 mt-2" style={{ background: TEAL }} />}
                                   </button>
@@ -587,14 +587,14 @@ export default function DashboardShell({
                   style={{ borderColor: "#e6f0f0", background: "#fff" }}
                   aria-label="Mon compte"
                 >
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-bold" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-extrabold" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
                     {initiales(user)}
                   </div>
                   <div className="hidden sm:block min-w-0 max-w-[140px] text-left">
-                    <p className="text-xs font-semibold truncate leading-tight" style={{ color: MARINE }}>{nomAffiche}</p>
-                    <p className="text-[10px] text-gray-400 truncate leading-tight">{roleAffiche}</p>
+                    <p className="text-sm font-bold truncate leading-tight" style={{ color: MARINE }}>{nomAffiche}</p>
+                    <p className="text-sm text-gray-600 truncate leading-tight">{roleAffiche}</p>
                   </div>
-                  <ChevronDown size={14} className={`hidden sm:block text-gray-400 transition-transform duration-200 ${profilOuvert ? "rotate-180" : ""}`} />
+                  <ChevronDown size={14} className={`hidden sm:block text-gray-600 transition-transform duration-200 ${profilOuvert ? "rotate-180" : ""}`} />
                 </button>
 
                 <AnimatePresence>
@@ -608,30 +608,30 @@ export default function DashboardShell({
                       style={{ borderColor: "#e6f0f0" }}
                     >
                       <div className="p-4 flex items-center gap-3 border-b" style={{ borderColor: "#eef4f4", background: "linear-gradient(135deg, #f8fbfb, #ffffff)" }}>
-                        <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+                        <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white text-base font-extrabold flex-shrink-0" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
                           {initiales(user)}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-sm truncate" style={{ color: MARINE }}>{nomComplet}</p>
-                          <p className="text-xs text-gray-400">{roleAffiche}</p>
+                          <p className="font-extrabold text-base truncate" style={{ color: MARINE }}>{nomComplet}</p>
+                          <p className="text-sm text-gray-600">{roleAffiche}</p>
                         </div>
                       </div>
 
                       <div className="p-3 space-y-2.5">
                         {user?.email && (
-                          <div className="flex items-start gap-2.5 text-sm">
+                          <div className="flex items-start gap-2.5 text-base">
                             <Mail size={15} className="mt-0.5 flex-shrink-0" style={{ color: TEAL }} />
                             <span className="min-w-0 break-words" style={{ color: "#374151" }}>{user.email}</span>
                           </div>
                         )}
                         {user?.telephone && (
-                          <div className="flex items-center gap-2.5 text-sm">
+                          <div className="flex items-center gap-2.5 text-base">
                             <Phone size={15} className="flex-shrink-0" style={{ color: TEAL }} />
                             <span style={{ color: "#374151" }}>{user.telephone}</span>
                           </div>
                         )}
                         {dateCompte && (
-                          <div className="flex items-center gap-2.5 text-sm">
+                          <div className="flex items-center gap-2.5 text-base">
                             <CalendarClock size={15} className="flex-shrink-0" style={{ color: TEAL }} />
                             <span style={{ color: "#374151" }}>Compte créé le {dateCompte}</span>
                           </div>
@@ -641,7 +641,7 @@ export default function DashboardShell({
                       <div className="p-3 border-t" style={{ borderColor: "#eef4f4" }}>
                         <button
                           onClick={() => { setProfilOuvert(false); setConfirmDeco(true); }}
-                          className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-colors hover:bg-red-50"
+                          className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-base font-bold border transition-colors hover:bg-red-50"
                           style={{ color: "#dc2626", borderColor: "#fecaca" }}
                         >
                           <LogOut size={15} /> Se déconnecter
@@ -664,11 +664,11 @@ export default function DashboardShell({
                   value={recherche.value}
                   onChange={(e) => recherche.onChange(e.target.value)}
                   placeholder={recherche.placeholder ?? "Rechercher…"}
-                  className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-white border focus:outline-none focus:ring-2"
+                  className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-base bg-white border focus:outline-none focus:ring-2"
                   style={{ borderColor: "#e6f0f0" }}
                 />
                 {recherche.value && (
-                  <button onClick={() => recherche.onChange("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" aria-label="Effacer">
+                  <button onClick={() => recherche.onChange("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600" aria-label="Effacer">
                     <X size={15} />
                   </button>
                 )}
@@ -702,19 +702,19 @@ export default function DashboardShell({
               <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "#fee2e2" }}>
                 <LogOut size={24} style={{ color: "#dc2626" }} />
               </div>
-              <h3 className="text-lg font-bold mb-1" style={{ color: MARINE }}>Se déconnecter ?</h3>
-              <p className="text-sm text-gray-500 mb-6">Vous allez quitter votre espace et revenir à l&apos;accueil.</p>
+              <h3 className="text-xl font-extrabold mb-1" style={{ color: MARINE }}>Se déconnecter ?</h3>
+              <p className="text-base text-gray-700 mb-6">Vous allez quitter votre espace et revenir à l&apos;accueil.</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDeco(false)}
-                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50 active:scale-95"
+                  className="flex-1 px-4 py-3 rounded-xl font-bold text-base border transition-all hover:bg-gray-50 active:scale-95"
                   style={{ color: MARINE, borderColor: "#e0ecec" }}
                 >
                   Annuler
                 </button>
                 <button
                   onClick={onLogout}
-                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-95"
+                  className="flex-1 px-4 py-3 rounded-xl font-bold text-base text-white transition-all hover:shadow-lg active:scale-95"
                   style={{ background: "linear-gradient(135deg, #dc2626, #b91c1c)" }}
                 >
                   Se déconnecter

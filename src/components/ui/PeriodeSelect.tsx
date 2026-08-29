@@ -40,7 +40,7 @@ export default function PeriodeSelect({ value, onChange }: Props) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 text-xs font-semibold rounded-xl border px-3 py-2 bg-white transition-all hover:shadow-sm active:scale-95"
+        className="flex items-center gap-2 text-sm font-bold rounded-xl border px-3 py-2 bg-white transition-all hover:shadow-sm active:scale-95"
         style={actif ? { borderColor: "#2a8a8a", color: "#1a2e5a", background: "#f0f9f9" } : { borderColor: "#e0ecec", color: "#1a2e5a" }}
       >
         <CalendarRange size={14} style={{ color: "#2a8a8a" }} />
@@ -56,7 +56,7 @@ export default function PeriodeSelect({ value, onChange }: Props) {
               <button
                 key={o.value}
                 onClick={() => { onChange(o.value); setOpen(false); }}
-                className="w-full flex items-center justify-between px-4 py-2.5 text-xs text-left transition-colors hover:bg-gray-50"
+                className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors hover:bg-gray-50"
                 style={sel ? { backgroundColor: "#eaf4f4", color: "#1a2e5a", fontWeight: 600 } : { color: "#374151" }}
               >
                 {o.label}

@@ -138,16 +138,16 @@ function TooltipEcheances({ active, payload, label }: {
   if (!active || !payload || payload.length === 0) return null;
   const point = payload[0].payload;
   return (
-    <div className="rounded-2xl bg-white shadow-xl p-3 text-xs" style={{ border: "1px solid #e6f0f0", minWidth: 180, maxWidth: 260 }}>
-      <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>{label} · {point.echeances} échéance{point.echeances > 1 ? "s" : ""}</p>
+    <div className="rounded-2xl bg-white shadow-xl p-3 text-sm" style={{ border: "1px solid #e6f0f0", minWidth: 180, maxWidth: 260 }}>
+      <p className="font-extrabold mb-1" style={{ color: "#1a2e5a" }}>{label} · {point.echeances} échéance{point.echeances > 1 ? "s" : ""}</p>
       {point.details.length === 0 ? (
-        <p className="text-gray-400">Aucun contrat ce mois-ci.</p>
+        <p className="text-gray-600">Aucun contrat ce mois-ci.</p>
       ) : (
         <ul className="space-y-1.5">
           {point.details.map((d, i) => (
             <li key={i} className="leading-tight">
-              <p className="font-semibold" style={{ color: "#1a2e5a" }}>{d.produit}</p>
-              <p className="text-gray-400">N° {d.numero}{d.compagnie ? ` · ${d.compagnie}` : ""} · {d.date}</p>
+              <p className="font-bold" style={{ color: "#1a2e5a" }}>{d.produit}</p>
+              <p className="text-gray-600">N° {d.numero}{d.compagnie ? ` · ${d.compagnie}` : ""} · {d.date}</p>
             </li>
           ))}
         </ul>
@@ -434,10 +434,10 @@ export default function Dashboard() {
                 <Sparkles size={18} className="text-white" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-sm" style={{ color: MARINE }}>
+                <p className="font-bold text-base" style={{ color: MARINE }}>
                   {offresAChoisir} offre{offresAChoisir > 1 ? "s" : ""} à comparer
                 </p>
-                <p className="text-xs text-gray-500">Des compagnies vous ont proposé des cotations. Choisissez la meilleure pour vous.</p>
+                <p className="text-sm text-gray-700">Des compagnies vous ont proposé des cotations. Choisissez la meilleure pour vous.</p>
               </div>
               <ArrowRight size={18} style={{ color: TEAL }} />
             </motion.button>
@@ -455,12 +455,12 @@ export default function Dashboard() {
               >
                 {/* Chiffre + icône en haut : alignés dans toutes les cartes. Libellé en dessous. */}
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <p className="text-3xl font-extrabold" style={{ color: MARINE }}><Compteur value={value} /></p>
+                  <p className="text-4xl font-black" style={{ color: MARINE }}><Compteur value={value} /></p>
                   <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                     <Icon size={20} style={{ color: TEAL }} />
                   </div>
                 </div>
-                <p className="text-gray-400 text-[11px] uppercase tracking-wide leading-tight">{label}</p>
+                <p className="text-gray-600 text-sm uppercase tracking-wide leading-tight">{label}</p>
               </motion.button>
             ))}
           </div>
@@ -468,14 +468,14 @@ export default function Dashboard() {
           {/* Graphes : répartition (donut) + échéances (aire) */}
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e6f0f0" }}>
-              <h3 className="text-base font-bold mb-1" style={{ color: MARINE }}>Répartition de votre activité</h3>
-              <p className="text-xs text-gray-400 mb-3">Vos demandes et contrats en un coup d&apos;œil</p>
+              <h3 className="text-lg font-extrabold mb-1" style={{ color: MARINE }}>Répartition de votre activité</h3>
+              <p className="text-sm text-gray-600 mb-3">Vos demandes et contrats en un coup d&apos;œil</p>
               {totalActivite === 0 ? (
                 <div className="h-[240px] flex flex-col items-center justify-center text-center">
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                     <LayoutGrid size={24} style={{ color: TEAL }} />
                   </div>
-                  <p className="text-sm text-gray-400">Rien à afficher pour l&apos;instant.</p>
+                  <p className="text-base text-gray-600">Rien à afficher pour l&apos;instant.</p>
                 </div>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center gap-4 min-w-0">
@@ -489,17 +489,17 @@ export default function Dashboard() {
                       </PieChart>
                     </ResponsiveContainer>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                      <span className="text-2xl font-extrabold" style={{ color: MARINE }}>{totalActivite}</span>
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">éléments</span>
+                      <span className="text-3xl font-black" style={{ color: MARINE }}>{totalActivite}</span>
+                      <span className="text-sm text-gray-600 uppercase tracking-wide">éléments</span>
                     </div>
                   </div>
                   <ul className="w-full sm:w-1/2 space-y-2">
                     {repartition.map((e) => (
-                      <li key={e.nom} className="flex items-center justify-between text-sm">
-                        <span className="flex items-center gap-2 text-gray-600">
+                      <li key={e.nom} className="flex items-center justify-between text-base">
+                        <span className="flex items-center gap-2 text-gray-800">
                           <span className="w-2.5 h-2.5 rounded-full" style={{ background: e.couleur }} /> {e.nom}
                         </span>
-                        <span className="font-bold" style={{ color: MARINE }}>{e.valeur}</span>
+                        <span className="font-extrabold" style={{ color: MARINE }}>{e.valeur}</span>
                       </li>
                     ))}
                   </ul>
@@ -509,14 +509,14 @@ export default function Dashboard() {
 
             <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-6" style={{ borderColor: "#e6f0f0" }}>
               <div className="flex items-center justify-between mb-1">
-                <h3 className="text-base font-bold" style={{ color: MARINE }}>Échéances à venir</h3>
+                <h3 className="text-lg font-extrabold" style={{ color: MARINE }}>Échéances à venir</h3>
                 {echeancesProches > 0 && (
-                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1" style={{ background: "#fef3c7", color: "#92600a" }}>
+                  <span className="text-sm font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1" style={{ background: "#fef3c7", color: "#92600a" }}>
                     <TrendingUp size={12} /> {echeancesProches} ≤ 90 j
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mb-3">Renouvellements sur les 6 prochains mois — survolez pour le détail</p>
+              <p className="text-sm text-gray-600 mb-3">Renouvellements sur les 6 prochains mois — survolez pour le détail</p>
               <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={echeancesData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
@@ -537,9 +537,9 @@ export default function Dashboard() {
 
               {/* Détail des prochaines échéances sous le graphe */}
               <div className="mt-4 pt-3 border-t" style={{ borderColor: "#eef4f4" }}>
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2">Prochaines échéances</p>
+                <p className="text-sm font-bold uppercase tracking-wide text-gray-600 mb-2">Prochaines échéances</p>
                 {echeancesListe.length === 0 ? (
-                  <p className="text-sm text-gray-400">Aucune échéance à venir. Vos renouvellements apparaîtront ici.</p>
+                  <p className="text-base text-gray-600">Aucune échéance à venir. Vos renouvellements apparaîtront ici.</p>
                 ) : (
                   <ul className="space-y-2.5 max-h-[200px] overflow-y-auto pr-1 -mr-1">
                     {echeancesListe.map(({ contrat: c, jours }) => {
@@ -554,14 +554,14 @@ export default function Dashboard() {
                           <FileText size={18} style={{ color: TEAL }} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold truncate" style={{ color: MARINE }}>{c.produit?.nom ?? "Contrat"}</p>
-                          <p className="text-[11px] text-gray-400 truncate">
+                          <p className="text-base font-bold truncate" style={{ color: MARINE }}>{c.produit?.nom ?? "Contrat"}</p>
+                          <p className="text-sm text-gray-600 truncate">
                             N° {c.numeroContrat}{c.compagnie ? ` · ${c.compagnie}` : ""} · échéance {fmtDate(c.dateFin)}
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: urgence.bg, color: urgence.fg }}>{urgence.label}</span>
-                          <p className="text-[11px] text-gray-400 mt-1">dans {jours} j</p>
+                          <span className="text-sm font-extrabold px-2 py-0.5 rounded-full" style={{ background: urgence.bg, color: urgence.fg }}>{urgence.label}</span>
+                          <p className="text-sm text-gray-600 mt-1">dans {jours} j</p>
                         </div>
                       </li>
                     );
@@ -586,8 +586,8 @@ export default function Dashboard() {
                       <a.Icon size={22} style={{ color: TEAL }} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm" style={{ color: MARINE }}>{a.t}</h3>
-                      <p className="text-gray-400 text-xs">{a.d}</p>
+                      <h3 className="font-bold text-base" style={{ color: MARINE }}>{a.t}</h3>
+                      <p className="text-gray-600 text-sm">{a.d}</p>
                     </div>
                   </div>
                 </Link>
@@ -601,17 +601,17 @@ export default function Dashboard() {
       {vue === "souscriptions" && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e6f0f0" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
-            <h2 className="text-lg font-bold" style={{ color: MARINE }}>Mes souscriptions</h2>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: TEAL }}>{contrats.length} contrat{contrats.length > 1 ? "s" : ""}</span>
+            <h2 className="text-xl font-extrabold" style={{ color: MARINE }}>Mes souscriptions</h2>
+            <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: TEAL }}>{contrats.length} contrat{contrats.length > 1 ? "s" : ""}</span>
           </div>
           {contrats.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-16 px-6">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FolderOpen size={28} style={{ color: TEAL }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: MARINE }}>Aucune souscription pour le moment</p>
-              <p className="text-gray-400 text-sm max-w-sm mb-6">Vos souscriptions apparaîtront ici. Commencez par demander une cotation.</p>
-              <Link href="/devis" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.02] active:scale-95" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+              <p className="font-bold mb-1" style={{ color: MARINE }}>Aucune souscription pour le moment</p>
+              <p className="text-gray-600 text-base max-w-sm mb-6">Vos souscriptions apparaîtront ici. Commencez par demander une cotation.</p>
+              <Link href="/devis" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white text-base transition-all hover:scale-[1.02] active:scale-95" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                 Demander une cotation <ArrowRight size={16} />
               </Link>
             </div>
@@ -639,16 +639,16 @@ export default function Dashboard() {
                           <FileText size={18} style={{ color: TEAL }} />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm" style={{ color: MARINE }}>{c.produit?.nom ?? "Contrat"}</p>
-                          <p className="text-xs text-gray-400">N° {c.numeroContrat} · échéance {fmtDate(c.dateFin)}</p>
+                          <p className="font-semibold text-base" style={{ color: MARINE }}>{c.produit?.nom ?? "Contrat"}</p>
+                          <p className="text-sm text-gray-600">N° {c.numeroContrat} · échéance {fmtDate(c.dateFin)}</p>
                         </div>
                         <ChevronDown size={16} className={`ml-1 flex-shrink-0 transition-transform duration-200 ${ouvert ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                       </button>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: c.statut === "actif" ? "#dcfce7" : "#eaf4f4", color: c.statut === "actif" ? "#166534" : TEAL }}>
+                        <span className="text-sm font-bold px-3 py-1 rounded-full capitalize" style={{ background: c.statut === "actif" ? "#dcfce7" : "#eaf4f4", color: c.statut === "actif" ? "#166534" : TEAL }}>
                           {(c.statut ?? "actif").replace(/_/g, " ")}
                         </span>
-                        <Link href={`/client/recu/${c.id}`} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                        <Link href={`/client/recu/${c.id}`} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                           <Printer size={14} /> Voir le reçu
                         </Link>
                         {c.attestation && c.attestation.split("\n").filter(Boolean).map((doc, k, arr) => (
@@ -657,7 +657,7 @@ export default function Dashboard() {
                             href={doc.split("|")[1] ?? doc}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105"
                             style={{ background: "#dcfce7", color: "#166534" }}
                           >
                             <FileText size={14} /> {arr.length > 1 ? (doc.split("|")[0] || `Attestation ${k + 1}`) : "Mon attestation"}
@@ -671,9 +671,9 @@ export default function Dashboard() {
                           <div className="px-6 sm:px-8 pb-5 pt-1">
                             <div className="rounded-2xl p-4 sm:p-5 grid sm:grid-cols-2 gap-x-8 gap-y-2.5" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
                               {lignes.map(([k, v]) => (
-                                <div key={k} className="flex items-center justify-between gap-3 text-sm">
-                                  <span className="text-gray-400">{k}</span>
-                                  <span className="font-semibold text-right" style={{ color: MARINE }}>{v}</span>
+                                <div key={k} className="flex items-center justify-between gap-3 text-base">
+                                  <span className="text-gray-600">{k}</span>
+                                  <span className="font-bold text-right" style={{ color: MARINE }}>{v}</span>
                                 </div>
                               ))}
                             </div>
@@ -693,16 +693,16 @@ export default function Dashboard() {
       {vue === "devis" && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e6f0f0" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
-            <h2 className="text-lg font-bold" style={{ color: MARINE }}>Mes cotations</h2>
-            <Link href="/devis" className="text-sm font-semibold" style={{ color: TEAL }}>+ Nouveau</Link>
+            <h2 className="text-xl font-extrabold" style={{ color: MARINE }}>Mes cotations</h2>
+            <Link href="/devis" className="text-base font-bold" style={{ color: TEAL }}>+ Nouveau</Link>
           </div>
           {devis.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12 px-6">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <ClipboardList size={24} style={{ color: TEAL }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: MARINE }}>Aucune demande de cotation</p>
-              <p className="text-gray-400 text-sm max-w-sm">Vos demandes de cotation apparaîtront ici.</p>
+              <p className="font-bold mb-1" style={{ color: MARINE }}>Aucune demande de cotation</p>
+              <p className="text-gray-600 text-base max-w-sm">Vos demandes de cotation apparaîtront ici.</p>
             </div>
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
@@ -722,18 +722,18 @@ export default function Dashboard() {
                           <ClipboardList size={18} style={{ color: TEAL }} />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm" style={{ color: MARINE }}>{d.produit?.nom ?? "Produit"}</p>
-                          {d.dateCreation && <p className="text-xs text-gray-400">Demande envoyée le {fmtDateHeure(d.dateCreation)}</p>}
+                          <p className="font-semibold text-base" style={{ color: MARINE }}>{d.produit?.nom ?? "Produit"}</p>
+                          {d.dateCreation && <p className="text-sm text-gray-600">Demande envoyée le {fmtDateHeure(d.dateCreation)}</p>}
                         </div>
                         <ChevronDown size={16} className={`ml-1 flex-shrink-0 transition-transform duration-200 ${detailOuvert === d.id ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                       </button>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {nouvelles > 0 && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full text-white animate-pulse" style={{ background: "#e11d48" }}>
+                          <span className="inline-flex items-center gap-1 text-sm font-extrabold px-2.5 py-1 rounded-full text-white animate-pulse" style={{ background: "#e11d48" }}>
                             <Sparkles size={11} /> {nouvelles} nouvelle{nouvelles > 1 ? "s" : ""} offre{nouvelles > 1 ? "s" : ""}
                           </span>
                         )}
-                        <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: TEAL }}>
+                        <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: TEAL }}>
                           {libStatut(d.statut)}
                         </span>
                       </div>
@@ -752,9 +752,9 @@ export default function Dashboard() {
                                 ["Offres reçues", String(props.length)],
                                 ...(choisie ? [["Offre choisie", choisie.compagnie || `Offre ${props.findIndex((p) => p.choisie) + 1}`]] : []),
                               ] as [string, string][]).map(([k, v]) => (
-                                <div key={k} className="flex items-center justify-between gap-3 text-sm">
-                                  <span className="text-gray-400">{k}</span>
-                                  <span className="font-semibold text-right" style={{ color: MARINE }}>{v}</span>
+                                <div key={k} className="flex items-center justify-between gap-3 text-base">
+                                  <span className="text-gray-600">{k}</span>
+                                  <span className="font-bold text-right" style={{ color: MARINE }}>{v}</span>
                                 </div>
                               ))}
                             </div>
@@ -774,17 +774,17 @@ export default function Dashboard() {
                           }}
                           className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[#eef9f9]"
                         >
-                          <span className="flex items-center gap-2 font-semibold text-sm" style={{ color: "#0f766e" }}>
+                          <span className="flex items-center gap-2 font-bold text-base" style={{ color: "#0f766e" }}>
                             <FolderOpen size={18} style={{ color: TEAL }} />
                             {choisie ? "Votre choix de cotation" : `Propositions de cotation (${props.length})`}
                             {nouvelles > 0 && (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white animate-pulse" style={{ background: "#e11d48" }}>
+                              <span className="inline-flex items-center gap-1 text-sm font-extrabold px-2 py-0.5 rounded-full text-white animate-pulse" style={{ background: "#e11d48" }}>
                                 {nouvelles} nouveau{nouvelles > 1 ? "x" : ""}
                               </span>
                             )}
                           </span>
                           <span className="flex items-center gap-2">
-                            {!choisie && <span className="hidden sm:inline text-xs font-medium" style={{ color: TEAL }}>Ouvrir pour comparer</span>}
+                            {!choisie && <span className="hidden sm:inline text-sm font-semibold" style={{ color: TEAL }}>Ouvrir pour comparer</span>}
                             <ChevronDown size={16} className={`transition-transform duration-200 ${groupeOuvert === d.id ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                           </span>
                         </button>
@@ -801,24 +801,24 @@ export default function Dashboard() {
                                     <div className="flex items-start justify-between gap-3">
                                       <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2">
-                                          <p className="font-semibold text-sm" style={{ color: MARINE }}>Cotation {props.length - pi}</p>
+                                          <p className="font-bold text-base" style={{ color: MARINE }}>Cotation {props.length - pi}</p>
                                           {p.compagnie && (
-                                            <span className="inline-flex items-center text-xs font-bold px-2.5 py-0.5 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
+                                            <span className="inline-flex items-center text-sm font-extrabold px-2.5 py-0.5 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
                                               {p.compagnie}
                                             </span>
                                           )}
                                           {estNouvelle && (
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "#e11d48" }}>Nouveau</span>
+                                            <span className="text-sm font-extrabold px-2 py-0.5 rounded-full text-white" style={{ background: "#e11d48" }}>Nouveau</span>
                                           )}
                                           {estEcartee && (
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#f1f5f9", color: "#64748b" }}>Écartée</span>
+                                            <span className="text-sm font-extrabold px-2 py-0.5 rounded-full" style={{ background: "#f1f5f9", color: "#64748b" }}>Écartée</span>
                                           )}
                                           {p.choisie && (
-                                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>✓ Choisie</span>
+                                            <span className="inline-flex items-center gap-1 text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>✓ Choisie</span>
                                           )}
                                         </div>
                                         {p.dateEnvoi && (
-                                          <p className="text-[11px] text-gray-400 mt-0.5">Reçue le {fmtDateHeure(p.dateEnvoi)}</p>
+                                          <p className="text-sm text-gray-600 mt-0.5">Reçue le {fmtDateHeure(p.dateEnvoi)}</p>
                                         )}
                                         <div className="flex flex-wrap items-center gap-2 mt-1.5">
                                           {p.documents.map((doc) => {
@@ -829,7 +829,7 @@ export default function Dashboard() {
                                                 href={url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl text-white shadow-md transition-transform hover:scale-105 ${!p.choisie ? "animate-pulse" : ""}`}
+                                                className={`inline-flex items-center gap-1.5 text-sm font-extrabold px-3.5 py-2 rounded-xl text-white shadow-md transition-transform hover:scale-105 ${!p.choisie ? "animate-pulse" : ""}`}
                                                 style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
                                               >
                                                 <FileText size={13} /> Lire {lbl || "la cotation"}
@@ -837,7 +837,7 @@ export default function Dashboard() {
                                             );
                                           })}
                                           {typeof p.prime === "number" && (
-                                            <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg" style={{ background: "#fff7ed", color: "#9a3412" }}>
+                                            <span className="inline-flex items-center text-sm font-bold px-2.5 py-1 rounded-lg" style={{ background: "#fff7ed", color: "#9a3412" }}>
                                               Prime : {p.prime.toLocaleString("fr-FR")} FCFA
                                             </span>
                                           )}
@@ -883,23 +883,23 @@ export default function Dashboard() {
                     {/* Paiement : une fois l'offre choisie (statut « En cours ») */}
                     {d.statut === "en_cours" && (
                       <div className="mt-3 rounded-2xl p-3 sm:p-4" style={{ background: "#fffaf0", border: "1px solid #fed7aa" }}>
-                        <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#9a3412" }}>
+                        <p className="text-sm font-bold uppercase tracking-wide mb-1.5" style={{ color: "#9a3412" }}>
                           Paiement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
                         </p>
                         {d.montantAPayer == null ? (
-                          <p className="text-sm text-gray-600">Votre choix a bien été transmis. Votre rédacteur va vous communiquer le montant à régler.</p>
+                          <p className="text-base text-gray-800">Votre choix a bien été transmis. Votre rédacteur va vous communiquer le montant à régler.</p>
                         ) : (
                           <>
-                            <p className="text-sm mb-2" style={{ color: MARINE }}>Montant à régler : <strong>{d.montantAPayer.toLocaleString("fr-FR")} FCFA</strong></p>
+                            <p className="text-base mb-2" style={{ color: MARINE }}>Montant à régler : <strong>{d.montantAPayer.toLocaleString("fr-FR")} FCFA</strong></p>
                             {d.lienPaiement ? (
                               <div className="flex flex-wrap items-center gap-3">
-                                <p className="text-sm text-gray-600">Votre lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} est prêt.</p>
-                                <a href={d.lienPaiement} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                                <p className="text-base text-gray-800">Votre lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} est prêt.</p>
+                                <a href={d.lienPaiement} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold px-3.5 py-2 rounded-xl text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                                   <CreditCard size={14} /> Payer maintenant
                                 </a>
                               </div>
                             ) : (
-                              <p className="text-sm text-gray-600">Votre rédacteur va vous transmettre le lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} sous peu.</p>
+                              <p className="text-base text-gray-800">Votre rédacteur va vous transmettre le lien de paiement {d.modePaiement ? MODE_LABEL[d.modePaiement] : ""} sous peu.</p>
                             )}
                           </>
                         )}
@@ -917,16 +917,16 @@ export default function Dashboard() {
       {vue === "sinistres" && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e6f0f0" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
-            <h2 className="text-lg font-bold" style={{ color: MARINE }}>Mes sinistres</h2>
-            <Link href="/client/sinistres/nouveau" className="text-sm font-semibold" style={{ color: TEAL }}>+ Déclarer</Link>
+            <h2 className="text-xl font-extrabold" style={{ color: MARINE }}>Mes sinistres</h2>
+            <Link href="/client/sinistres/nouveau" className="text-base font-bold" style={{ color: TEAL }}>+ Déclarer</Link>
           </div>
           {sinistres.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12 px-6">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <AlertTriangle size={24} style={{ color: TEAL }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: MARINE }}>Aucun sinistre déclaré</p>
-              <p className="text-gray-400 text-sm max-w-sm">Vos déclarations de sinistre et leur suivi apparaîtront ici.</p>
+              <p className="font-bold mb-1" style={{ color: MARINE }}>Aucun sinistre déclaré</p>
+              <p className="text-gray-600 text-base max-w-sm">Vos déclarations de sinistre et leur suivi apparaîtront ici.</p>
             </div>
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
@@ -953,12 +953,12 @@ export default function Dashboard() {
                           <AlertTriangle size={18} style={{ color: TEAL }} />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm capitalize" style={{ color: MARINE }}>{s.typeAssurance ?? "Sinistre"}</p>
-                          {s.dateDeclaration && <p className="text-xs text-gray-400">Déclaré le {fmtDateHeure(s.dateDeclaration)}</p>}
+                          <p className="font-semibold text-base capitalize" style={{ color: MARINE }}>{s.typeAssurance ?? "Sinistre"}</p>
+                          {s.dateDeclaration && <p className="text-sm text-gray-600">Déclaré le {fmtDateHeure(s.dateDeclaration)}</p>}
                         </div>
                         <ChevronDown size={16} className={`ml-1 flex-shrink-0 transition-transform duration-200 ${detailOuvert === s.id ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                       </button>
-                      <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>{statut.replace(/_/g, " ")}</span>
+                      <span className="text-sm font-bold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>{statut.replace(/_/g, " ")}</span>
                     </div>
                     <AnimatePresence initial={false}>
                       {detailOuvert === s.id && (
@@ -967,16 +967,16 @@ export default function Dashboard() {
                             <div className="rounded-2xl p-4 sm:p-5" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
                               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2.5">
                                 {lignesSin.map(([k, v]) => (
-                                  <div key={k} className="flex items-center justify-between gap-3 text-sm">
-                                    <span className="text-gray-400">{k}</span>
-                                    <span className="font-semibold text-right" style={{ color: MARINE }}>{v}</span>
+                                  <div key={k} className="flex items-center justify-between gap-3 text-base">
+                                    <span className="text-gray-600">{k}</span>
+                                    <span className="font-bold text-right" style={{ color: MARINE }}>{v}</span>
                                   </div>
                                 ))}
                               </div>
                               {s.description && (
                                 <div className="mt-3 pt-3 border-t" style={{ borderColor: "#eef4f4" }}>
-                                  <p className="text-xs text-gray-400 mb-1">Circonstances</p>
-                                  <p className="text-sm whitespace-pre-line" style={{ color: MARINE }}>{s.description}</p>
+                                  <p className="text-sm text-gray-600 mb-1">Circonstances</p>
+                                  <p className="text-base whitespace-pre-line" style={{ color: MARINE }}>{s.description}</p>
                                 </div>
                               )}
                             </div>
@@ -996,16 +996,16 @@ export default function Dashboard() {
       {vue === "rdv" && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e6f0f0" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex items-center justify-between" style={{ borderColor: "#eef4f4" }}>
-            <h2 className="text-lg font-bold" style={{ color: MARINE }}>Mes rendez-vous</h2>
-            <Link href="/client/rendez-vous/nouveau" className="text-sm font-semibold" style={{ color: TEAL }}>+ Prendre rendez-vous</Link>
+            <h2 className="text-xl font-extrabold" style={{ color: MARINE }}>Mes rendez-vous</h2>
+            <Link href="/client/rendez-vous/nouveau" className="text-base font-bold" style={{ color: TEAL }}>+ Prendre rendez-vous</Link>
           </div>
           {rdv.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12 px-6">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <CalendarClock size={24} style={{ color: TEAL }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: MARINE }}>Aucun rendez-vous</p>
-              <p className="text-gray-400 text-sm max-w-sm">Prenez rendez-vous avec un conseiller, vos créneaux apparaîtront ici.</p>
+              <p className="font-bold mb-1" style={{ color: MARINE }}>Aucun rendez-vous</p>
+              <p className="text-gray-600 text-base max-w-sm">Prenez rendez-vous avec un conseiller, vos créneaux apparaîtront ici.</p>
             </div>
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
@@ -1029,12 +1029,12 @@ export default function Dashboard() {
                           <CalendarClock size={18} style={{ color: TEAL }} />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm" style={{ color: MARINE }}>{r.motif ?? "Rendez-vous"}</p>
-                          {r.dateHeure && <p className="text-xs text-gray-400">{fmtDateHeure(r.dateHeure)}</p>}
+                          <p className="font-semibold text-base" style={{ color: MARINE }}>{r.motif ?? "Rendez-vous"}</p>
+                          {r.dateHeure && <p className="text-sm text-gray-600">{fmtDateHeure(r.dateHeure)}</p>}
                         </div>
                         <ChevronDown size={16} className={`ml-1 flex-shrink-0 transition-transform duration-200 ${detailOuvert === r.id ? "rotate-180" : ""}`} style={{ color: TEAL }} />
                       </button>
-                      <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>{statut.replace(/_/g, " ")}</span>
+                      <span className="text-sm font-bold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>{statut.replace(/_/g, " ")}</span>
                       <button
                         type="button"
                         onClick={() => archiverRdv(r.id)}
@@ -1053,16 +1053,16 @@ export default function Dashboard() {
                             <div className="rounded-2xl p-4 sm:p-5" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
                               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2.5">
                                 {lignesRdv.map(([k, v]) => (
-                                  <div key={k} className="flex items-center justify-between gap-3 text-sm">
-                                    <span className="text-gray-400">{k}</span>
-                                    <span className="font-semibold text-right" style={{ color: MARINE }}>{v}</span>
+                                  <div key={k} className="flex items-center justify-between gap-3 text-base">
+                                    <span className="text-gray-600">{k}</span>
+                                    <span className="font-bold text-right" style={{ color: MARINE }}>{v}</span>
                                   </div>
                                 ))}
                               </div>
                               {r.notes && (
                                 <div className="mt-3 pt-3 border-t" style={{ borderColor: "#eef4f4" }}>
-                                  <p className="text-xs text-gray-400 mb-1">Notes</p>
-                                  <p className="text-sm whitespace-pre-line" style={{ color: MARINE }}>{r.notes}</p>
+                                  <p className="text-sm text-gray-600 mb-1">Notes</p>
+                                  <p className="text-base whitespace-pre-line" style={{ color: MARINE }}>{r.notes}</p>
                                 </div>
                               )}
                             </div>
@@ -1096,18 +1096,18 @@ export default function Dashboard() {
               className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden"
             >
               <div className="px-6 py-5 flex items-center justify-between" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
-                <h3 className="font-bold text-white">Valider votre choix</h3>
+                <h3 className="font-extrabold text-white">Valider votre choix</h3>
                 <button onClick={() => { if (!choixEnvoi) { setChoixModal(null); setModePaiement(""); } }} className="text-white/80 hover:text-white"><X size={20} /></button>
               </div>
               <div className="p-6 space-y-4">
                 {/* Avertissement : le choix est définitif. */}
                 <div className="flex items-start gap-2.5 rounded-2xl px-4 py-3" style={{ background: "#fff7ed", border: "1px solid #fed7aa" }}>
                   <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" style={{ color: "#c2410c" }} />
-                  <p className="text-sm" style={{ color: "#9a3412" }}>
+                  <p className="text-base" style={{ color: "#9a3412" }}>
                     <strong>Choix définitif.</strong> Une fois votre choix confirmé, vous ne pourrez plus revenir en arrière ni changer d&apos;offre. Vérifiez bien votre sélection avant de continuer.
                   </p>
                 </div>
-                <p className="text-sm text-gray-600">Comment souhaitez-vous régler votre prime ? Votre rédacteur vous transmettra un lien de paiement sécurisé selon le mode choisi.</p>
+                <p className="text-base text-gray-800">Comment souhaitez-vous régler votre prime ? Votre rédacteur vous transmettra un lien de paiement sécurisé selon le mode choisi.</p>
                 <div className="space-y-2">
                   {MODES_PAIEMENT.map((m) => (
                     <button
@@ -1124,8 +1124,8 @@ export default function Dashboard() {
                           <CreditCard size={16} style={{ color: TEAL }} />
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-sm font-semibold">{m.label}</span>
-                          <span className="block text-[11px] text-gray-400">{m.desc}</span>
+                          <span className="block text-base font-bold">{m.label}</span>
+                          <span className="block text-sm text-gray-600">{m.desc}</span>
                         </span>
                       </span>
                       {modePaiement === m.v && <CheckCircle2 size={18} style={{ color: TEAL }} className="flex-shrink-0" />}
@@ -1133,16 +1133,16 @@ export default function Dashboard() {
                   ))}
                 </div>
                 {erreurChoix && (
-                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.25)", color: "#b91c1c" }}>
+                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-base" style={{ background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.25)", color: "#b91c1c" }}>
                     <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
                     <span>{erreurChoix}</span>
                   </div>
                 )}
                 <div className="flex gap-3 pt-1">
-                  <button onClick={() => { setChoixModal(null); setModePaiement(""); setErreurChoix(""); }} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: MARINE, borderColor: "#e0ecec" }}>
+                  <button onClick={() => { setChoixModal(null); setModePaiement(""); setErreurChoix(""); }} className="flex-1 px-4 py-3 rounded-xl font-bold text-base border transition-all hover:bg-gray-50" style={{ color: MARINE, borderColor: "#e0ecec" }}>
                     Annuler
                   </button>
-                  <button onClick={confirmerChoix} disabled={!modePaiement || choixEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: `linear-gradient(135deg, ${TEAL}, ${MARINE})` }}>
+                  <button onClick={confirmerChoix} disabled={!modePaiement || choixEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-base text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: `linear-gradient(135deg, ${TEAL}, ${MARINE})` }}>
                     {choixEnvoi ? "Validation…" : "Confirmer mon choix"}
                   </button>
                 </div>

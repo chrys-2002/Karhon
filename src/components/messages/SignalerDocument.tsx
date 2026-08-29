@@ -95,7 +95,7 @@ export default function SignalerDocument({ userId, documents, contexte, contexte
         type="button"
         onClick={ouvrir}
         title="Signaler un document non conforme au client"
-        className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all hover:shadow-sm"
+        className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-bold transition-all hover:shadow-sm"
         style={{ border: "1px solid #fed7aa", color: "#b45309", background: "#fff7ed" }}
       >
         <AlertOctagon size={13} /> Signaler un document
@@ -117,7 +117,7 @@ export default function SignalerDocument({ userId, documents, contexte, contexte
               <div className="px-6 py-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg, #b45309, #d97706)" }}>
                 <div className="flex items-center gap-2.5 text-white">
                   <AlertOctagon size={20} />
-                  <h3 className="font-bold">Signaler un document</h3>
+                  <h3 className="font-extrabold">Signaler un document</h3>
                 </div>
                 <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white"><X size={20} /></button>
               </div>
@@ -127,18 +127,18 @@ export default function SignalerDocument({ userId, documents, contexte, contexte
                   <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-3" style={{ background: "#dcfce7" }}>
                     <CheckCircle2 size={26} style={{ color: "#166534" }} />
                   </div>
-                  <p className="font-semibold" style={{ color: MARINE }}>Message envoyé au client</p>
-                  <p className="text-sm text-gray-500 mt-1">Il est invité à renvoyer le document corrigé depuis sa messagerie.</p>
+                  <p className="font-bold" style={{ color: MARINE }}>Message envoyé au client</p>
+                  <p className="text-base text-gray-700 mt-1">Il est invité à renvoyer le document corrigé depuis sa messagerie.</p>
                 </div>
               ) : (
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Document concerné</label>
+                    <label className="block text-base font-semibold text-gray-700 mb-2">Document concerné</label>
                     <div ref={refPiece} className="relative">
                       <button
                         type="button"
                         onClick={() => setPieceOpen((o) => !o)}
-                        className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-sm border bg-white transition-all hover:shadow-sm"
+                        className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-base border bg-white transition-all hover:shadow-sm"
                         style={{ borderColor: pieceOpen ? TEAL : "#e0ecec", color: MARINE }}
                       >
                         <span className="flex items-center gap-2 min-w-0">
@@ -156,7 +156,7 @@ export default function SignalerDocument({ userId, documents, contexte, contexte
                                 key={i}
                                 type="button"
                                 onClick={() => { setPiece(l); setPieceOpen(false); }}
-                                className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors hover:bg-gray-50"
+                                className="w-full flex items-center justify-between px-4 py-2.5 text-base text-left transition-colors hover:bg-gray-50"
                                 style={sel ? { backgroundColor: "#eaf4f4", color: MARINE, fontWeight: 600 } : { color: "#374151" }}
                               >
                                 <span className="flex items-center gap-2 min-w-0"><FileText size={14} style={{ color: TEAL }} className="flex-shrink-0" /> <span className="truncate">{l}</span></span>
@@ -169,10 +169,10 @@ export default function SignalerDocument({ userId, documents, contexte, contexte
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Motif</label>
+                    <label className="block text-base font-semibold text-gray-700 mb-2">Motif</label>
                     <div className="flex flex-wrap gap-2">
                       {MOTIFS.map((m) => (
-                        <button key={m.v} onClick={() => setMotif(m.v)} className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                        <button key={m.v} onClick={() => setMotif(m.v)} className="px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
                           style={motif === m.v ? { background: "linear-gradient(135deg, #b45309, #d97706)", color: "#fff" } : { background: "#fff", color: MARINE, border: "1px solid #e0ecec" }}>
                           {m.label}
                         </button>
@@ -180,14 +180,14 @@ export default function SignalerDocument({ userId, documents, contexte, contexte
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Précision (optionnel)</label>
+                    <label className="block text-base font-semibold text-gray-700 mb-2">Précision (optionnel)</label>
                     <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Ex. la photo est trop sombre, on ne lit pas le numéro…"
-                      className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] resize-none" style={{ borderColor: "#e0ecec" }} />
+                      className="w-full px-4 py-3 rounded-xl text-base border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] resize-none" style={{ borderColor: "#e0ecec" }} />
                   </div>
-                  {erreur && <p className="text-xs" style={{ color: "#b42318" }}>{erreur}</p>}
+                  {erreur && <p className="text-sm" style={{ color: "#b42318" }}>{erreur}</p>}
                   <div className="flex gap-3 pt-1">
-                    <button onClick={() => setOpen(false)} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: MARINE, borderColor: "#e0ecec" }}>Annuler</button>
-                    <button onClick={envoyer} disabled={envoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: `linear-gradient(135deg, ${TEAL}, ${MARINE})` }}>
+                    <button onClick={() => setOpen(false)} className="flex-1 px-4 py-3 rounded-xl font-bold text-base border transition-all hover:bg-gray-50" style={{ color: MARINE, borderColor: "#e0ecec" }}>Annuler</button>
+                    <button onClick={envoyer} disabled={envoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-base text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: `linear-gradient(135deg, ${TEAL}, ${MARINE})` }}>
                       {envoi ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />} Envoyer au client
                     </button>
                   </div>

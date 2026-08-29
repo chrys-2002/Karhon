@@ -31,7 +31,7 @@ function PieceJointe({ doc }: { doc: string }) {
   const libelle = sep > 0 ? doc.slice(0, sep) : "Document";
   const url = sep > 0 ? doc.slice(sep + 1) : doc;
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-1 text-xs font-medium underline" style={{ color: TEAL }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-1 text-sm font-semibold underline" style={{ color: TEAL }}>
       <FileText size={13} /> {libelle}
     </a>
   );
@@ -167,11 +167,11 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
               value={recherche}
               onChange={(e) => setRecherche(e.target.value)}
               placeholder="Rechercher un client…"
-              className="w-full pl-9 pr-8 py-2.5 rounded-xl text-sm border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+              className="w-full pl-9 pr-8 py-2.5 rounded-xl text-base border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
               style={{ borderColor: "#e0ecec" }}
             />
             {recherche && (
-              <button onClick={() => setRecherche("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" aria-label="Effacer"><X size={14} /></button>
+              <button onClick={() => setRecherche("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600" aria-label="Effacer"><X size={14} /></button>
             )}
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
           {loadingList ? (
             <div className="py-10 flex justify-center"><Loader2 size={22} className="animate-spin" style={{ color: TEAL }} /></div>
           ) : convFiltrees.length === 0 ? (
-            <div className="py-10 px-6 text-center text-sm text-gray-400">Aucune conversation.</div>
+            <div className="py-10 px-6 text-center text-base text-gray-600">Aucune conversation.</div>
           ) : (
             convFiltrees.map((c) => (
               <button
@@ -188,18 +188,18 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
                 className="w-full text-left px-4 py-3 border-b flex items-start gap-3 transition-colors hover:bg-gray-50"
                 style={{ borderColor: "#f3f8f8", background: actif === c.userId ? "#f0f9f9" : undefined }}
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
                   {(nomClient(c.client)[0] ?? "?").toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold truncate" style={{ color: MARINE }}>{nomClient(c.client)}</p>
-                    <span className="text-[10px] text-gray-400 flex-shrink-0">{fmt(c.dernier.createdAt).split(" ").slice(0, 2).join(" ")}</span>
+                    <p className="text-base font-bold truncate" style={{ color: MARINE }}>{nomClient(c.client)}</p>
+                    <span className="text-sm text-gray-600 flex-shrink-0">{fmt(c.dernier.createdAt).split(" ").slice(0, 2).join(" ")}</span>
                   </div>
-                  <p className="text-xs text-gray-400 truncate">{c.dernier.expediteur === "staff" ? "Vous : " : ""}{c.dernier.contenu || "📎 Pièce jointe"}</p>
+                  <p className="text-sm text-gray-600 truncate">{c.dernier.expediteur === "staff" ? "Vous : " : ""}{c.dernier.contenu || "📎 Pièce jointe"}</p>
                 </div>
                 {c.nonLus > 0 && (
-                  <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full text-[10px] font-bold text-white flex-shrink-0" style={{ background: "#dc2626" }}>{c.nonLus}</span>
+                  <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full text-sm font-extrabold text-white flex-shrink-0" style={{ background: "#dc2626" }}>{c.nonLus}</span>
                 )}
               </button>
             ))
@@ -214,21 +214,21 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
               <MessagesSquare size={24} style={{ color: TEAL }} />
             </div>
-            <p className="font-semibold mb-1" style={{ color: MARINE }}>Sélectionnez une conversation</p>
-            <p className="text-gray-400 text-sm max-w-xs">Choisissez un client à gauche pour lire et répondre à ses messages.</p>
+            <p className="font-bold mb-1" style={{ color: MARINE }}>Sélectionnez une conversation</p>
+            <p className="text-gray-600 text-base max-w-xs">Choisissez un client à gauche pour lire et répondre à ses messages.</p>
           </div>
         ) : (
           <>
             <div className="px-4 sm:px-6 py-3 border-b flex items-center gap-3" style={{ borderColor: "#eef4f4" }}>
-              <button onClick={() => setActif(null)} className="md:hidden text-gray-500" aria-label="Retour"><ArrowLeft size={18} /></button>
+              <button onClick={() => setActif(null)} className="md:hidden text-gray-700" aria-label="Retour"><ArrowLeft size={18} /></button>
               <div className="min-w-0">
-                <p className="text-sm font-bold truncate" style={{ color: MARINE }}>{nomClient(client)}</p>
-                <p className="text-xs text-gray-400 truncate">{client?.email}{client?.telephone ? ` · ${client.telephone}` : ""}</p>
+                <p className="text-base font-extrabold truncate" style={{ color: MARINE }}>{nomClient(client)}</p>
+                <p className="text-sm text-gray-600 truncate">{client?.email}{client?.telephone ? ` · ${client.telephone}` : ""}</p>
               </div>
               {messages.length > 0 && (
                 <button
                   onClick={() => (selection ? quitterSelection() : setSelection(true))}
-                  className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all hover:bg-gray-50"
+                  className="ml-auto inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full border transition-all hover:bg-gray-50"
                   style={{ borderColor: "#e0ecec", color: selection ? "#b42318" : TEAL }}
                 >
                   {selection ? <><X size={14} /> Annuler</> : <><ListChecks size={14} /> Sélectionner</>}
@@ -239,7 +239,7 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
             <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3" style={{ background: "#f8fbfb" }}>
               {!loadingFil && messages.length < totalFil && (
                 <div className="flex justify-center">
-                  <button onClick={chargerPlusFil} disabled={plusFil} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border bg-white transition-all hover:shadow-sm disabled:opacity-50" style={{ borderColor: "#e0ecec", color: TEAL }}>
+                  <button onClick={chargerPlusFil} disabled={plusFil} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full border bg-white transition-all hover:shadow-sm disabled:opacity-50" style={{ borderColor: "#e0ecec", color: TEAL }}>
                     {plusFil ? <Loader2 size={13} className="animate-spin" /> : <ChevronUp size={13} />} Messages plus anciens
                   </button>
                 </div>
@@ -247,7 +247,7 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
               {loadingFil ? (
                 <div className="h-full flex items-center justify-center"><Loader2 size={22} className="animate-spin" style={{ color: TEAL }} /></div>
               ) : messages.length === 0 ? (
-                <div className="h-full flex items-center justify-center text-sm text-gray-400">Aucun message dans cette conversation.</div>
+                <div className="h-full flex items-center justify-center text-base text-gray-600">Aucun message dans cette conversation.</div>
               ) : (
                 messages.map((m) => {
                   const moi = m.expediteur === "staff";
@@ -267,11 +267,11 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
                           ...(sel ? { outline: `2px solid ${TEAL}`, outlineOffset: "2px" } : {}),
                         }}
                       >
-                        {!moi && <p className="text-[11px] font-semibold mb-0.5" style={{ color: TEAL }}>Client</p>}
-                        {moi && m.auteurEmail && <p className="text-[11px] font-semibold mb-0.5 text-white/70">{m.auteurEmail}</p>}
-                        {m.contenu && <p className="text-sm whitespace-pre-line leading-snug">{m.contenu}</p>}
+                        {!moi && <p className="text-sm font-bold mb-0.5" style={{ color: TEAL }}>Client</p>}
+                        {moi && m.auteurEmail && <p className="text-sm font-bold mb-0.5 text-white/70">{m.auteurEmail}</p>}
+                        {m.contenu && <p className="text-base whitespace-pre-line leading-snug">{m.contenu}</p>}
                         {m.piecesJointes?.map((doc) => <PieceJointe key={doc} doc={doc} />)}
-                        <p className={`text-[10px] mt-1 ${moi ? "text-white/60" : "text-gray-400"}`}>{fmt(m.createdAt)}</p>
+                        <p className={`text-sm mt-1 ${moi ? "text-white/60" : "text-gray-600"}`}>{fmt(m.createdAt)}</p>
                       </div>
                     </div>
                   );
@@ -282,12 +282,12 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
 
             {selection ? (
               <div className="border-t p-3 sm:p-4 flex items-center justify-between gap-2" style={{ borderColor: "#eef4f4" }}>
-                <span className="text-xs text-gray-500">{selIds.length} sélectionné{selIds.length > 1 ? "s" : ""}</span>
+                <span className="text-sm text-gray-700">{selIds.length} sélectionné{selIds.length > 1 ? "s" : ""}</span>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => appliquer("archiver")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border disabled:opacity-50" style={{ borderColor: "#e0ecec", color: MARINE }}>
+                  <button onClick={() => appliquer("archiver")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl border disabled:opacity-50" style={{ borderColor: "#e0ecec", color: MARINE }}>
                     {actionEnCours ? <Loader2 size={14} className="animate-spin" /> : <Archive size={14} />} Archiver
                   </button>
-                  <button onClick={() => appliquer("supprimer")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}>
+                  <button onClick={() => appliquer("supprimer")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}>
                     <Trash2 size={14} /> Supprimer
                   </button>
                 </div>
@@ -315,7 +315,7 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
                   onChange={(e) => setTexte(e.target.value)}
                   rows={1}
                   placeholder="Répondre au client…"
-                  className="flex-1 min-w-0 resize-none rounded-2xl px-4 py-3 text-sm border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                  className="flex-1 min-w-0 resize-none rounded-2xl px-4 py-3 text-base border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                   style={{ borderColor: "#e0ecec" }}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(); } }}
                 />

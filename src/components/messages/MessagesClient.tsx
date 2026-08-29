@@ -25,7 +25,7 @@ function PieceJointe({ doc, clair }: { doc: string; clair?: boolean }) {
   const libelle = sep > 0 ? doc.slice(0, sep) : "Document";
   const url = sep > 0 ? doc.slice(sep + 1) : doc;
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-1 text-xs font-medium underline" style={{ color: clair ? "#fff" : TEAL }}>
+    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-1 text-sm font-semibold underline" style={{ color: clair ? "#fff" : TEAL }}>
       <FileText size={13} /> {libelle}
     </a>
   );
@@ -155,8 +155,8 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
             <MessagesSquare size={18} style={{ color: TEAL }} />
           </div>
           <div>
-            <h2 className="text-base font-bold" style={{ color: MARINE }}>Messagerie</h2>
-            <p className="text-xs text-gray-400">Vos échanges avec KARHON</p>
+            <h2 className="text-lg font-extrabold" style={{ color: MARINE }}>Messagerie</h2>
+            <p className="text-sm text-gray-600">Vos échanges avec KARHON</p>
           </div>
         </div>
 
@@ -169,28 +169,28 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
               className="w-full text-left rounded-2xl border p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-0.5"
               style={{ borderColor: "#e6f0f0" }}
             >
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold flex-shrink-0" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-extrabold flex-shrink-0" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>
                 KA
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-bold text-sm" style={{ color: MARINE }}>Conseiller KARHON</p>
-                  {apercu.dernier && <span className="text-[11px] text-gray-400 flex-shrink-0">{fmt(apercu.dernier.createdAt)}</span>}
+                  <p className="font-extrabold text-base" style={{ color: MARINE }}>Conseiller KARHON</p>
+                  {apercu.dernier && <span className="text-sm text-gray-600 flex-shrink-0">{fmt(apercu.dernier.createdAt)}</span>}
                 </div>
-                <p className="text-sm text-gray-500 truncate mt-0.5">
+                <p className="text-base text-gray-700 truncate mt-0.5">
                   {apercu.dernier
                     ? `${apercu.dernier.expediteur === "client" ? "Vous : " : ""}${apercu.dernier.contenu || "📎 Pièce jointe"}`
                     : "Démarrez la conversation avec votre conseiller."}
                 </p>
               </div>
               {apercu.nonLus > 0 ? (
-                <span className="min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full text-[11px] font-bold text-white flex-shrink-0" style={{ background: "#dc2626" }}>{apercu.nonLus}</span>
+                <span className="min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full text-sm font-extrabold text-white flex-shrink-0" style={{ background: "#dc2626" }}>{apercu.nonLus}</span>
               ) : (
                 <ArrowRight size={18} style={{ color: TEAL }} className="flex-shrink-0" />
               )}
             </button>
           )}
-          <p className="text-xs text-gray-400 mt-3 px-1">
+          <p className="text-sm text-gray-600 mt-3 px-1">
             {apercu.total > 0 ? `${apercu.total} message${apercu.total > 1 ? "s" : ""} dans cette conversation.` : "Aucun message pour l'instant."}
           </p>
         </div>
@@ -202,16 +202,16 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
   return (
     <div className="bg-white rounded-3xl shadow-sm border overflow-hidden flex flex-col" style={{ borderColor: "#e6f0f0", height: "min(72vh, 660px)" }}>
       <div className="px-4 sm:px-6 py-3 border-b flex items-center gap-3" style={{ borderColor: "#eef4f4" }}>
-        <button onClick={() => { setOuvert(false); chargerApercu(); }} className="text-gray-500 hover:text-gray-700" aria-label="Retour"><ArrowLeft size={18} /></button>
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>KA</div>
+        <button onClick={() => { setOuvert(false); chargerApercu(); }} className="text-gray-600 hover:text-gray-800" aria-label="Retour"><ArrowLeft size={18} /></button>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold" style={{ background: `linear-gradient(135deg, ${MARINE}, ${TEAL})` }}>KA</div>
         <div className="min-w-0">
-          <p className="text-sm font-bold" style={{ color: MARINE }}>Conseiller KARHON</p>
-          <p className="text-xs text-gray-400">{total} message{total > 1 ? "s" : ""}</p>
+          <p className="text-base font-extrabold" style={{ color: MARINE }}>Conseiller KARHON</p>
+          <p className="text-sm text-gray-600">{total} message{total > 1 ? "s" : ""}</p>
         </div>
         {messages.length > 0 && (
           <button
             onClick={() => (selection ? quitterSelection() : setSelection(true))}
-            className="ml-auto inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all hover:bg-gray-50"
+            className="ml-auto inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full border transition-all hover:bg-gray-50"
             style={{ borderColor: "#e0ecec", color: selection ? "#b42318" : TEAL }}
           >
             {selection ? <><X size={14} /> Annuler</> : <><ListChecks size={14} /> Sélectionner</>}
@@ -222,7 +222,7 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3" style={{ background: "#f8fbfb" }}>
         {aPlus && (
           <div className="flex justify-center">
-            <button onClick={chargerPlus} disabled={plusEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border bg-white transition-all hover:shadow-sm disabled:opacity-50" style={{ borderColor: "#e0ecec", color: TEAL }}>
+            <button onClick={chargerPlus} disabled={plusEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full border bg-white transition-all hover:shadow-sm disabled:opacity-50" style={{ borderColor: "#e0ecec", color: TEAL }}>
               {plusEnCours ? <Loader2 size={13} className="animate-spin" /> : <ChevronUp size={13} />} Messages plus anciens
             </button>
           </div>
@@ -234,8 +234,8 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
               <MessagesSquare size={24} style={{ color: TEAL }} />
             </div>
-            <p className="font-semibold mb-1" style={{ color: MARINE }}>Aucun message</p>
-            <p className="text-gray-400 text-sm max-w-sm">Écrivez ci-dessous pour démarrer la conversation avec votre conseiller.</p>
+            <p className="font-bold mb-1" style={{ color: MARINE }}>Aucun message</p>
+            <p className="text-gray-600 text-base max-w-sm">Écrivez ci-dessous pour démarrer la conversation avec votre conseiller.</p>
           </div>
         ) : (
           messages.map((m) => {
@@ -256,10 +256,10 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
                     ...(sel ? { outline: `2px solid ${TEAL}`, outlineOffset: "2px" } : {}),
                   }}
                 >
-                  {!moi && <p className="text-[11px] font-semibold mb-0.5" style={{ color: TEAL }}>KARHON · Rédacteur</p>}
-                  {m.contenu && <p className="text-sm whitespace-pre-line leading-snug">{m.contenu}</p>}
+                  {!moi && <p className="text-sm font-bold mb-0.5" style={{ color: TEAL }}>KARHON · Rédacteur</p>}
+                  {m.contenu && <p className="text-base whitespace-pre-line leading-snug">{m.contenu}</p>}
                   {m.piecesJointes?.map((doc) => <PieceJointe key={doc} doc={doc} clair={moi} />)}
-                  <p className={`text-[10px] mt-1 ${moi ? "text-white/60" : "text-gray-400"}`}>{fmt(m.createdAt)}</p>
+                  <p className={`text-sm mt-1 ${moi ? "text-white/60" : "text-gray-600"}`}>{fmt(m.createdAt)}</p>
                 </div>
               </div>
             );
@@ -270,19 +270,19 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
 
       {selection ? (
         <div className="border-t p-3 sm:p-4 flex items-center justify-between gap-2" style={{ borderColor: "#eef4f4" }}>
-          <span className="text-xs text-gray-500">{selIds.length} sélectionné{selIds.length > 1 ? "s" : ""}</span>
+          <span className="text-sm text-gray-700">{selIds.length} sélectionné{selIds.length > 1 ? "s" : ""}</span>
           <div className="flex items-center gap-2">
-            <button onClick={() => appliquer("archiver")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border disabled:opacity-50" style={{ borderColor: "#e0ecec", color: MARINE }}>
+            <button onClick={() => appliquer("archiver")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl border disabled:opacity-50" style={{ borderColor: "#e0ecec", color: MARINE }}>
               {actionEnCours ? <Loader2 size={14} className="animate-spin" /> : <Archive size={14} />} Archiver
             </button>
-            <button onClick={() => appliquer("supprimer")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}>
+            <button onClick={() => appliquer("supprimer")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}>
               <Trash2 size={14} /> Supprimer
             </button>
           </div>
         </div>
       ) : (
       <div className="border-t p-3 sm:p-4 space-y-3" style={{ borderColor: "#eef4f4" }}>
-        {erreur && <p className="text-xs px-1" style={{ color: "#b42318" }}>{erreur}</p>}
+        {erreur && <p className="text-sm px-1" style={{ color: "#b42318" }}>{erreur}</p>}
         {(joindre || docs.length > 0) && (
           <div className="rounded-xl p-2" style={{ background: "#f0f7f7", border: "1px solid #d8ebeb" }}>
             <DocumentUpload label="Document corrigé à renvoyer" value={docs} onChange={setDocs} />
@@ -297,7 +297,7 @@ export default function MessagesClient({ ouvrirDirect }: { ouvrirDirect?: boolea
             onChange={(e) => setTexte(e.target.value)}
             rows={1}
             placeholder="Écrire un message…"
-            className="flex-1 min-w-0 resize-none rounded-2xl px-4 py-3 text-sm border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+            className="flex-1 min-w-0 resize-none rounded-2xl px-4 py-3 text-base border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
             style={{ borderColor: "#e0ecec" }}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(); } }}
           />

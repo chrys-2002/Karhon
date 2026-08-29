@@ -108,11 +108,11 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
         <span className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
           <CalendarDays size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.7} />
         </span>
-        <span className={`flex-1 min-w-0 truncate text-sm ${value ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+        <span className={`flex-1 min-w-0 truncate text-base ${value ? "text-gray-800 font-semibold" : "text-gray-600"}`}>
           {value ? formater(value) : placeholder}
         </span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
-          <ChevronRight size={16} className="text-gray-400 rotate-90" />
+          <ChevronRight size={16} className="text-gray-600 rotate-90" />
         </motion.span>
       </motion.button>
 
@@ -136,7 +136,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
               >
                 <ChevronLeft size={18} style={{ color: "#1a2e5a" }} />
               </button>
-              <span className="text-sm font-bold capitalize" style={{ color: "#1a2e5a" }}>
+              <span className="text-base font-extrabold capitalize" style={{ color: "#1a2e5a" }}>
                 {MOIS[mois]} {annee}
               </span>
               <button
@@ -151,7 +151,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
             {/* Jours de la semaine */}
             <div className="grid grid-cols-7 gap-1 mb-1">
               {JOURS.map((j) => (
-                <div key={j} className="h-8 flex items-center justify-center text-xs font-semibold text-gray-400">
+                <div key={j} className="h-8 flex items-center justify-center text-sm font-bold text-gray-600">
                   {j}
                 </div>
               ))}
@@ -171,7 +171,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
                     type="button"
                     disabled={off}
                     onClick={() => choisir(jour)}
-                    className="h-9 rounded-lg text-sm font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="h-9 rounded-lg text-base font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                     style={
                       selectionne
                         ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#ffffff" }
@@ -197,7 +197,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
               <button
                 type="button"
                 onClick={() => { onChange(""); setOpen(false); }}
-                className="text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-sm font-bold text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Effacer
               </button>
@@ -209,7 +209,7 @@ export default function DatePicker({ value, onChange, max, min, desactiverWeeken
                   setCurseur(new Date());
                   setOpen(false);
                 }}
-                className="text-xs font-semibold transition-colors"
+                className="text-sm font-bold transition-colors"
                 style={{ color: "#2a8a8a" }}
               >
                 Aujourd&apos;hui

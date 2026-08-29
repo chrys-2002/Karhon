@@ -253,8 +253,8 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
       <section className="py-16 sm:py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-10 sm:mb-14">
-            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-2" style={{ color: "#2a8a8a" }}>{subtitle}</p>
-            <h2 className="text-3xl sm:text-5xl font-bold" style={{ color: "#1a2e5a" }}>{title}</h2>
+            <p className="text-sm font-extrabold tracking-[0.3em] uppercase mb-2" style={{ color: "#2a8a8a" }}>{subtitle}</p>
+            <h2 className="text-4xl sm:text-6xl font-extrabold" style={{ color: "#1a2e5a" }}>{title}</h2>
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -271,25 +271,25 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                 <div className="relative h-44 sm:h-48 overflow-hidden">
                   <Image src={prod.image} alt={prod.nom} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(26,46,90,0.85) 0%, rgba(26,46,90,0.15) 55%, transparent 100%)" }} />
-                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-[11px] font-bold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.85)" }}>{prod.tag}</span>
+                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-extrabold text-white backdrop-blur-md" style={{ backgroundColor: "rgba(42,138,138,0.85)" }}>{prod.tag}</span>
                   <div className="absolute bottom-4 left-5 right-5">
-                    <h3 className="text-xl font-bold text-white leading-tight">{prod.nom}</h3>
-                    <p className="text-white/75 text-xs mt-0.5">{prod.description}</p>
+                    <h3 className="text-2xl font-extrabold text-white leading-tight">{prod.nom}</h3>
+                    <p className="text-white/75 text-sm mt-0.5">{prod.description}</p>
                   </div>
                 </div>
 
                 <div className="p-6 flex flex-col flex-1">
-                  <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">{prod.longDescription}</p>
+                  <p className="text-base text-gray-800 leading-relaxed mb-4 line-clamp-3">{prod.longDescription}</p>
 
                   <div className="space-y-2 mb-4">
                     {prod.garanties.slice(0, 3).map((g: string) => (
-                      <div key={g} className="flex items-center gap-2.5 text-sm text-gray-700">
+                      <div key={g} className="flex items-center gap-2.5 text-base text-gray-700">
                         <CheckCircle size={15} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                         <span className="truncate">{g}</span>
                       </div>
                     ))}
                     {prod.garanties.length > 3 && (
-                      <p className="text-xs text-gray-400 pl-[26px]">+{prod.garanties.length - 3} garanties supplémentaires</p>
+                      <p className="text-sm text-gray-600 pl-[26px]">+{prod.garanties.length - 3} garanties supplémentaires</p>
                     )}
                   </div>
 
@@ -299,7 +299,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                         key={o.label}
                         type="button"
                         onClick={() => { setSelectedProduit(prod); setExpandedOption(o.label); }}
-                        className="px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all hover:bg-[#f0f7f7]"
+                        className="px-2.5 py-1 rounded-full text-sm font-bold border transition-all hover:bg-[#f0f7f7]"
                         style={{ borderColor: "#cfe3e3", color: "#2a8a8a" }}
                       >
                         {o.label}
@@ -308,10 +308,10 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                   </div>
 
                   <div className="flex gap-2 mt-auto pt-1">
-                    <button onClick={() => setSelectedProduit(prod)} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-semibold text-xs text-white transition-all hover:shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                    <button onClick={() => setSelectedProduit(prod)} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-sm text-white transition-all hover:shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                       Voir les détails <ArrowRight size={14} />
                     </button>
-                    <Link href="/devis" className="inline-flex items-center justify-center px-4 py-2.5 rounded-2xl font-semibold text-xs border-2 transition-all hover:bg-[#f0f7f7]" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
+                    <Link href="/devis" className="inline-flex items-center justify-center px-4 py-2.5 rounded-2xl font-bold text-sm border-2 transition-all hover:bg-[#f0f7f7]" style={{ borderColor: "#2a8a8a", color: "#2a8a8a" }}>
                       Cotation
                     </Link>
                   </div>
@@ -337,22 +337,22 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26,46,90,0.3) 0%, rgba(26,46,90,0.85) 100%)" }} />
                 <div className="absolute inset-0 p-6 flex justify-between items-end">
                   <div>
-                    <h2 className="text-2xl font-bold text-white">{selectedProduit.nom}</h2>
-                    <p className="text-white/70 text-sm mt-1">{selectedProduit.description}</p>
+                    <h2 className="text-3xl font-extrabold text-white">{selectedProduit.nom}</h2>
+                    <p className="text-white/70 text-base mt-1">{selectedProduit.description}</p>
                   </div>
                   <button onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="p-2 hover:bg-white/20 rounded-full transition text-white"><X size={24} /></button>
                 </div>
               </div>
               <div className="p-6 space-y-5">
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: "#1a2e5a" }}>Description</h3>
-                  <p className="text-gray-700 leading-relaxed text-sm">{selectedProduit.longDescription}</p>
+                  <h3 className="font-extrabold text-xl mb-2" style={{ color: "#1a2e5a" }}>Description</h3>
+                  <p className="text-gray-700 leading-relaxed text-base">{selectedProduit.longDescription}</p>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-3" style={{ color: "#1a2e5a" }}>Garanties incluses</h3>
+                  <h3 className="font-extrabold text-xl mb-3" style={{ color: "#1a2e5a" }}>Garanties incluses</h3>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {selectedProduit.garanties.map((g: string, i: number) => (
-                      <li key={i} className="flex items-center gap-2 p-3 rounded-xl text-sm text-gray-700" style={{ backgroundColor: "#f0f7f7" }}>
+                      <li key={i} className="flex items-center gap-2 p-3 rounded-xl text-base text-gray-700" style={{ backgroundColor: "#f0f7f7" }}>
                         <CheckCircle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />{g}
                       </li>
                     ))}
@@ -360,7 +360,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-lg mb-3" style={{ color: "#1a2e5a" }}>Formules disponibles</h3>
+                  <h3 className="font-extrabold text-xl mb-3" style={{ color: "#1a2e5a" }}>Formules disponibles</h3>
                   <div className="space-y-2">
                     {selectedProduit.options.map((option: ProductOption) => (
                       <motion.div
@@ -377,7 +377,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                           className="w-full flex justify-between items-center p-4 text-left"
                           whileHover={{ backgroundColor: "#eff6ff" }}
                         >
-                          <span className="font-medium text-gray-800">{option.label}</span>
+                          <span className="font-semibold text-gray-800">{option.label}</span>
                           <motion.div
                             animate={{ rotate: expandedOption === option.label ? 180 : 0 }}
                             transition={{ duration: 0.2 }}
@@ -394,7 +394,7 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                               transition={{ duration: 0.3 }}
                               className="px-4 pb-4"
                             >
-                              <p className="text-gray-600 text-sm leading-relaxed">{option.description}</p>
+                              <p className="text-gray-800 text-base leading-relaxed">{option.description}</p>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -404,8 +404,8 @@ function Carousel({ produits, title, subtitle }: { produits: Product[]; title: s
                 </div>
               </div>
               <div className="p-6 border-t flex gap-4" style={{ borderColor: "#e0ecec" }}>
-                <button onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 py-3 border-2 rounded-2xl font-semibold hover:bg-gray-50 transition text-sm" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>Fermer</button>
-                <Link href="/devis" onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 text-white py-3 rounded-2xl font-semibold transition shadow-lg hover:scale-105 text-center text-sm" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>Demander une cotation gratuite</Link>
+                <button onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 py-3 border-2 rounded-2xl font-bold hover:bg-gray-50 transition text-base" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>Fermer</button>
+                <Link href="/devis" onClick={() => { setSelectedProduit(null); setExpandedOption(null); }} className="flex-1 text-white py-3 rounded-2xl font-bold transition shadow-lg hover:scale-105 text-center text-base" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>Demander une cotation gratuite</Link>
               </div>
             </motion.div>
           </div>
@@ -448,8 +448,8 @@ export default function Home() {
           <motion.div key={`badge-${heroCurrent}`} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.45 }} className="absolute bottom-20 left-8 sm:left-14 flex items-center gap-3 z-10">
             <div className="w-1 h-10 rounded-full" style={{ background: "#2a8a8a" }} />
             <div>
-              <p className="text-white font-semibold text-sm sm:text-base leading-tight">{heroImages[heroCurrent].nom}</p>
-              <p className="text-white/50 text-xs">{heroImages[heroCurrent].description}</p>
+              <p className="text-white font-bold text-base sm:text-lg leading-tight">{heroImages[heroCurrent].nom}</p>
+              <p className="text-white/50 text-sm">{heroImages[heroCurrent].description}</p>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -462,19 +462,19 @@ export default function Home() {
 
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 50 }} transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}>
-           <h1 className="text-5xl sm:text-7xl lg:text-7xl font-bold text-white mb-6 tracking-tight" style={{ lineHeight: "50px"}}>
+           <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight leading-[0.95]">
   KARHON
   <br />
-  <span className="text-6xl sm:text-10xl lg:text-9xl font-light" style={{ color: "#a8d8d8", fontSize:"50px"}}>Assurances</span>
+  <span className="text-4xl sm:text-5xl lg:text-6xl font-semibold" style={{ color: "#a8d8d8" }}>Assurances</span>
 </h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed" style={{marginTop:"60px", lineHeight:"30px"}}>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-2xl font-semibold text-white/80 max-w-2xl mx-auto mb-10 mt-8 leading-relaxed">
               Votre interlocuteur unique, neutre et indépendant en assurance <br />en Côte d&apos;Ivoire.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/devis" className="group px-8 py-4 rounded-full font-bold text-white text-base transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
+              <Link href="/devis" className="group px-8 py-4 rounded-full font-extrabold text-white text-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
                 Demander une cotation gratuite <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/produits" className="px-8 py-4 rounded-full font-bold text-white text-base border-2 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md">
+              <Link href="/produits" className="px-8 py-4 rounded-full font-extrabold text-white text-lg border-2 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md">
                 Voir nos produits
               </Link>
             </motion.div>
@@ -515,8 +515,8 @@ export default function Home() {
                   <stat.Icon size={22} style={{ color: "#2a8a8a" }} strokeWidth={1.6} />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-0.5" style={{ color: "#1a2e5a" }}>{stat.value}</div>
-                  <div className="text-sm text-gray-400 font-medium">{stat.label}</div>
+                  <div className="text-4xl font-extrabold mb-0.5" style={{ color: "#1a2e5a" }}>{stat.value}</div>
+                  <div className="text-base text-gray-600 font-semibold">{stat.label}</div>
                 </div>
               </motion.div>
             ))}
@@ -528,8 +528,8 @@ export default function Home() {
       <section className="py-16 sm:py-24" style={{ background: "linear-gradient(135deg, #1a2e5a 0%, #1e4a7a 60%, #2a8a8a 100%)" }}>
         <div className="max-w-6xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-3 text-white/50">Notre engagement</p>
-            <h2 className="text-3xl sm:text-5xl font-bold text-white">Pourquoi choisir KARHON ?</h2>
+            <p className="text-sm font-extrabold tracking-[0.3em] uppercase mb-3 text-white/50">Notre engagement</p>
+            <h2 className="text-4xl sm:text-6xl font-extrabold text-white">Pourquoi choisir KARHON ?</h2>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6">
             {pourquoi.map((item, i) => (
@@ -537,8 +537,8 @@ export default function Home() {
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6" style={{ background: "rgba(42,138,138,0.25)", border: "1px solid rgba(42,138,138,0.4)" }}>
                   <item.Icon size={26} color="#a8d8d8" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-white/55 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="text-2xl font-extrabold text-white mb-3">{item.title}</h3>
+                <p className="text-white/55 text-base leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -549,8 +549,8 @@ export default function Home() {
       <section className="py-16 sm:py-20 bg-white border-t" style={{ borderColor: "#e0ecec" }}>
         <div className="max-w-6xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-3" style={{ color: "#2a8a8a" }}>Nos partenaires</p>
-            <h2 className="text-3xl sm:text-4xl font-bold" style={{ color: "#1a2e5a" }}>Les meilleures compagnies à vos côtés</h2>
+            <p className="text-sm font-extrabold tracking-[0.3em] uppercase mb-3" style={{ color: "#2a8a8a" }}>Nos partenaires</p>
+            <h2 className="text-4xl sm:text-5xl font-extrabold" style={{ color: "#1a2e5a" }}>Les meilleures compagnies à vos côtés</h2>
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
             {partenaires.map((p, i) => (
@@ -576,15 +576,15 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <h2 className="text-3xl sm:text-5xl font-bold mb-4" style={{ color: "#1a2e5a" }}>
+            <h2 className="text-4xl sm:text-6xl font-extrabold mb-4" style={{ color: "#1a2e5a" }}>
               Prêt à être bien protégé ?
             </h2>
-            <p className="text-gray-500 mb-10 text-lg">
+            <p className="text-gray-700 mb-10 text-xl">
               Obtenez votre cotation personnalisée gratuite en quelques minutes.
             </p>
             <Link
               href="/devis"
-              className="group inline-flex items-center gap-3 px-10 py-5 rounded-full font-bold text-white text-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl"
+              className="group inline-flex items-center gap-3 px-10 py-5 rounded-full font-extrabold text-white text-xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl"
               style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
             >
               Commencer maintenant

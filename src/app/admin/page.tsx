@@ -264,7 +264,7 @@ function PiecesJointes({ documents }: { documents?: string[] }) {
 
   return (
     <div className="w-full flex-1 flex flex-col min-h-[240px]">
-      <p className="text-xs font-semibold mb-2" style={{ color: "#1a2e5a" }}>
+      <p className="text-sm font-bold mb-2" style={{ color: "#1a2e5a" }}>
         Pièces jointes{documents?.length ? ` (${documents.length})` : ""}
       </p>
       <div className="relative rounded-2xl overflow-hidden border flex-1 min-h-[200px]" style={{ borderColor: "#e0ecec", background: "linear-gradient(135deg, #eef6f6, #ffffff)" }}>
@@ -276,15 +276,15 @@ function PiecesJointes({ documents }: { documents?: string[] }) {
                 <ImageOff size={38} strokeWidth={1.5} />
               </div>
               <div>
-                <p className="text-sm font-semibold" style={{ color: "#1a2e5a" }}>Aucune pièce jointe</p>
-                <p className="text-xs text-gray-400 mt-0.5">Le client n&apos;a transmis aucun document</p>
+                <p className="text-base font-bold" style={{ color: "#1a2e5a" }}>Aucune pièce jointe</p>
+                <p className="text-sm text-gray-600 mt-0.5">Le client n&apos;a transmis aucun document</p>
               </div>
             </div>
           </>
         ) : estPdf ? (
           <button type="button" onClick={() => setApercu({ url: courant.url, pdf: true })} className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ color: "#2a8a8a" }}>
             <FileText size={48} strokeWidth={1.5} />
-            <span className="text-sm font-medium">Aperçu du PDF</span>
+            <span className="text-base font-semibold">Aperçu du PDF</span>
           </button>
         ) : (
           <button type="button" onClick={() => setApercu({ url: courant.url, pdf: false })} className="absolute inset-0 block cursor-zoom-in" title="Agrandir">
@@ -301,14 +301,14 @@ function PiecesJointes({ documents }: { documents?: string[] }) {
             <button type="button" onClick={() => aller(1)} aria-label="Suivante" className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow flex items-center justify-center transition-transform hover:scale-110" style={{ color: "#1a2e5a" }}>
               <ArrowRight size={16} />
             </button>
-            <span className="absolute bottom-2 right-2 text-[11px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: "rgba(15,23,42,0.6)" }}>
+            <span className="absolute bottom-2 right-2 text-sm font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "rgba(15,23,42,0.6)" }}>
               {idx + 1} / {items.length}
             </span>
           </>
         )}
       </div>
 
-      <p className="text-[11px] text-gray-500 mt-1.5 truncate">{courant.libelle}</p>
+      <p className="text-sm text-gray-700 mt-1.5 truncate">{courant.libelle}</p>
 
       {items.length > 1 && (
         <div className="flex gap-1.5 mt-2">
@@ -437,7 +437,7 @@ function StatutDropdown({
         type="button"
         disabled={disabled}
         onClick={basculer}
-        className="flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all hover:shadow-sm disabled:opacity-50"
+        className="flex items-center gap-2 rounded-xl px-3.5 py-2 text-base font-bold transition-all hover:shadow-sm disabled:opacity-50"
         style={{ background: courant.fond, color: courant.couleur, minWidth: "150px" }}
       >
         <span className="h-2 w-2 rounded-full" style={{ background: courant.couleur }} />
@@ -476,7 +476,7 @@ function StatutDropdown({
                     onChange(s.value);
                     setOpen(false);
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all"
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-base font-semibold transition-all"
                   style={{ background: actif ? "rgba(42,138,138,0.08)" : "transparent", color: "#1a2e5a" }}
                 >
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: s.couleur }} />
@@ -509,7 +509,7 @@ function ActionsLigne({
         disabled={enCours}
         onClick={onRelance}
         title="Relancer le client (email + WhatsApp)"
-        className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold text-white transition-all hover:shadow-sm disabled:opacity-50"
         style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
       >
         {enCours ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
@@ -556,16 +556,16 @@ function LigneArchive({
     <div className="px-6 sm:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md" style={{ background: "#eef2f7", color: "#64748b" }}>
+          <span className="text-sm font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-md" style={{ background: "#eef2f7", color: "#64748b" }}>
             {TYPE_LABEL[type] ?? type}
           </span>
-          <span className="font-semibold" style={{ color: "#1a2e5a" }}>{titre}</span>
+          <span className="font-bold" style={{ color: "#1a2e5a" }}>{titre}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-0.5">{sousTitre}</p>
+        <p className="text-base text-gray-700 mt-0.5">{sousTitre}</p>
         {dateEnvoi && (
-          <p className="text-xs text-gray-400 mt-0.5">Envoyé le {dateHeure(dateEnvoi)}</p>
+          <p className="text-sm text-gray-600 mt-0.5">Envoyé le {dateHeure(dateEnvoi)}</p>
         )}
-        <p className="text-xs mt-0.5" style={{ color: "#b42318" }}>
+        <p className="text-sm mt-0.5" style={{ color: "#b42318" }}>
           Archivé par <strong>{par ?? "—"}</strong>{le ? ` le ${dateHeure(le)}` : ""}
         </p>
       </div>
@@ -574,7 +574,7 @@ function LigneArchive({
           type="button"
           disabled={enCours}
           onClick={onRestaurer}
-          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all hover:shadow-sm disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold transition-all hover:shadow-sm disabled:opacity-50"
           style={{ border: "1px solid #cfe3e3", color: "#166534", background: "#f0fdf4" }}
         >
           {enCours ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />} Restaurer
@@ -650,7 +650,7 @@ function ConversionModal({
         <div className="px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between rounded-t-3xl shrink-0" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
           <div className="flex items-center gap-2.5 text-white">
             <FileSignature size={20} />
-            <h3 className="font-bold">Enregistrer la souscription</h3>
+            <h3 className="font-extrabold">Enregistrer la souscription</h3>
           </div>
           <button type="button" onClick={onClose} className="text-white/80 hover:text-white">
             <X size={20} />
@@ -658,13 +658,13 @@ function ConversionModal({
         </div>
 
         <div className="p-5 sm:p-6 space-y-5 overflow-y-auto">
-          <div className="rounded-xl px-4 py-3 text-sm" style={{ background: "#f5fbfb", color: "#1a2e5a" }}>
-            <p className="font-semibold">{devis.produit?.nom}</p>
-            <p className="text-gray-500 text-xs mt-0.5">{devis.user?.prenom} {devis.user?.nom} · {devis.user?.email}</p>
+          <div className="rounded-xl px-4 py-3 text-base" style={{ background: "#f5fbfb", color: "#1a2e5a" }}>
+            <p className="font-bold">{devis.produit?.nom}</p>
+            <p className="text-gray-700 text-sm mt-0.5">{devis.user?.prenom} {devis.user?.nom} · {devis.user?.email}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Durée souscrite</label>
+            <label className="block text-base font-semibold text-gray-700 mb-2">Durée souscrite</label>
             <div className="flex flex-wrap gap-2">
               {DUREES.map((d) => {
                 const actif = d.mois === dureeMois;
@@ -673,7 +673,7 @@ function ConversionModal({
                     key={d.mois}
                     type="button"
                     onClick={() => setDureeMois(d.mois)}
-                    className="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all"
+                    className="px-3.5 py-2 rounded-xl text-base font-bold transition-all"
                     style={actif
                       ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" }
                       : { background: "#f1f5f9", color: "#1a2e5a" }}
@@ -696,29 +696,29 @@ function ConversionModal({
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA)</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Prime (FCFA)</label>
               <input
                 type="number"
                 min={0}
                 value={prime}
                 onChange={(e) => setPrime(e.target.value)}
                 placeholder="Ex. 150000"
-                className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl text-base border focus:outline-none"
                 style={{ borderColor: "#e0ecec" }}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Date de début</label>
               <DatePicker value={dateDebut} onChange={setDateDebut} placeholder="Choisir une date" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">N° de police (compagnie)</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">N° de police (compagnie)</label>
               <input
                 type="text"
                 value={numeroPolice}
                 onChange={(e) => setNumeroPolice(e.target.value)}
                 placeholder="Numéro de police délivré par la compagnie"
-                className="w-full px-4 py-3 rounded-xl text-sm border focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl text-base border focus:outline-none"
                 style={{ borderColor: "#e0ecec" }}
               />
             </div>
@@ -729,13 +729,13 @@ function ConversionModal({
               type="button"
               disabled={!valide || enCours}
               onClick={() => onSubmit({ devisId: devis.id, dureeMois, primeAnnuelle: Number(prime), dateDebut, compagnie, numeroPolice: numeroPolice.trim() })}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white text-sm disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white text-base disabled:opacity-50"
               style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
             >
               {enCours ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
               Enregistrer la souscription
             </button>
-            <button type="button" onClick={onClose} className="px-5 py-3 rounded-xl font-semibold text-sm border" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>
+            <button type="button" onClick={onClose} className="px-5 py-3 rounded-xl font-bold text-base border" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>
               Annuler
             </button>
           </div>
@@ -1944,25 +1944,25 @@ export default function AdminPage() {
             <div className="fixed left-1/2 -translate-x-1/2 top-[124px] md:top-[72px] z-50 w-[min(720px,calc(100vw-1.5rem))]">
               <div className="bg-white rounded-2xl shadow-2xl border overflow-hidden" style={{ borderColor: "#e6f0f0" }}>
                 <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ borderColor: "#eef4f4" }}>
-                  <p className="text-xs font-semibold text-gray-500">
+                  <p className="text-sm font-bold text-gray-700">
                     {totalRecherche} résultat{totalRecherche > 1 ? "s" : ""} pour « {recherche.trim()} »
                   </p>
-                  <button onClick={() => setRecherche("")} className="text-gray-400 hover:text-gray-600" aria-label="Fermer"><X size={15} /></button>
+                  <button onClick={() => setRecherche("")} className="text-gray-600 hover:text-gray-800" aria-label="Fermer"><X size={15} /></button>
                 </div>
                 <div className="max-h-[70vh] overflow-y-auto">
                   {totalRecherche === 0 ? (
-                    <div className="py-10 text-center text-sm text-gray-400">Aucun résultat. Vérifie l&apos;orthographe ou essaie un autre terme.</div>
+                    <div className="py-10 text-center text-base text-gray-600">Aucun résultat. Vérifie l&apos;orthographe ou essaie un autre terme.</div>
                   ) : (
                     <>
                       {resContrats.length > 0 && (
                         <div>
-                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Souscriptions</p>
+                          <p className="px-4 pt-3 pb-1 text-sm font-extrabold uppercase tracking-wide text-gray-600">Souscriptions</p>
                           {resContrats.map((c) => (
                             <button key={c.id} onClick={() => ouvrirResultat("souscriptions", c)} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <FileSignature size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{c.user?.prenom} {c.user?.nom} — {c.produit?.nom ?? "Contrat"}</span>
-                                <span className="text-xs text-gray-400 block truncate">{c.numeroContrat} · {c.compagnie ?? "—"} · {c.user?.email}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{c.user?.prenom} {c.user?.nom} — {c.produit?.nom ?? "Contrat"}</span>
+                                <span className="text-sm text-gray-600 block truncate">{c.numeroContrat} · {c.compagnie ?? "—"} · {c.user?.email}</span>
                               </span>
                             </button>
                           ))}
@@ -1970,13 +1970,13 @@ export default function AdminPage() {
                       )}
                       {resDevis.length > 0 && (
                         <div className="border-t" style={{ borderColor: "#f3f8f8" }}>
-                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Cotations</p>
+                          <p className="px-4 pt-3 pb-1 text-sm font-extrabold uppercase tracking-wide text-gray-600">Cotations</p>
                           {resDevis.map((d) => (
                             <button key={d.id} onClick={() => ouvrirResultat("devis")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <ClipboardList size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{d.user?.prenom} {d.user?.nom} — {d.produit?.nom ?? "Produit"}</span>
-                                <span className="text-xs text-gray-400 block truncate">{d.statut.replace(/_/g, " ")} · {d.user?.email}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{d.user?.prenom} {d.user?.nom} — {d.produit?.nom ?? "Produit"}</span>
+                                <span className="text-sm text-gray-600 block truncate">{d.statut.replace(/_/g, " ")} · {d.user?.email}</span>
                               </span>
                             </button>
                           ))}
@@ -1984,13 +1984,13 @@ export default function AdminPage() {
                       )}
                       {resSinistres.length > 0 && (
                         <div className="border-t" style={{ borderColor: "#f3f8f8" }}>
-                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Sinistres</p>
+                          <p className="px-4 pt-3 pb-1 text-sm font-extrabold uppercase tracking-wide text-gray-600">Sinistres</p>
                           {resSinistres.map((s) => (
                             <button key={s.id} onClick={() => ouvrirResultat("sinistres")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <AlertTriangle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{s.user?.prenom} {s.user?.nom} — {s.typeAssurance ?? "Sinistre"}</span>
-                                <span className="text-xs text-gray-400 block truncate">{s.statut.replace(/_/g, " ")} · {s.user?.email}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{s.user?.prenom} {s.user?.nom} — {s.typeAssurance ?? "Sinistre"}</span>
+                                <span className="text-sm text-gray-600 block truncate">{s.statut.replace(/_/g, " ")} · {s.user?.email}</span>
                               </span>
                             </button>
                           ))}
@@ -1998,13 +1998,13 @@ export default function AdminPage() {
                       )}
                       {resRdv.length > 0 && (
                         <div className="border-t" style={{ borderColor: "#f3f8f8" }}>
-                          <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">Rendez-vous</p>
+                          <p className="px-4 pt-3 pb-1 text-sm font-extrabold uppercase tracking-wide text-gray-600">Rendez-vous</p>
                           {resRdv.map((r) => (
                             <button key={r.id} onClick={() => ouvrirResultat("rdv")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <CalendarClock size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-sm font-semibold block truncate" style={{ color: "#1a2e5a" }}>{r.user?.prenom} {r.user?.nom} — {r.motif}</span>
-                                <span className="text-xs text-gray-400 block truncate">{r.user?.email}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{r.user?.prenom} {r.user?.nom} — {r.motif}</span>
+                                <span className="text-sm text-gray-600 block truncate">{r.user?.email}</span>
                               </span>
                             </button>
                           ))}
@@ -2030,10 +2030,10 @@ export default function AdminPage() {
               <BellRing size={20} style={{ color: "#b45309" }} />
             </div>
             <div className="flex-1 min-w-[180px]">
-              <p className="font-semibold text-sm" style={{ color: "#92600a" }}>
+              <p className="font-bold text-base" style={{ color: "#92600a" }}>
                 {aTraiter} élément{aTraiter > 1 ? "s" : ""} à traiter
               </p>
-              <p className="text-xs" style={{ color: "#a16207" }}>
+              <p className="text-sm" style={{ color: "#a16207" }}>
                 {[
                   devisATraiter > 0 && `${devisATraiter} cotation${devisATraiter > 1 ? "s" : ""} à traiter`,
                   choixATraiter > 0 && `${choixATraiter} choix client à poursuivre`,
@@ -2043,12 +2043,12 @@ export default function AdminPage() {
             </div>
             <div className="flex gap-2">
               {(devisATraiter > 0 || choixATraiter > 0) && (
-                <button onClick={() => setVue("devis")} className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #b45309, #d97706)" }}>
+                <button onClick={() => setVue("devis")} className="px-3.5 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105" style={{ background: "linear-gradient(135deg, #b45309, #d97706)" }}>
                   Voir les cotations
                 </button>
               )}
               {sinistresATraiter > 0 && (
-                <button onClick={() => setVue("sinistres")} className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105" style={{ background: "#fff", color: "#b45309", border: "1px solid #fed7aa" }}>
+                <button onClick={() => setVue("sinistres")} className="px-3.5 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105" style={{ background: "#fff", color: "#b45309", border: "1px solid #fed7aa" }}>
                   Voir les sinistres
                 </button>
               )}
@@ -2064,7 +2064,7 @@ export default function AdminPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="fixed z-[200] left-1/2 -translate-x-1/2 bottom-4 sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0 w-[calc(100%-2rem)] sm:w-auto sm:max-w-md flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium shadow-xl"
+              className="fixed z-[200] left-1/2 -translate-x-1/2 bottom-4 sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0 w-[calc(100%-2rem)] sm:w-auto sm:max-w-md flex items-center gap-2 rounded-2xl px-4 py-3 text-base font-semibold shadow-xl"
               onClick={() => setNotif(null)}
               role="status"
               style={
@@ -2089,46 +2089,46 @@ export default function AdminPage() {
             {/* Clients → ouvre la liste des clients inscrits */}
             <button type="button" onClick={() => { setRetourClients("accueil"); setVue("clients"); }} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.clients}</p>
+                <p className="text-4xl font-extrabold" style={{ color: "#1a2e5a" }}>{apercu.clients}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <Users size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Clients</p>
-              <p className="text-xs font-semibold mt-1 inline-flex items-center gap-1" style={{ color: "#2a8a8a" }}>Voir la liste <ArrowRight size={12} /></p>
+              <p className="text-gray-600 text-sm uppercase tracking-wide leading-tight">Clients</p>
+              <p className="text-sm font-bold mt-1 inline-flex items-center gap-1" style={{ color: "#2a8a8a" }}>Voir la liste <ArrowRight size={12} /></p>
             </button>
             {/* Devis → onglet Cotations */}
             <button type="button" onClick={() => { setFiltre("tous"); setVue("devis"); }} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.devisTotal}</p>
+                <p className="text-4xl font-extrabold" style={{ color: "#1a2e5a" }}>{apercu.devisTotal}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <ClipboardList size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Cotations</p>
-              <p className="text-xs text-gray-400 mt-1">{apercu.devisParStatut["en_attente"] ?? 0} en attente · {apercu.devisParStatut["accepte"] ?? 0} acceptés</p>
+              <p className="text-gray-600 text-sm uppercase tracking-wide leading-tight">Cotations</p>
+              <p className="text-sm text-gray-600 mt-1">{apercu.devisParStatut["en_attente"] ?? 0} en attente · {apercu.devisParStatut["accepte"] ?? 0} acceptés</p>
             </button>
             {/* Souscriptions actives → onglet Souscriptions */}
             <button type="button" onClick={() => setVue("souscriptions")} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.contratsActifs}</p>
+                <p className="text-4xl font-extrabold" style={{ color: "#1a2e5a" }}>{apercu.contratsActifs}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <FileSignature size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Souscriptions actives</p>
-              <p className="text-xs text-gray-400 mt-1">{apercu.echeancesProches} échéance{apercu.echeancesProches > 1 ? "s" : ""} ≤ 90 j</p>
+              <p className="text-gray-600 text-sm uppercase tracking-wide leading-tight">Souscriptions actives</p>
+              <p className="text-sm text-gray-600 mt-1">{apercu.echeancesProches} échéance{apercu.echeancesProches > 1 ? "s" : ""} ≤ 90 j</p>
             </button>
             {/* Sinistres → onglet Sinistres */}
             <button type="button" onClick={() => setVue("sinistres")} className="text-left bg-white rounded-3xl p-5 sm:p-6 shadow-sm border transition-all hover:shadow-md hover:-translate-y-0.5 flex flex-col" style={{ borderColor: "#e0ecec" }}>
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-3xl font-bold" style={{ color: "#1a2e5a" }}>{apercu.sinistresEnCours}</p>
+                <p className="text-4xl font-extrabold" style={{ color: "#1a2e5a" }}>{apercu.sinistresEnCours}</p>
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <AlertTriangle size={20} style={{ color: "#2a8a8a" }} />
                 </div>
               </div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide leading-tight">Sinistres</p>
-              <p className="text-xs text-gray-400 mt-1 inline-flex items-center gap-1"><TrendingUp size={12} style={{ color: "#16a34a" }} /> {apercu.tauxConversion}% conversion</p>
+              <p className="text-gray-600 text-sm uppercase tracking-wide leading-tight">Sinistres</p>
+              <p className="text-sm text-gray-600 mt-1 inline-flex items-center gap-1"><TrendingUp size={12} style={{ color: "#16a34a" }} /> {apercu.tauxConversion}% conversion</p>
             </button>
           </motion.div>
         )}
@@ -2146,11 +2146,11 @@ export default function AdminPage() {
                       <History size={18} style={{ color: "#2a8a8a" }} />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Rapport hebdomadaire</h2>
-                      <p className="text-xs text-gray-400">{sem.label} · {sem.periode} · visible par toute l&apos;équipe</p>
+                      <h2 className="text-xl font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Rapport hebdomadaire</h2>
+                      <p className="text-sm text-gray-600">{sem.label} · {sem.periode} · visible par toute l&apos;équipe</p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-semibold px-3 py-1 rounded-full" style={{ background: "#eef4f4", color: "#2a8a8a" }}>{totalSem} action{totalSem > 1 ? "s" : ""}</span>
+                  <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eef4f4", color: "#2a8a8a" }}>{totalSem} action{totalSem > 1 ? "s" : ""}</span>
                 </div>
 
                 {/* Sélecteur de semaine (en cours + 3 précédentes) */}
@@ -2162,7 +2162,7 @@ export default function AdminPage() {
                         key={s.offset}
                         type="button"
                         onClick={() => { setRapportSemaine(s.offset); setRapportDetail(null); }}
-                        className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                        className="px-3 py-1.5 rounded-xl text-sm font-bold transition-all"
                         style={actif ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" } : { background: "#fff", color: "#1a2e5a", border: "1px solid #e0ecec" }}
                       >
                         {s.label}
@@ -2189,11 +2189,11 @@ export default function AdminPage() {
                         style={{ borderColor: ouvert ? "#2a8a8a" : "#eef4f4", background: "#fbfdfd", boxShadow: ouvert ? "0 0 0 2px rgba(42,138,138,0.30)" : undefined }}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-3xl font-extrabold" style={{ color: "#1a2e5a" }}>{m.items.length}</p>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: tendance.bg, color: tendance.fg }}>{tendance.texte}</span>
+                          <p className="text-4xl font-black" style={{ color: "#1a2e5a" }}>{m.items.length}</p>
+                          <span className="text-sm font-extrabold px-2 py-0.5 rounded-full" style={{ background: tendance.bg, color: tendance.fg }}>{tendance.texte}</span>
                         </div>
-                        <p className="text-xs font-semibold mt-1" style={{ color: "#334155" }}>{m.label}</p>
-                        <p className="text-[10px] font-semibold mt-1.5" style={{ color: "#2a8a8a" }}>{ouvert ? "Masquer ▲" : "Voir le détail ▾"}</p>
+                        <p className="text-sm font-bold mt-1" style={{ color: "#334155" }}>{m.label}</p>
+                        <p className="text-sm font-bold mt-1.5" style={{ color: "#2a8a8a" }}>{ouvert ? "Masquer ▲" : "Voir le détail ▾"}</p>
                       </button>
                     );
                   })}
@@ -2206,20 +2206,20 @@ export default function AdminPage() {
                   return (
                     <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: "#e0ecec", background: "#f8fbfb" }}>
                       <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{m.label} · {sem.label} · {m.items.length}</p>
-                        <button type="button" onClick={() => setRapportDetail(null)} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>Fermer</button>
+                        <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{m.label} · {sem.label} · {m.items.length}</p>
+                        <button type="button" onClick={() => setRapportDetail(null)} className="text-sm font-bold" style={{ color: "#2a8a8a" }}>Fermer</button>
                       </div>
                       {m.items.length === 0 ? (
-                        <p className="text-sm text-gray-400">Rien sur cette période.</p>
+                        <p className="text-base text-gray-600">Rien sur cette période.</p>
                       ) : (
                         <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                           {m.items.map((it, idx) => (
                             <div key={idx} className="flex items-center gap-3 rounded-xl bg-white border px-3 py-2" style={{ borderColor: "#eef4f4" }}>
                               <div className="min-w-0 flex-1">
-                                <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{it.titre}</p>
-                                <p className="text-[11px] text-gray-400 truncate">{it.sous}</p>
+                                <p className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{it.titre}</p>
+                                <p className="text-sm text-gray-600 truncate">{it.sous}</p>
                               </div>
-                              <span className="text-[11px] font-medium flex-shrink-0" style={{ color: "#64748b" }}>{dateCourte(it.date)}</span>
+                              <span className="text-sm font-semibold flex-shrink-0" style={{ color: "#64748b" }}>{dateCourte(it.date)}</span>
                             </div>
                           ))}
                         </div>
@@ -2232,14 +2232,14 @@ export default function AdminPage() {
                 <div className="mt-6 pt-5 border-t" style={{ borderColor: "#eef4f4" }}>
                   <div className="flex items-center gap-2 mb-3">
                     <BellRing size={16} style={{ color: "#b45309" }} />
-                    <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Relances effectuées ({sem.relances.length})</h3>
+                    <h3 className="text-base font-extrabold" style={{ color: "#1a2e5a" }}>Relances effectuées ({sem.relances.length})</h3>
                   </div>
                   {sem.relances.length === 0 ? (
-                    <p className="text-sm text-gray-400">Aucune relance sur cette période.</p>
+                    <p className="text-base text-gray-600">Aucune relance sur cette période.</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <div className="min-w-[520px]">
-                        <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                        <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-bold uppercase tracking-wide text-gray-600">
                           <div className="col-span-4">Assuré</div>
                           <div className="col-span-3">Contact</div>
                           <div className="col-span-3">Échéance</div>
@@ -2249,21 +2249,21 @@ export default function AdminPage() {
                           {sem.relances.map((r, idx) => (
                             <div key={idx} className="grid grid-cols-12 gap-3 items-center rounded-xl bg-white border px-3 py-2.5" style={{ borderColor: "#eef4f4" }}>
                               <div className="col-span-4 min-w-0">
-                                <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{r.nom}</p>
-                                <p className="text-[11px] text-gray-400 truncate">{r.produit} · N° {r.numero}</p>
+                                <p className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{r.nom}</p>
+                                <p className="text-sm text-gray-600 truncate">{r.produit} · N° {r.numero}</p>
                               </div>
                               <div className="col-span-3 min-w-0">
                                 {r.contact && r.contact !== "—" ? (
-                                  <a href={`tel:${r.contact.replace(/\s+/g, "")}`} className="text-sm hover:underline" style={{ color: "#2a8a8a" }}>{r.contact}</a>
+                                  <a href={`tel:${r.contact.replace(/\s+/g, "")}`} className="text-base hover:underline" style={{ color: "#2a8a8a" }}>{r.contact}</a>
                                 ) : (
-                                  <span className="text-sm text-gray-400">—</span>
+                                  <span className="text-base text-gray-600">—</span>
                                 )}
                               </div>
                               <div className="col-span-3">
-                                <span className="text-sm" style={{ color: "#334155" }}>{dateCourte(r.echeance)}</span>
+                                <span className="text-base" style={{ color: "#334155" }}>{dateCourte(r.echeance)}</span>
                               </div>
                               <div className="col-span-2 text-right">
-                                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>{r.nb}×</span>
+                                <span className="text-sm font-extrabold px-2 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>{r.nb}×</span>
                               </div>
                             </div>
                           ))}
@@ -2278,14 +2278,14 @@ export default function AdminPage() {
                   <div className="mt-6 pt-5 border-t" style={{ borderColor: "#eef4f4" }}>
                     <div className="flex items-center gap-2 mb-3">
                       <CalendarClock size={16} style={{ color: "#2a8a8a" }} />
-                      <h3 className="text-sm font-bold" style={{ color: "#1a2e5a" }}>Échéances à venir cette semaine ({echeancesSemaine.length})</h3>
+                      <h3 className="text-base font-extrabold" style={{ color: "#1a2e5a" }}>Échéances à venir cette semaine ({echeancesSemaine.length})</h3>
                     </div>
                     {echeancesSemaine.length === 0 ? (
-                      <p className="text-sm text-gray-400">Aucune échéance de contrat dans les 7 prochains jours.</p>
+                      <p className="text-base text-gray-600">Aucune échéance de contrat dans les 7 prochains jours.</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <div className="min-w-[520px]">
-                          <div className="grid grid-cols-12 gap-3 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                          <div className="grid grid-cols-12 gap-3 px-3 py-2 text-sm font-bold uppercase tracking-wide text-gray-600">
                             <div className="col-span-4">Assuré</div>
                             <div className="col-span-3">Contact</div>
                             <div className="col-span-3">Échéance</div>
@@ -2295,21 +2295,21 @@ export default function AdminPage() {
                             {echeancesSemaine.map((e, idx) => (
                               <div key={idx} className="grid grid-cols-12 gap-3 items-center rounded-xl bg-white border px-3 py-2.5" style={{ borderColor: "#eef4f4" }}>
                                 <div className="col-span-4 min-w-0">
-                                  <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{e.nom}</p>
-                                  <p className="text-[11px] text-gray-400 truncate">{e.produit} · N° {e.numero}</p>
+                                  <p className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{e.nom}</p>
+                                  <p className="text-sm text-gray-600 truncate">{e.produit} · N° {e.numero}</p>
                                 </div>
                                 <div className="col-span-3 min-w-0">
                                   {e.contact && e.contact !== "—" ? (
-                                    <a href={`tel:${e.contact.replace(/\s+/g, "")}`} className="text-sm hover:underline" style={{ color: "#2a8a8a" }}>{e.contact}</a>
+                                    <a href={`tel:${e.contact.replace(/\s+/g, "")}`} className="text-base hover:underline" style={{ color: "#2a8a8a" }}>{e.contact}</a>
                                   ) : (
-                                    <span className="text-sm text-gray-400">—</span>
+                                    <span className="text-base text-gray-600">—</span>
                                   )}
                                 </div>
                                 <div className="col-span-3">
-                                  <span className="text-sm" style={{ color: "#334155" }}>{dateCourte(e.echeance)}</span>
+                                  <span className="text-base" style={{ color: "#334155" }}>{dateCourte(e.echeance)}</span>
                                 </div>
                                 <div className="col-span-2 text-right">
-                                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: e.jours <= 2 ? "#fee2e2" : "#fef3c7", color: e.jours <= 2 ? "#991b1b" : "#92600a" }}>{e.jours} j</span>
+                                  <span className="text-sm font-extrabold px-2 py-0.5 rounded-full" style={{ background: e.jours <= 2 ? "#fee2e2" : "#fef3c7", color: e.jours <= 2 ? "#991b1b" : "#92600a" }}>{e.jours} j</span>
                                 </div>
                               </div>
                             ))}
@@ -2332,14 +2332,14 @@ export default function AdminPage() {
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <BarChart3 size={18} style={{ color: "#2a8a8a" }} />
                 </div>
-                <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Évolution sur les 6 derniers trimestres</h2>
+                <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Évolution sur les 6 derniers trimestres</h2>
               </div>
               <GrapheTrimestriel data={apercu.trimestres} />
             </motion.div>
 
             <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.12 }} className="min-w-0 overflow-hidden bg-white rounded-3xl shadow-sm border p-5 sm:p-8" style={{ borderColor: "#e0ecec" }}>
-              <h2 className="text-lg font-bold mb-1" style={{ color: "#1a2e5a" }}>Répartition des cotations</h2>
-              <p className="text-xs text-gray-400 mb-3">Par statut</p>
+              <h2 className="text-xl font-extrabold mb-1" style={{ color: "#1a2e5a" }}>Répartition des cotations</h2>
+              <p className="text-sm text-gray-600 mb-3">Par statut</p>
               {(() => {
                 const palette: Record<string, string> = { en_attente: "#f59e0b", accepte: "#16a34a", refuse: "#dc2626", en_cours: "#2a8a8a" };
                 const labels: Record<string, string> = { en_attente: "En attente", accepte: "Acceptés", refuse: "Refusés", en_cours: "En cours" };
@@ -2347,7 +2347,7 @@ export default function AdminPage() {
                   .filter(([, v]) => v > 0)
                   .map(([k, v]) => ({ nom: labels[k] ?? k.replace(/_/g, " "), valeur: v, couleur: palette[k] ?? "#1a2e5a" }));
                 const totalD = data.reduce((s, x) => s + x.valeur, 0);
-                if (totalD === 0) return <div className="h-[200px] flex items-center justify-center text-sm text-gray-400">Aucune cotation pour l&apos;instant.</div>;
+                if (totalD === 0) return <div className="h-[200px] flex items-center justify-center text-base text-gray-600">Aucune cotation pour l&apos;instant.</div>;
                 return (
                   <>
                     <div className="h-[180px] relative">
@@ -2360,15 +2360,15 @@ export default function AdminPage() {
                         </PieChart>
                       </ResponsiveContainer>
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{totalD}</span>
-                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">cotations</span>
+                        <span className="text-3xl font-black" style={{ color: "#1a2e5a" }}>{totalD}</span>
+                        <span className="text-sm text-gray-600 uppercase tracking-wide">cotations</span>
                       </div>
                     </div>
                     <ul className="mt-3 space-y-1.5">
                       {data.map((e) => (
-                        <li key={e.nom} className="flex items-center justify-between text-sm">
-                          <span className="flex items-center gap-2 text-gray-600"><span className="w-2.5 h-2.5 rounded-full" style={{ background: e.couleur }} /> {e.nom}</span>
-                          <span className="font-bold" style={{ color: "#1a2e5a" }}>{e.valeur}</span>
+                        <li key={e.nom} className="flex items-center justify-between text-base">
+                          <span className="flex items-center gap-2 text-gray-800"><span className="w-2.5 h-2.5 rounded-full" style={{ background: e.couleur }} /> {e.nom}</span>
+                          <span className="font-extrabold" style={{ color: "#1a2e5a" }}>{e.valeur}</span>
                         </li>
                       ))}
                     </ul>
@@ -2386,31 +2386,31 @@ export default function AdminPage() {
               <Users size={18} style={{ color: "#2a8a8a" }} />
             </div>
             <div>
-              <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Répartition des clients</h2>
-              <p className="text-xs text-gray-400">Par type : particulier / entreprise</p>
+              <h2 className="text-xl font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Répartition des clients</h2>
+              <p className="text-sm text-gray-600">Par type : particulier / entreprise</p>
             </div>
           </div>
 
           {repartitionClients.total === 0 ? (
-            <p className="text-sm text-gray-400 py-6 text-center">Pas encore de client à classer.</p>
+            <p className="text-base text-gray-600 py-6 text-center">Pas encore de client à classer.</p>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-5">
                 <div className="rounded-2xl p-4 sm:p-5" style={{ background: "#f5fbfb", border: "1px solid #d0ecec" }}>
                   <div className="flex items-center gap-2 mb-1.5">
                     <User size={16} style={{ color: "#2a8a8a" }} />
-                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2a8a8a" }}>Particuliers</p>
+                    <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#2a8a8a" }}>Particuliers</p>
                   </div>
-                  <p className="text-3xl font-extrabold" style={{ color: "#1a2e5a" }}>{repartitionClients.particulier}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{repartitionClients.pctParticulier}% des clients</p>
+                  <p className="text-4xl font-black" style={{ color: "#1a2e5a" }}>{repartitionClients.particulier}</p>
+                  <p className="text-sm text-gray-600 mt-0.5">{repartitionClients.pctParticulier}% des clients</p>
                 </div>
                 <div className="rounded-2xl p-4 sm:p-5" style={{ background: "#eef2ff", border: "1px solid #c7d2fe" }}>
                   <div className="flex items-center gap-2 mb-1.5">
                     <Building2 size={16} style={{ color: "#4f46e5" }} />
-                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#4f46e5" }}>Entreprises</p>
+                    <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#4f46e5" }}>Entreprises</p>
                   </div>
-                  <p className="text-3xl font-extrabold" style={{ color: "#1a2e5a" }}>{repartitionClients.entreprise}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{repartitionClients.pctEntreprise}% des clients</p>
+                  <p className="text-4xl font-black" style={{ color: "#1a2e5a" }}>{repartitionClients.entreprise}</p>
+                  <p className="text-sm text-gray-600 mt-0.5">{repartitionClients.pctEntreprise}% des clients</p>
                 </div>
               </div>
 
@@ -2419,9 +2419,9 @@ export default function AdminPage() {
                 <div className="h-full" style={{ width: `${repartitionClients.pctParticulier}%`, background: "linear-gradient(90deg, #1a2e5a, #2a8a8a)" }} />
                 <div className="h-full" style={{ width: `${repartitionClients.pctEntreprise}%`, background: "linear-gradient(90deg, #4f46e5, #6366f1)" }} />
               </div>
-              <div className="flex items-center justify-between mt-2 text-[11px] text-gray-500">
+              <div className="flex items-center justify-between mt-2 text-sm text-gray-700">
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#2a8a8a" }} /> Particuliers</span>
-                <span className="text-gray-400">{repartitionClients.total} client{repartitionClients.total > 1 ? "s" : ""} au total</span>
+                <span className="text-gray-600">{repartitionClients.total} client{repartitionClients.total > 1 ? "s" : ""} au total</span>
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: "#4f46e5" }} /> Entreprises</span>
               </div>
             </>
@@ -2437,12 +2437,12 @@ export default function AdminPage() {
                 <ClipboardList size={18} style={{ color: "#2a8a8a" }} />
               </div>
               <div>
-                <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Assurances les plus demandées</h2>
-                <p className="text-xs text-gray-400">Par nombre de cotations</p>
+                <h2 className="text-lg font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Assurances les plus demandées</h2>
+                <p className="text-sm text-gray-600">Par nombre de cotations</p>
               </div>
             </div>
             {demandeParProduit.length === 0 ? (
-              <p className="text-sm text-gray-400 py-6 text-center">Aucune cotation pour l&apos;instant.</p>
+              <p className="text-base text-gray-600 py-6 text-center">Aucune cotation pour l&apos;instant.</p>
             ) : (
               <ul className="space-y-2.5 max-h-80 overflow-y-auto pr-1 -mr-1">
                 {demandeParProduit.map((p, i) => {
@@ -2451,12 +2451,12 @@ export default function AdminPage() {
                   return (
                     <li key={p.nom}>
                       <button type="button" onClick={() => setDetailProduit(ouvert ? null : p.nom)} className="w-full text-left">
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="font-medium truncate pr-2 flex items-center gap-1" style={{ color: "#1a2e5a" }}>
+                        <div className="flex items-center justify-between text-base mb-1">
+                          <span className="font-semibold truncate pr-2 flex items-center gap-1" style={{ color: "#1a2e5a" }}>
                             <ChevronDown size={13} className={`flex-shrink-0 transition-transform ${ouvert ? "" : "-rotate-90"}`} style={{ color: "#94a3b8" }} />
                             {i === 0 ? "🥇 " : ""}{p.nom}
                           </span>
-                          <span className="font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{p.valeur}</span>
+                          <span className="font-extrabold flex-shrink-0" style={{ color: "#2a8a8a" }}>{p.valeur}</span>
                         </div>
                         <div className="h-2 rounded-full overflow-hidden" style={{ background: "#eef4f4" }}>
                           <div className="h-full rounded-full" style={{ width: `${Math.round((p.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #1a2e5a, #2a8a8a)" }} />
@@ -2464,13 +2464,13 @@ export default function AdminPage() {
                       </button>
                       {ouvert && (
                         <div className="mt-2 ml-4 pl-3 border-l space-y-1.5 pb-1" style={{ borderColor: "#e0ecec" }}>
-                          <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#94a3b8" }}>
+                          <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#94a3b8" }}>
                             {p.nbClients} client{p.nbClients > 1 ? "s" : ""} · {p.valeur} cotation{p.valeur > 1 ? "s" : ""}
                           </p>
                           {p.clients.map((cl) => (
-                            <div key={cl.email} className="flex items-center justify-between text-xs">
+                            <div key={cl.email} className="flex items-center justify-between text-sm">
                               <span className="truncate pr-2" style={{ color: "#334155" }}>{cl.nom}</span>
-                              <span className="font-semibold flex-shrink-0" style={{ color: "#2a8a8a" }}>{cl.count}</span>
+                              <span className="font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{cl.count}</span>
                             </div>
                           ))}
                         </div>
@@ -2489,12 +2489,12 @@ export default function AdminPage() {
                 <AlertTriangle size={18} style={{ color: "#dc2626" }} />
               </div>
               <div>
-                <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Sinistres par type</h2>
-                <p className="text-xs text-gray-400">Répartition des déclarations</p>
+                <h2 className="text-lg font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Sinistres par type</h2>
+                <p className="text-sm text-gray-600">Répartition des déclarations</p>
               </div>
             </div>
             {sinistresParType.length === 0 ? (
-              <p className="text-sm text-gray-400 py-6 text-center">Aucun sinistre déclaré.</p>
+              <p className="text-base text-gray-600 py-6 text-center">Aucun sinistre déclaré.</p>
             ) : (
               <ul className="space-y-2.5 max-h-80 overflow-y-auto pr-1 -mr-1">
                 {sinistresParType.map((s) => {
@@ -2503,12 +2503,12 @@ export default function AdminPage() {
                   return (
                     <li key={s.nom}>
                       <button type="button" onClick={() => setDetailSinistre(ouvert ? null : s.nom)} className="w-full text-left">
-                        <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="font-medium capitalize truncate pr-2 flex items-center gap-1" style={{ color: "#1a2e5a" }}>
+                        <div className="flex items-center justify-between text-base mb-1">
+                          <span className="font-semibold capitalize truncate pr-2 flex items-center gap-1" style={{ color: "#1a2e5a" }}>
                             <ChevronDown size={13} className={`flex-shrink-0 transition-transform ${ouvert ? "" : "-rotate-90"}`} style={{ color: "#94a3b8" }} />
                             {s.nom}
                           </span>
-                          <span className="font-bold flex-shrink-0" style={{ color: "#dc2626" }}>{s.valeur}</span>
+                          <span className="font-extrabold flex-shrink-0" style={{ color: "#dc2626" }}>{s.valeur}</span>
                         </div>
                         <div className="h-2 rounded-full overflow-hidden" style={{ background: "#fef2f2" }}>
                           <div className="h-full rounded-full" style={{ width: `${Math.round((s.valeur / max) * 100)}%`, background: "linear-gradient(90deg, #b91c1c, #f87171)" }} />
@@ -2516,13 +2516,13 @@ export default function AdminPage() {
                       </button>
                       {ouvert && (
                         <div className="mt-2 ml-4 pl-3 border-l space-y-1.5 pb-1" style={{ borderColor: "#fecaca" }}>
-                          <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#94a3b8" }}>
+                          <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#94a3b8" }}>
                             {s.nbClients} client{s.nbClients > 1 ? "s" : ""} · {s.valeur} déclaration{s.valeur > 1 ? "s" : ""}
                           </p>
                           {s.clients.map((cl) => (
-                            <div key={cl.email} className="flex items-center justify-between text-xs">
+                            <div key={cl.email} className="flex items-center justify-between text-sm">
                               <span className="truncate pr-2" style={{ color: "#334155" }}>{cl.nom}</span>
-                              <span className="font-semibold flex-shrink-0" style={{ color: "#dc2626" }}>{cl.count}</span>
+                              <span className="font-bold flex-shrink-0" style={{ color: "#dc2626" }}>{cl.count}</span>
                             </div>
                           ))}
                         </div>
@@ -2541,12 +2541,12 @@ export default function AdminPage() {
                 <Users size={18} style={{ color: "#2a8a8a" }} />
               </div>
               <div>
-                <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Clients les plus actifs</h2>
-                <p className="text-xs text-gray-400">Cotations + contrats + sinistres</p>
+                <h2 className="text-lg font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Clients les plus actifs</h2>
+                <p className="text-sm text-gray-600">Cotations + contrats + sinistres</p>
               </div>
             </div>
             {clientsFrequents.length === 0 ? (
-              <p className="text-sm text-gray-400 py-6 text-center">Aucun client pour l&apos;instant.</p>
+              <p className="text-base text-gray-600 py-6 text-center">Aucun client pour l&apos;instant.</p>
             ) : (
               <ul className="space-y-2 max-h-80 overflow-y-auto pr-1 -mr-1">
                 {clientsFrequents.map((c, i) => {
@@ -2554,29 +2554,29 @@ export default function AdminPage() {
                   return (
                     <li key={c.email}>
                       <button type="button" onClick={() => setDetailClient(ouvert ? null : c.email)} className="w-full flex items-center gap-3 text-left">
-                        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
+                        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{c.nom}</p>
-                          <p className="text-[11px] text-gray-400 truncate">{c.cotations} cotation{c.cotations > 1 ? "s" : ""} · {c.contrats} contrat{c.contrats > 1 ? "s" : ""} · {c.sinistres} sinistre{c.sinistres > 1 ? "s" : ""}</p>
+                          <p className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{c.nom}</p>
+                          <p className="text-sm text-gray-600 truncate">{c.cotations} cotation{c.cotations > 1 ? "s" : ""} · {c.contrats} contrat{c.contrats > 1 ? "s" : ""} · {c.sinistres} sinistre{c.sinistres > 1 ? "s" : ""}</p>
                         </div>
-                        <span className="text-sm font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{c.total}</span>
+                        <span className="text-base font-extrabold flex-shrink-0" style={{ color: "#2a8a8a" }}>{c.total}</span>
                         <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${ouvert ? "" : "-rotate-90"}`} style={{ color: "#94a3b8" }} />
                       </button>
                       {ouvert && (
                         <div className="mt-2 ml-10 pl-3 border-l space-y-1.5 pb-1" style={{ borderColor: "#e0ecec" }}>
-                          <p className="text-[11px] text-gray-400 truncate">{c.email}</p>
+                          <p className="text-sm text-gray-600 truncate">{c.email}</p>
                           {c.produits.length > 0 && (
                             <>
-                              <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "#94a3b8" }}>Cotations par assurance</p>
+                              <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#94a3b8" }}>Cotations par assurance</p>
                               {c.produits.map((pr) => (
-                                <div key={pr.nom} className="flex items-center justify-between text-xs">
+                                <div key={pr.nom} className="flex items-center justify-between text-sm">
                                   <span className="truncate pr-2" style={{ color: "#334155" }}>{pr.nom}</span>
-                                  <span className="font-semibold flex-shrink-0" style={{ color: "#2a8a8a" }}>{pr.count}</span>
+                                  <span className="font-bold flex-shrink-0" style={{ color: "#2a8a8a" }}>{pr.count}</span>
                                 </div>
                               ))}
                             </>
                           )}
-                          <div className="flex items-center gap-3 text-[11px] pt-1" style={{ color: "#334155" }}>
+                          <div className="flex items-center gap-3 text-sm pt-1" style={{ color: "#334155" }}>
                             <span><b>{c.contrats}</b> contrat{c.contrats > 1 ? "s" : ""}</span>
                             <span><b>{c.sinistres}</b> sinistre{c.sinistres > 1 ? "s" : ""}</span>
                           </div>
@@ -2598,18 +2598,18 @@ export default function AdminPage() {
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fef3c7, #fde9d2)" }}>
                   <Trophy size={18} style={{ color: "#b45309" }} />
                 </div>
-                <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Compagnies préférées des clients</h2>
+                <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Compagnies préférées des clients</h2>
               </div>
-              <button onClick={() => setVue("compagnies")} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>
+              <button onClick={() => setVue("compagnies")} className="text-sm font-bold" style={{ color: "#2a8a8a" }}>
                 Tout voir →
               </button>
             </div>
             <ul className="divide-y divide-[#eef4f4]">
               {compagniesStats.slice(0, 3).map((c, i) => (
                 <li key={c.nom} className="px-6 sm:px-8 py-3.5 flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
-                  <span className="flex-1 font-medium text-sm" style={{ color: "#1a2e5a" }}>{c.nom}</span>
-                  <span className="text-xs text-gray-500">{c.choisies} choisie{c.choisies > 1 ? "s" : ""} · {c.taux}%</span>
+                  <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>{i + 1}</span>
+                  <span className="flex-1 font-semibold text-base" style={{ color: "#1a2e5a" }}>{c.nom}</span>
+                  <span className="text-sm text-gray-700">{c.choisies} choisie{c.choisies > 1 ? "s" : ""} · {c.taux}%</span>
                 </li>
               ))}
             </ul>
@@ -2625,7 +2625,7 @@ export default function AdminPage() {
           );
           return (
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-            <button type="button" onClick={() => setVue(retourClients as typeof vue)} className="mb-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all hover:bg-gray-50" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>
+            <button type="button" onClick={() => setVue(retourClients as typeof vue)} className="mb-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-base font-bold border transition-all hover:bg-gray-50" style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}>
               <ArrowLeft size={16} style={{ color: "#2a8a8a" }} /> Retour
             </button>
             <div className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
@@ -2635,27 +2635,27 @@ export default function AdminPage() {
                     <Users size={18} style={{ color: "#2a8a8a" }} />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold leading-tight" style={{ color: "#1a2e5a" }}>Clients inscrits</h2>
-                    <p className="text-xs text-gray-400">{liste.length} client{liste.length > 1 ? "s" : ""}{q ? " trouvé" + (liste.length > 1 ? "s" : "") : ""}</p>
+                    <h2 className="text-lg font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Clients inscrits</h2>
+                    <p className="text-sm text-gray-600">{liste.length} client{liste.length > 1 ? "s" : ""}{q ? " trouvé" + (liste.length > 1 ? "s" : "") : ""}</p>
                   </div>
                 </div>
                 <input
                   value={rechercheClients}
                   onChange={(e) => setRechercheClients(e.target.value)}
                   placeholder="Rechercher un client…"
-                  className="w-full sm:w-72 px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                  className="w-full sm:w-72 px-4 py-2.5 rounded-xl border text-base focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                   style={{ borderColor: "#e0ecec" }}
                 />
               </div>
 
               {!clientsCharges ? (
-                <div className="py-16 text-center text-sm text-gray-400">Chargement des clients…</div>
+                <div className="py-16 text-center text-base text-gray-600">Chargement des clients…</div>
               ) : liste.length === 0 ? (
-                <div className="py-16 text-center text-sm text-gray-400">{q ? "Aucun client ne correspond à la recherche." : "Aucun client inscrit pour le moment."}</div>
+                <div className="py-16 text-center text-base text-gray-600">{q ? "Aucun client ne correspond à la recherche." : "Aucun client inscrit pour le moment."}</div>
               ) : (
                 <>
                   {/* En-têtes (ordinateur uniquement) */}
-                  <div className="hidden md:grid grid-cols-12 gap-3 px-8 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400 border-b" style={{ borderColor: "#f2f6f6" }}>
+                  <div className="hidden md:grid grid-cols-12 gap-3 px-8 py-3 text-sm font-bold uppercase tracking-wide text-gray-600 border-b" style={{ borderColor: "#f2f6f6" }}>
                     <div className="col-span-3">Client</div>
                     <div className="col-span-3">Email</div>
                     <div className="col-span-2">Téléphone</div>
@@ -2666,30 +2666,30 @@ export default function AdminPage() {
                     {liste.map((c) => (
                       <div key={c.id} className="px-5 sm:px-8 py-4 md:grid md:grid-cols-12 md:gap-3 md:items-center hover:bg-gray-50/60 transition-colors">
                         <div className="md:col-span-3 flex items-center gap-3 min-w-0">
-                          <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                          <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                             {(c.prenom?.[0] ?? "").toUpperCase()}{(c.nom?.[0] ?? "").toUpperCase()}
                           </span>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{c.prenom} {c.nom}</p>
-                            {c.adresse && <p className="text-[11px] text-gray-400 truncate">{c.adresse}</p>}
+                            <p className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{c.prenom} {c.nom}</p>
+                            {c.adresse && <p className="text-sm text-gray-600 truncate">{c.adresse}</p>}
                           </div>
                         </div>
                         <div className="md:col-span-3 min-w-0 mt-2 md:mt-0">
-                          <span className="md:hidden text-[11px] text-gray-400 mr-1">Email :</span>
-                          <a href={`mailto:${c.email}`} className="text-sm truncate hover:underline" style={{ color: "#2a8a8a" }}>{c.email}</a>
+                          <span className="md:hidden text-sm text-gray-600 mr-1">Email :</span>
+                          <a href={`mailto:${c.email}`} className="text-base truncate hover:underline" style={{ color: "#2a8a8a" }}>{c.email}</a>
                         </div>
                         <div className="md:col-span-2 mt-1 md:mt-0">
-                          <span className="md:hidden text-[11px] text-gray-400 mr-1">Tél :</span>
-                          <span className="text-sm" style={{ color: "#334155" }}>{c.telephone || "—"}</span>
+                          <span className="md:hidden text-sm text-gray-600 mr-1">Tél :</span>
+                          <span className="text-base" style={{ color: "#334155" }}>{c.telephone || "—"}</span>
                         </div>
                         <div className="md:col-span-2 mt-1 md:mt-0">
-                          <span className="md:hidden text-[11px] text-gray-400 mr-1">Inscrit le :</span>
-                          <span className="text-sm" style={{ color: "#334155" }}>{dateCourte(c.dateInscription)}</span>
+                          <span className="md:hidden text-sm text-gray-600 mr-1">Inscrit le :</span>
+                          <span className="text-base" style={{ color: "#334155" }}>{dateCourte(c.dateInscription)}</span>
                         </div>
                         <div className="md:col-span-2 mt-2 md:mt-0 flex md:justify-end gap-1.5">
-                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#eef4f4", color: "#2a8a8a" }} title="Cotations">{c._count?.devis ?? 0} cot.</span>
-                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }} title="Contrats">{c._count?.contrats ?? 0} contr.</span>
-                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#fee2e2", color: "#991b1b" }} title="Sinistres">{c._count?.sinistres ?? 0} sin.</span>
+                          <span className="text-sm font-bold px-2 py-0.5 rounded-full" style={{ background: "#eef4f4", color: "#2a8a8a" }} title="Cotations">{c._count?.devis ?? 0} cot.</span>
+                          <span className="text-sm font-bold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }} title="Contrats">{c._count?.contrats ?? 0} contr.</span>
+                          <span className="text-sm font-bold px-2 py-0.5 rounded-full" style={{ background: "#fee2e2", color: "#991b1b" }} title="Sinistres">{c._count?.sinistres ?? 0} sin.</span>
                         </div>
                       </div>
                     ))}
@@ -2719,15 +2719,15 @@ export default function AdminPage() {
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-gray-400 text-xs uppercase tracking-wide">{label}</p>
-                    <p className="text-3xl font-bold mt-2" style={{ color: "#1a2e5a" }}>{value}</p>
+                    <p className="text-gray-600 text-sm uppercase tracking-wide">{label}</p>
+                    <p className="text-4xl font-extrabold mt-2" style={{ color: "#1a2e5a" }}>{value}</p>
                   </div>
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: actif ? "linear-gradient(135deg, #1a2e5a, #2a8a8a)" : "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                     <Icon size={20} style={{ color: actif ? "#ffffff" : "#2a8a8a" }} />
                   </div>
                 </div>
                 {actif && (
-                  <p className="mt-3 text-xs font-semibold" style={{ color: "#2a8a8a" }}>● Filtre actif</p>
+                  <p className="mt-3 text-sm font-bold" style={{ color: "#2a8a8a" }}>● Filtre actif</p>
                 )}
               </button>
             );
@@ -2737,7 +2737,7 @@ export default function AdminPage() {
         {/* Liste des devis */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ delay: 0.2 }} className="bg-white rounded-3xl shadow-sm border overflow-hidden" style={{ borderColor: "#e0ecec" }}>
           <div className="px-6 sm:px-8 py-5 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
-            <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>{titreListe}</h2>
+            <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>{titreListe}</h2>
             <div className="flex flex-wrap items-center gap-3">
               <FiltreTri
                 options={[
@@ -2755,7 +2755,7 @@ export default function AdminPage() {
                 onSens={() => setTriSens((s) => (s === "asc" ? "desc" : "asc"))}
                 onPeriode={setPeriode}
               />
-              <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+              <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
                 {devisAffiches.length} résultat{devisAffiches.length > 1 ? "s" : ""}
               </span>
             </div>
@@ -2766,10 +2766,10 @@ export default function AdminPage() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>
+              <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>
                 {filtre === "tous" ? "Aucune demande pour le moment" : "Aucune cotation dans cette catégorie"}
               </p>
-              <p className="text-gray-400 text-sm max-w-sm">
+              <p className="text-gray-600 text-base max-w-sm">
                 {filtre === "tous"
                   ? "Les demandes de cotation envoyées par les clients apparaîtront ici."
                   : "Essayez un autre filtre en cliquant sur une autre carte."}
@@ -2787,37 +2787,37 @@ export default function AdminPage() {
                     <div className="flex flex-wrap items-stretch gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold" style={{ color: "#1a2e5a" }}>
+                          <span className="font-bold" style={{ color: "#1a2e5a" }}>
                             {d.produit?.nom ?? "Produit"}
                           </span>
-                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: st.fond, color: st.couleur }}>
+                          <span className="text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: st.fond, color: st.couleur }}>
                             {st.label}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-base text-gray-700 mt-1">
                           {d.user?.prenom} {d.user?.nom} · {d.user?.email}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">Reçu le {date}</p>
+                        <p className="text-sm text-gray-600 mt-0.5">Reçu le {date}</p>
                         {d.description && (
-                          <p className="text-sm text-gray-600 mt-2 whitespace-pre-line bg-gray-50 rounded-xl px-3 py-2">
+                          <p className="text-base text-gray-800 mt-2 whitespace-pre-line bg-gray-50 rounded-xl px-3 py-2">
                             {d.description}
                           </p>
                         )}
                         {d.reponses && Object.keys(d.reponses).length > 0 && (
                           <div className="mt-3 rounded-xl p-3" style={{ background: "#f8fbfb", border: "1px solid #e6f0f0" }}>
-                            <p className="text-xs font-semibold mb-1.5" style={{ color: "#1a2e5a" }}>Questionnaire</p>
+                            <p className="text-sm font-bold mb-1.5" style={{ color: "#1a2e5a" }}>Questionnaire</p>
                             <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5">
                               {Object.entries(d.reponses).map(([q, r]) => (
-                                <div key={q} className="text-xs">
-                                  <dt className="text-gray-400">{q}</dt>
-                                  <dd className="font-medium" style={{ color: "#1a2e5a" }}>{r}</dd>
+                                <div key={q} className="text-sm">
+                                  <dt className="text-gray-600">{q}</dt>
+                                  <dd className="font-semibold" style={{ color: "#1a2e5a" }}>{r}</dd>
                                 </div>
                               ))}
                             </dl>
                           </div>
                         )}
                         {d.nombreRelances ? (
-                          <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: "#2a8a8a" }}>
+                          <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#2a8a8a" }}>
                             <Mail size={12} /> Relancé {d.nombreRelances} fois · dernière le {dateCourte(d.derniereRelance)}
                           </p>
                         ) : null}
@@ -2825,17 +2825,17 @@ export default function AdminPage() {
                         {/* Propositions envoyées + choix du client */}
                         {d.propositions && d.propositions.length > 0 && (
                           <div className="mt-3 rounded-xl p-3" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
-                            <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: "#2a8a8a" }}>
+                            <p className="text-sm font-bold uppercase tracking-wide mb-2" style={{ color: "#2a8a8a" }}>
                               Propositions envoyées ({d.propositions.length})
                             </p>
                             <ul className="space-y-2">
                               {d.propositions.map((p, pi) => (
-                                <li key={p.id} className="text-xs bg-white rounded-lg px-2.5 py-2 border" style={{ borderColor: p.choisie ? "#16a34a" : "#eef4f4" }}>
+                                <li key={p.id} className="text-sm bg-white rounded-lg px-2.5 py-2 border" style={{ borderColor: p.choisie ? "#16a34a" : "#eef4f4" }}>
                                   <div className="flex flex-wrap items-center gap-2">
-                                    <span className="font-semibold" style={{ color: "#1a2e5a" }}>Cotation {pi + 1}</span>
-                                    {typeof p.prime === "number" && <span className="text-gray-500">· {p.prime.toLocaleString("fr-FR")} FCFA</span>}
+                                    <span className="font-bold" style={{ color: "#1a2e5a" }}>Cotation {pi + 1}</span>
+                                    {typeof p.prime === "number" && <span className="text-gray-700">· {p.prime.toLocaleString("fr-FR")} FCFA</span>}
                                     {p.choisie && (
-                                      <span className="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
+                                      <span className="inline-flex items-center gap-1 font-bold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
                                         ✓ Choisie par le client
                                       </span>
                                     )}
@@ -2843,7 +2843,7 @@ export default function AdminPage() {
                                       type="button"
                                       onClick={() => propositionWhatsApp(d, p)}
                                       title="Envoyer cette proposition au client par WhatsApp"
-                                      className="inline-flex items-center gap-1 font-semibold px-2.5 py-1 rounded-lg text-white transition-all hover:scale-105 ml-auto"
+                                      className="inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-lg text-white transition-all hover:scale-105 ml-auto"
                                       style={{ background: "#25D366" }}
                                     >
                                       <MessageCircle size={12} /> WhatsApp
@@ -2853,13 +2853,13 @@ export default function AdminPage() {
                                     {p.documents.map((doc) => {
                                       const [lbl, url] = doc.split("|");
                                       return (
-                                        <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium px-2.5 py-1 rounded-lg" style={{ color: "#2a8a8a", background: "#eaf4f4" }}>
+                                        <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold px-2.5 py-1 rounded-lg" style={{ color: "#2a8a8a", background: "#eaf4f4" }}>
                                           <FileText size={12} /> Lire {lbl || "la cotation"}
                                         </a>
                                       );
                                     })}
                                     {p.compagnie && (
-                                      <span className="inline-flex items-center font-bold px-2.5 py-1 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
+                                      <span className="inline-flex items-center font-extrabold px-2.5 py-1 rounded-lg" style={{ background: "#eef2ff", color: "#4f46e5" }}>
                                         {p.compagnie}
                                       </span>
                                     )}
@@ -2874,11 +2874,11 @@ export default function AdminPage() {
                         {d.statut === "en_cours" && (
                           <div className="mt-3 rounded-xl p-3" style={{ background: "#fffaf0", border: "1px solid #fed7aa" }}>
                             <div className="flex items-center justify-between gap-2 mb-2">
-                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#9a3412" }}>
+                              <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#9a3412" }}>
                                 Encaissement{d.modePaiement ? ` · ${MODE_LABEL[d.modePaiement] ?? d.modePaiement}` : ""}
                               </p>
                               {(d.montantAPayer != null && d.lienPaiement) && (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#15803d" }}>
+                                <span className="inline-flex items-center gap-1 text-sm font-bold px-2 py-0.5 rounded-full" style={{ background: "#dcfce7", color: "#15803d" }}>
                                   <Check size={12} /> Envoyé au client
                                 </span>
                               )}
@@ -2890,27 +2890,27 @@ export default function AdminPage() {
                                 value={montantInputs[d.id] ?? (d.montantAPayer != null ? String(d.montantAPayer) : "")}
                                 onChange={(e) => setMontantInputs((s) => ({ ...s, [d.id]: e.target.value }))}
                                 placeholder="Montant à régler (FCFA)"
-                                className="w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                                className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                                 style={{ borderColor: "#e0ecec" }}
                               />
                               <input
                                 value={lienInputs[d.id] ?? d.lienPaiement ?? ""}
                                 onChange={(e) => setLienInputs((s) => ({ ...s, [d.id]: e.target.value }))}
                                 placeholder="Lien de paiement (https://…)"
-                                className="w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                                className="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                                 style={{ borderColor: "#e0ecec" }}
                               />
                               <button type="button" onClick={() => envoyerPaiement(d)} disabled={paieId === d.id}
-                                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-white disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-bold text-white disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                                 <Send size={13} /> {paieId === d.id ? "Envoi en cours…" : (d.montantAPayer != null || d.lienPaiement) ? "Mettre à jour et renvoyer au client" : "Envoyer le montant et le lien au client"}
                               </button>
                               {paieOk[d.id] && (
-                                <div className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold" style={{ background: "#dcfce7", color: "#15803d" }}>
+                                <div className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold" style={{ background: "#dcfce7", color: "#15803d" }}>
                                   <Check size={14} /> Envoyé au client à {paieOk[d.id]}. Le client a reçu le montant et le lien.
                                 </div>
                               )}
                             </div>
-                            <p className="text-xs" style={{ color: "#9a3412" }}>
+                            <p className="text-sm" style={{ color: "#9a3412" }}>
                               Le client reçoit le montant et le lien en une seule notification. Une fois le paiement reçu, cliquez sur « Enregistrer la souscription » pour passer la cotation en « Souscrit ».
                             </p>
                           </div>
@@ -2946,7 +2946,7 @@ export default function AdminPage() {
                           type="button"
                           onClick={() => ouvrirProposition(d)}
                           title="Envoyer une proposition (cotation) d'une compagnie"
-                          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold text-white transition-all hover:shadow-sm"
                           style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
                         >
                           <Send size={14} /> Envoyer une proposition
@@ -2955,7 +2955,7 @@ export default function AdminPage() {
                           type="button"
                           onClick={() => setConversion(d)}
                           title="Enregistrer la souscription à partir de cette cotation"
-                          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all hover:shadow-sm"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold transition-all hover:shadow-sm"
                           style={{ border: "1px solid #cfe3e3", color: "#1a2e5a", background: "#ffffff" }}
                         >
                           <FileSignature size={14} style={{ color: "#2a8a8a" }} /> Enregistrer la souscription
@@ -2979,7 +2979,7 @@ export default function AdminPage() {
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <AlertTriangle size={18} style={{ color: "#2a8a8a" }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Sinistres déclarés</h2>
+              <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Sinistres déclarés</h2>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <FiltreTri
@@ -2998,7 +2998,7 @@ export default function AdminPage() {
                 onSens={() => setTriSens((s) => (s === "asc" ? "desc" : "asc"))}
                 onPeriode={setPeriode}
               />
-              <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+              <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
                 {sinistresAffiches.length} déclaration{sinistresAffiches.length > 1 ? "s" : ""}
               </span>
             </div>
@@ -3009,8 +3009,8 @@ export default function AdminPage() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun sinistre déclaré</p>
-              <p className="text-gray-400 text-sm max-w-sm">Les déclarations de sinistre envoyées par les clients apparaîtront ici.</p>
+              <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>Aucun sinistre déclaré</p>
+              <p className="text-gray-600 text-base max-w-sm">Les déclarations de sinistre envoyées par les clients apparaîtront ici.</p>
             </div>
           ) : (
             <div className="divide-y divide-[#eef4f4]">
@@ -3027,29 +3027,29 @@ export default function AdminPage() {
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold" style={{ color: "#1a2e5a" }}>
+                          <span className="font-bold" style={{ color: "#1a2e5a" }}>
                             {s.typeAssurance ?? "Sinistre"}
                           </span>
-                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: st.fond, color: st.couleur }}>
+                          <span className="text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: st.fond, color: st.couleur }}>
                             {st.label}
                           </span>
                           {typeof s.montantEstime === "number" && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#f0f7f7", color: "#2a8a8a" }}>
+                            <span className="inline-flex items-center gap-1 text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#f0f7f7", color: "#2a8a8a" }}>
                               <HandCoins size={12} /> {s.montantEstime.toLocaleString("fr-FR")} FCFA
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-base text-gray-700 mt-1">
                           {s.user?.prenom} {s.user?.nom} · {s.user?.email}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-sm text-gray-600 mt-0.5">
                           Survenu le {dateSurv}{s.heureSurvenance ? ` à ${s.heureSurvenance}` : ""} · Déclaré le {dateDecl}
                         </p>
                         {s.lieu && (
-                          <p className="text-xs text-gray-500 mt-0.5">Lieu : {s.lieu}</p>
+                          <p className="text-sm text-gray-700 mt-0.5">Lieu : {s.lieu}</p>
                         )}
                         {s.description && (
-                          <p className="text-sm text-gray-600 mt-2 whitespace-pre-line bg-gray-50 rounded-xl px-3 py-2">
+                          <p className="text-base text-gray-800 mt-2 whitespace-pre-line bg-gray-50 rounded-xl px-3 py-2">
                             {s.description}
                           </p>
                         )}
@@ -3060,7 +3060,7 @@ export default function AdminPage() {
                           </div>
                         )}
                         {s.nombreRelances ? (
-                          <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: "#2a8a8a" }}>
+                          <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#2a8a8a" }}>
                             <Mail size={12} /> Relancé {s.nombreRelances} fois · dernière le {dateCourte(s.derniereRelance)}
                           </p>
                         ) : null}
@@ -3101,7 +3101,7 @@ export default function AdminPage() {
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <FileSignature size={18} style={{ color: "#2a8a8a" }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Souscriptions & renouvellements</h2>
+              <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Souscriptions & renouvellements</h2>
             </div>
             {categorieVue !== null && (
             <div className="flex flex-wrap items-center gap-3">
@@ -3124,7 +3124,7 @@ export default function AdminPage() {
               {(() => {
                 const aRelancer = contrats.filter((c) => c.statut === "actif" && infoRelance(c.dateFin, c.dureeMois).fenetreOuverte).length;
                 return (
-                  <span className="text-xs font-semibold px-3 py-1 rounded-full" style={aRelancer > 0 ? { background: "#fef3c7", color: "#92600a" } : { background: "#eaf4f4", color: "#2a8a8a" }}>
+                  <span className="text-sm font-bold px-3 py-1 rounded-full" style={aRelancer > 0 ? { background: "#fef3c7", color: "#92600a" } : { background: "#eaf4f4", color: "#2a8a8a" }}>
                     {aRelancer > 0 ? `${aRelancer} à relancer` : `${contratsAffiches.length} souscription${contratsAffiches.length > 1 ? "s" : ""}`}
                   </span>
                 );
@@ -3138,8 +3138,8 @@ export default function AdminPage() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <Inbox size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription</p>
-              <p className="text-gray-400 text-sm max-w-sm">Enregistrez une souscription depuis une cotation (bouton « Enregistrer la souscription ») pour activer les rappels de renouvellement.</p>
+              <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>Aucune souscription</p>
+              <p className="text-gray-600 text-base max-w-sm">Enregistrez une souscription depuis une cotation (bouton « Enregistrer la souscription ») pour activer les rappels de renouvellement.</p>
             </div>
           ) : categorieVue === null ? (
             <div className="p-5 sm:p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -3155,11 +3155,11 @@ export default function AdminPage() {
                       <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: `${cat.couleur}1a` }}>
                         <cat.Icon size={20} style={{ color: cat.couleur }} />
                       </div>
-                      <span className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{n}</span>
+                      <span className="text-3xl font-black" style={{ color: "#1a2e5a" }}>{n}</span>
                     </div>
-                    <p className="font-bold text-sm" style={{ color: "#1a2e5a" }}>{cat.label}</p>
-                    <p className="text-xs text-gray-400">{cat.desc}</p>
-                    <p className="text-xs font-semibold mt-3 inline-flex items-center gap-1" style={{ color: cat.couleur }}>
+                    <p className="font-extrabold text-base" style={{ color: "#1a2e5a" }}>{cat.label}</p>
+                    <p className="text-sm text-gray-600">{cat.desc}</p>
+                    <p className="text-sm font-bold mt-3 inline-flex items-center gap-1" style={{ color: cat.couleur }}>
                       {n > 0 ? <>Voir les souscriptions <ArrowRight size={12} /></> : "Aucune pour l'instant"}
                     </p>
                   </button>
@@ -3168,13 +3168,13 @@ export default function AdminPage() {
             </div>
           ) : (
             <div>
-              <button type="button" onClick={() => setCategorieVue(null)} className="flex items-center gap-1.5 px-6 sm:px-8 py-3 text-xs font-semibold border-b w-full transition-colors hover:bg-gray-50" style={{ color: "#2a8a8a", borderColor: "#eef4f4" }}>
+              <button type="button" onClick={() => setCategorieVue(null)} className="flex items-center gap-1.5 px-6 sm:px-8 py-3 text-sm font-bold border-b w-full transition-colors hover:bg-gray-50" style={{ color: "#2a8a8a", borderColor: "#eef4f4" }}>
                 <ArrowLeft size={14} /> Toutes les catégories
               </button>
               {(() => {
                 const items = contratsAffiches.filter((c) => (c.segment === "professionnel" || c.segment === "transport" ? c.segment : "particulier") === categorieVue);
                 if (items.length === 0) {
-                  return <div className="py-12 text-center text-sm text-gray-400">Aucune souscription dans cette catégorie.</div>;
+                  return <div className="py-12 text-center text-base text-gray-600">Aucune souscription dans cette catégorie.</div>;
                 }
                 return (
                   <div className="divide-y divide-[#eef4f4]">
@@ -3192,33 +3192,33 @@ export default function AdminPage() {
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold" style={{ color: "#1a2e5a" }}>{c.produit?.nom ?? "Contrat"}</span>
-                          <span className="text-xs font-mono px-2 py-0.5 rounded-md" style={{ background: "#f0f7f7", color: "#2a8a8a" }}>{c.numeroContrat}</span>
+                          <span className="font-bold" style={{ color: "#1a2e5a" }}>{c.produit?.nom ?? "Contrat"}</span>
+                          <span className="text-sm font-mono px-2 py-0.5 rounded-md" style={{ background: "#f0f7f7", color: "#2a8a8a" }}>{c.numeroContrat}</span>
                           {c.compagnie && (
-                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#eef2ff", color: "#4f46e5" }}>{c.compagnie}</span>
+                            <span className="text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#eef2ff", color: "#4f46e5" }}>{c.compagnie}</span>
                           )}
-                          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize" style={stStyle}>{c.statut}</span>
+                          <span className="text-sm font-bold px-2.5 py-0.5 rounded-full capitalize" style={stStyle}>{c.statut}</span>
                           <MenuCategorie value={c.segment ?? "particulier"} onChange={(s) => changerSegment(c.id, s)} disabled={actionId === c.id} />
                           {c.statut === "actif" && info.fenetreOuverte && (
-                            <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>
+                            <span className="inline-flex items-center gap-1 text-sm font-extrabold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>
                               <BellRing size={12} /> À relancer
                             </span>
                           )}
                           {info.expire && (
-                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#fee2e2", color: "#991b1b" }}>Expiré</span>
+                            <span className="text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#fee2e2", color: "#991b1b" }}>Expiré</span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">{c.user?.prenom} {c.user?.nom} · {c.user?.email}</p>
-                        <p className="text-xs text-gray-400 mt-0.5 inline-flex items-center gap-1.5">
+                        <p className="text-base text-gray-700 mt-1">{c.user?.prenom} {c.user?.nom} · {c.user?.email}</p>
+                        <p className="text-sm text-gray-600 mt-0.5 inline-flex items-center gap-1.5">
                           <CalendarClock size={12} /> Du {debut} au {fin} · {c.dureeMois} mois · {c.primeAnnuelle.toLocaleString("fr-FR")} FCFA
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: info.expire ? "#991b1b" : info.fenetreOuverte ? "#92600a" : "#6b7280" }}>
+                        <p className="text-sm mt-0.5" style={{ color: info.expire ? "#991b1b" : info.fenetreOuverte ? "#92600a" : "#6b7280" }}>
                           {info.expire
                             ? `Échu depuis ${Math.abs(info.joursRestants)} jour(s)`
                             : `Échéance dans ${info.joursRestants} jour(s) · fenêtre de relance dès le ${dateCourte(info.dateRelance.toISOString())}`}
                         </p>
                         {c.nombreRelances ? (
-                          <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: "#2a8a8a" }}>
+                          <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#2a8a8a" }}>
                             <Mail size={12} /> Relancé {c.nombreRelances} fois · dernière le {dateCourte(c.derniereRelance)}
                           </p>
                         ) : null}
@@ -3230,7 +3230,7 @@ export default function AdminPage() {
                           disabled={actionId === c.id}
                           onClick={() => relancer("contrats", c.id)}
                           title="Relancer le client (email + WhatsApp)"
-                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-bold text-white transition-all hover:shadow-sm disabled:opacity-50"
                           style={{ background: info.fenetreOuverte ? "linear-gradient(135deg, #b45309, #d97706)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
                         >
                           {actionId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
@@ -3241,7 +3241,7 @@ export default function AdminPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Imprimer le reçu de souscription (traçabilité physique)"
-                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all hover:shadow-sm"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-bold transition-all hover:shadow-sm"
                           style={{ border: "1px solid #cfe3e3", color: "#1a2e5a", background: "#ffffff" }}
                         >
                           <Printer size={14} style={{ color: "#2a8a8a" }} /> Imprimer
@@ -3269,22 +3269,22 @@ export default function AdminPage() {
                           : { borderColor: "#eef4f4" }
                       }
                     >
-                      <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>Attestation</span>
+                      <span className="text-sm font-bold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>Attestation</span>
                       {c.attestation ? (
                         <>
                           {c.attestation.split("\n").filter(Boolean).map((doc, k, arr) => (
-                            <a key={k} href={doc.split("|")[1] ?? doc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ color: "#166534", background: "#dcfce7" }}>
+                            <a key={k} href={doc.split("|")[1] ?? doc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-lg" style={{ color: "#166534", background: "#dcfce7" }}>
                               <FileText size={13} /> {arr.length > 1 ? (doc.split("|")[0] || `Attestation ${k + 1}`) : "Attestation jointe"} — voir
                             </a>
                           ))}
-                          <span className="text-xs text-gray-400">Le client a été notifié.</span>
+                          <span className="text-sm text-gray-600">Le client a été notifié.</span>
                         </>
                       ) : (
                         <div className="flex flex-wrap items-end gap-2">
                           <div className="w-60">
                             <DocumentUpload label="Joindre l'attestation (PDF ou image)" hint="Vous pouvez sélectionner plusieurs fichiers à la fois." value={attestationInputs[c.id] ?? []} onChange={(v) => setAttestationInputs((s) => ({ ...s, [c.id]: v }))} max={5} />
                           </div>
-                          <button type="button" disabled={actionId === c.id || !(attestationInputs[c.id]?.length)} onClick={() => envoyerAttestation(c)} className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all disabled:opacity-50" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                          <button type="button" disabled={actionId === c.id || !(attestationInputs[c.id]?.length)} onClick={() => envoyerAttestation(c)} className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-bold text-white transition-all disabled:opacity-50" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                             {actionId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Envoyer au client
                           </button>
                         </div>
@@ -3310,8 +3310,8 @@ export default function AdminPage() {
                 <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                   <Building2 size={28} style={{ color: "#2a8a8a" }} />
                 </div>
-                <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Pas encore de données</p>
-                <p className="text-gray-400 text-sm max-w-sm mx-auto">Dès que vous enverrez des propositions de cotation, cette page analysera quelles compagnies sont les plus sollicitées et les plus choisies par vos clients.</p>
+                <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>Pas encore de données</p>
+                <p className="text-gray-600 text-base max-w-sm mx-auto">Dès que vous enverrez des propositions de cotation, cette page analysera quelles compagnies sont les plus sollicitées et les plus choisies par vos clients.</p>
               </motion.div>
             ) : (
               <>
@@ -3325,9 +3325,9 @@ export default function AdminPage() {
                     <div key={label} className="bg-white rounded-3xl p-6 shadow-sm border transition-shadow hover:shadow-md" style={{ borderColor: "#e0ecec" }}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="text-gray-400 text-xs uppercase tracking-wide">{label}</p>
-                          <p className="text-2xl font-bold mt-2 break-words" style={{ color: "#1a2e5a" }}>{value}</p>
-                          <p className="text-xs text-gray-400 mt-1 leading-snug">{sub}</p>
+                          <p className="text-gray-600 text-sm uppercase tracking-wide">{label}</p>
+                          <p className="text-3xl font-extrabold mt-2 break-words" style={{ color: "#1a2e5a" }}>{value}</p>
+                          <p className="text-sm text-gray-600 mt-1 leading-snug">{sub}</p>
                         </div>
                         <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                           <Icon size={20} style={{ color: "#2a8a8a" }} />
@@ -3345,11 +3345,11 @@ export default function AdminPage() {
                         <HandCoins size={18} style={{ color: "#15803d" }} />
                       </div>
                       <div>
-                        <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Rentabilité par compagnie</h2>
-                        <p className="text-xs text-gray-400">Part de chaque partenaire dans les primes du portefeuille</p>
+                        <h2 className="text-xl font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Rentabilité par compagnie</h2>
+                        <p className="text-sm text-gray-600">Part de chaque partenaire dans les primes du portefeuille</p>
                       </div>
                     </div>
-                    <span className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
+                    <span className="text-sm font-bold px-3 py-1.5 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>
                       Total : {primesTotales.toLocaleString("fr-FR")} FCFA
                     </span>
                   </div>
@@ -3373,8 +3373,8 @@ export default function AdminPage() {
                             </PieChart>
                           </ResponsiveContainer>
                           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>{primesTotales >= 1000 ? `${Math.round(primesTotales / 1000).toLocaleString("fr-FR")} k` : primesTotales.toLocaleString("fr-FR")}</span>
-                            <span className="text-[10px] text-gray-400 uppercase tracking-wide">FCFA au total</span>
+                            <span className="text-2xl font-black" style={{ color: "#1a2e5a" }}>{primesTotales >= 1000 ? `${Math.round(primesTotales / 1000).toLocaleString("fr-FR")} k` : primesTotales.toLocaleString("fr-FR")}</span>
+                            <span className="text-sm text-gray-600 uppercase tracking-wide">FCFA au total</span>
                           </div>
                         </div>
                         <ul className="w-full sm:flex-1 space-y-2.5">
@@ -3383,10 +3383,10 @@ export default function AdminPage() {
                               <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: e.couleur }} />
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center justify-between gap-2">
-                                  <span className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{e.nom}</span>
-                                  <span className="text-sm font-bold flex-shrink-0" style={{ color: "#1a2e5a" }}>{e.part}%</span>
+                                  <span className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{e.nom}</span>
+                                  <span className="text-base font-extrabold flex-shrink-0" style={{ color: "#1a2e5a" }}>{e.part}%</span>
                                 </div>
-                                <p className="text-[11px] text-gray-400">{e.primes.toLocaleString("fr-FR")} FCFA · {e.contrats} contrat{e.contrats > 1 ? "s" : ""} · moy. {e.moyenne.toLocaleString("fr-FR")} FCFA</p>
+                                <p className="text-sm text-gray-600">{e.primes.toLocaleString("fr-FR")} FCFA · {e.contrats} contrat{e.contrats > 1 ? "s" : ""} · moy. {e.moyenne.toLocaleString("fr-FR")} FCFA</p>
                               </div>
                             </li>
                           ))}
@@ -3394,7 +3394,7 @@ export default function AdminPage() {
                       </div>
                     );
                   })() : (
-                    <div className="h-[160px] flex items-center justify-center text-sm text-gray-400 text-center px-6">Aucune souscription enregistrée pour l&apos;instant. Les primes par compagnie apparaîtront ici dès la première souscription.</div>
+                    <div className="h-[160px] flex items-center justify-center text-base text-gray-600 text-center px-6">Aucune souscription enregistrée pour l&apos;instant. Les primes par compagnie apparaîtront ici dès la première souscription.</div>
                   )}
                 </motion.div>
 
@@ -3405,8 +3405,8 @@ export default function AdminPage() {
                       <TrendingUp size={18} style={{ color: "#2a8a8a" }} />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold leading-tight" style={{ color: "#1a2e5a" }}>Parcours des clients</h2>
-                      <p className="text-xs text-gray-400">De l&apos;inscription à la souscription — où perd-on des clients ?</p>
+                      <h2 className="text-xl font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Parcours des clients</h2>
+                      <p className="text-sm text-gray-600">De l&apos;inscription à la souscription — où perd-on des clients ?</p>
                     </div>
                   </div>
 
@@ -3422,8 +3422,8 @@ export default function AdminPage() {
                       if (i > 0) {
                         elems.push(
                           <div key={`c${i}`} className="flex md:flex-col items-center justify-center md:px-1 py-1 md:py-0 flex-shrink-0">
-                            <ArrowRight size={18} className="hidden md:block text-gray-300" />
-                            <ChevronDown size={18} className="md:hidden text-gray-300" />
+                            <ArrowRight size={18} className="hidden md:block text-gray-500" />
+                            <ChevronDown size={18} className="md:hidden text-gray-500" />
                           </div>
                         );
                       }
@@ -3440,9 +3440,9 @@ export default function AdminPage() {
                           <div className="w-11 h-11 rounded-2xl flex items-center justify-center mx-auto mb-2 text-white" style={{ background: `linear-gradient(135deg, ${couleurs[i]}, ${couleurs[i]}bb)` }}>
                             <Icone size={20} />
                           </div>
-                          <p className="text-2xl font-extrabold" style={{ color: "#1a2e5a" }}>{et.valeur}</p>
-                          <p className="text-xs font-semibold mt-0.5" style={{ color: "#334155" }}>{et.label}</p>
-                          <p className="text-[10px] font-semibold mt-1.5" style={{ color: couleurs[i] }}>
+                          <p className="text-3xl font-black" style={{ color: "#1a2e5a" }}>{et.valeur}</p>
+                          <p className="text-sm font-bold mt-0.5" style={{ color: "#334155" }}>{et.label}</p>
+                          <p className="text-sm font-bold mt-1.5" style={{ color: couleurs[i] }}>
                             {et.clients === null ? "Voir la liste →" : actif ? "Masquer ▲" : "Voir le détail ▾"}
                           </p>
                         </button>
@@ -3451,7 +3451,7 @@ export default function AdminPage() {
                     const sel = entonnoirClients.find((e) => e.cle === etapeDetail);
                     return (
                       <>
-                        <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
+                        <p className="text-sm text-gray-600 mb-3 leading-relaxed">
                           Cliquez sur une étape pour voir les clients concernés.
                         </p>
                         <div className="flex flex-col md:flex-row md:items-stretch gap-2 md:gap-0">{elems}</div>
@@ -3459,26 +3459,26 @@ export default function AdminPage() {
                         {sel && sel.clients && (
                           <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: "#e0ecec", background: "#f8fbfb" }}>
                             <div className="flex items-center justify-between gap-2 mb-2.5">
-                              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{sel.label} · {sel.clients.length} client{sel.clients.length > 1 ? "s" : ""}</p>
-                              <button type="button" onClick={() => setEtapeDetail(null)} className="text-xs font-semibold" style={{ color: "#2a8a8a" }}>Fermer</button>
+                              <p className="text-sm font-bold uppercase tracking-wide" style={{ color: "#1a2e5a" }}>{sel.label} · {sel.clients.length} client{sel.clients.length > 1 ? "s" : ""}</p>
+                              <button type="button" onClick={() => setEtapeDetail(null)} className="text-sm font-bold" style={{ color: "#2a8a8a" }}>Fermer</button>
                             </div>
                             {sel.clients.length === 0 ? (
-                              <p className="text-sm text-gray-400">Aucun client à cette étape.</p>
+                              <p className="text-base text-gray-600">Aucun client à cette étape.</p>
                             ) : (
                               <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
                                 {sel.clients.map((cl) => (
                                   <div key={cl.email} className="rounded-xl bg-white border px-3 py-2.5" style={{ borderColor: "#eef4f4" }}>
                                     <div className="flex items-center gap-2.5 mb-1.5">
-                                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: "linear-gradient(135deg,#1a2e5a,#2a8a8a)" }}>{(cl.client[0] || "?").toUpperCase()}</span>
+                                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0" style={{ background: "linear-gradient(135deg,#1a2e5a,#2a8a8a)" }}>{(cl.client[0] || "?").toUpperCase()}</span>
                                       <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-semibold truncate" style={{ color: "#1a2e5a" }}>{cl.client}</p>
-                                        <p className="text-[11px] text-gray-400 truncate">{cl.email}</p>
+                                        <p className="text-base font-bold truncate" style={{ color: "#1a2e5a" }}>{cl.client}</p>
+                                        <p className="text-sm text-gray-600 truncate">{cl.email}</p>
                                       </div>
-                                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#eef4f4", color: "#2a8a8a" }}>{cl.lignes.length}</span>
+                                      <span className="text-sm font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: "#eef4f4", color: "#2a8a8a" }}>{cl.lignes.length}</span>
                                     </div>
                                     <div className="pl-9 space-y-1">
                                       {cl.lignes.map((li, k) => (
-                                        <div key={k} className="flex items-center justify-between gap-2 text-xs">
+                                        <div key={k} className="flex items-center justify-between gap-2 text-sm">
                                           <span className="truncate" style={{ color: "#334155" }}>{li.titre}{li.detail ? ` · ${li.detail}` : ""}</span>
                                           <span className="flex-shrink-0" style={{ color: "#94a3b8" }}>{dateCourte(li.date)}</span>
                                         </div>
@@ -3492,8 +3492,8 @@ export default function AdminPage() {
                         )}
 
                         <div className="mt-6 pt-5 border-t flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#eef4f4" }}>
-                          <p className="text-sm text-gray-500">Taux de transformation global (inscrit → souscrit)</p>
-                          <p className="text-2xl font-extrabold" style={{ color: "#16a34a" }}>{tauxGlobal}%</p>
+                          <p className="text-base text-gray-700">Taux de transformation global (inscrit → souscrit)</p>
+                          <p className="text-3xl font-black" style={{ color: "#16a34a" }}>{tauxGlobal}%</p>
                         </div>
                       </>
                     );
@@ -3507,38 +3507,38 @@ export default function AdminPage() {
                       <Trophy size={18} style={{ color: "#b45309" }} />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Classement par préférence des clients</h2>
-                      <p className="text-xs text-gray-400">Classé selon le nombre d&apos;offres choisies, puis sollicitées</p>
+                      <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Classement par préférence des clients</h2>
+                      <p className="text-sm text-gray-600">Classé selon le nombre d&apos;offres choisies, puis sollicitées</p>
                     </div>
                   </div>
                   <ul className="divide-y divide-[#eef4f4]">
                     {compagniesStats.map((c, i) => (
                       <li key={c.nom} className="px-6 sm:px-8 py-4 flex flex-wrap items-center gap-4">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : i === 1 ? "linear-gradient(135deg, #9ca3af, #6b7280)" : i === 2 ? "linear-gradient(135deg, #d89655, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-extrabold text-base flex-shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #d4af37, #b45309)" : i === 1 ? "linear-gradient(135deg, #9ca3af, #6b7280)" : i === 2 ? "linear-gradient(135deg, #d89655, #b45309)" : "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                           {i + 1}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{c.nom}</p>
+                          <p className="font-bold text-base" style={{ color: "#1a2e5a" }}>{c.nom}</p>
                           <div className="mt-1.5 h-2 rounded-full overflow-hidden max-w-xs" style={{ background: "#eef4f4" }}>
                             <div className="h-full rounded-full" style={{ width: `${c.taux}%`, background: "linear-gradient(90deg, #2a8a8a, #16a34a)" }} />
                           </div>
                         </div>
-                        <div className="flex items-center gap-4 sm:gap-5 text-sm">
+                        <div className="flex items-center gap-4 sm:gap-5 text-base">
                           <div className="text-center">
-                            <p className="font-bold" style={{ color: "#4f46e5" }}>{analyseCompagnies.find((a) => a.nom === c.nom)?.nbClients ?? 0}</p>
-                            <p className="text-[10px] text-gray-400 uppercase">clients</p>
+                            <p className="font-extrabold" style={{ color: "#4f46e5" }}>{analyseCompagnies.find((a) => a.nom === c.nom)?.nbClients ?? 0}</p>
+                            <p className="text-sm text-gray-600 uppercase">clients</p>
                           </div>
                           <div className="text-center">
-                            <p className="font-bold" style={{ color: "#2a8a8a" }}>{c.envoyees}</p>
-                            <p className="text-[10px] text-gray-400 uppercase">proposées</p>
+                            <p className="font-extrabold" style={{ color: "#2a8a8a" }}>{c.envoyees}</p>
+                            <p className="text-sm text-gray-600 uppercase">proposées</p>
                           </div>
                           <div className="text-center">
-                            <p className="font-bold" style={{ color: "#16a34a" }}>{c.choisies}</p>
-                            <p className="text-[10px] text-gray-400 uppercase">choisies</p>
+                            <p className="font-extrabold" style={{ color: "#16a34a" }}>{c.choisies}</p>
+                            <p className="text-sm text-gray-600 uppercase">choisies</p>
                           </div>
                           <div className="text-center">
-                            <p className="font-bold" style={{ color: "#1a2e5a" }}>{c.taux}%</p>
-                            <p className="text-[10px] text-gray-400 uppercase">taux</p>
+                            <p className="font-extrabold" style={{ color: "#1a2e5a" }}>{c.taux}%</p>
+                            <p className="text-sm text-gray-600 uppercase">taux</p>
                           </div>
                         </div>
                       </li>
@@ -3561,9 +3561,9 @@ export default function AdminPage() {
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <CalendarClock size={18} style={{ color: "#2a8a8a" }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Rendez-vous</h2>
+              <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Rendez-vous</h2>
             </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+            <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
               {rendezVous.length} demande{rendezVous.length > 1 ? "s" : ""}
             </span>
           </div>
@@ -3573,8 +3573,8 @@ export default function AdminPage() {
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #eaf4f4, #d0ecec)" }}>
                 <CalendarClock size={28} style={{ color: "#2a8a8a" }} />
               </div>
-              <p className="font-semibold mb-1" style={{ color: "#1a2e5a" }}>Aucun rendez-vous demandé</p>
-              <p className="text-gray-400 text-sm max-w-sm">Les demandes de rendez-vous des clients apparaîtront ici.</p>
+              <p className="font-bold mb-1" style={{ color: "#1a2e5a" }}>Aucun rendez-vous demandé</p>
+              <p className="text-gray-600 text-base max-w-sm">Les demandes de rendez-vous des clients apparaîtront ici.</p>
             </div>
           ) : (
             <ul className="divide-y divide-[#eef4f4]">
@@ -3589,15 +3589,15 @@ export default function AdminPage() {
                   <li key={r.id} id={`dossier-${r.id}`} className="px-6 sm:px-8 py-4 scroll-mt-24 transition-colors" style={{ background: cibleDossier === r.id ? "rgba(42,138,138,0.08)" : undefined }}>
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-semibold text-sm" style={{ color: "#1a2e5a" }}>{r.motif}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="font-bold text-base" style={{ color: "#1a2e5a" }}>{r.motif}</p>
+                        <p className="text-sm text-gray-700 mt-0.5">
                           {r.user ? `${r.user.prenom} ${r.user.nom}` : "Client"}
                           {r.user?.telephone ? ` · ${r.user.telephone}` : ""}
                         </p>
-                        <p className="text-xs capitalize mt-0.5" style={{ color: "#2a8a8a" }}>{quand}</p>
-                        {r.notes && <p className="text-xs text-gray-500 mt-1 italic">« {r.notes} »</p>}
+                        <p className="text-sm capitalize mt-0.5" style={{ color: "#2a8a8a" }}>{quand}</p>
+                        {r.notes && <p className="text-sm text-gray-700 mt-1 italic">« {r.notes} »</p>}
                       </div>
-                      <span className="text-xs font-semibold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>
+                      <span className="text-sm font-bold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>
                         {(r.statut ?? "en_attente").replace(/_/g, " ")}
                       </span>
                     </div>
@@ -3608,7 +3608,7 @@ export default function AdminPage() {
                           <button
                             disabled={actionId === r.id}
                             onClick={() => changerStatutRdv(r.id, "confirme")}
-                            className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-bold text-white transition-all hover:shadow-sm disabled:opacity-50"
                             style={{ background: "linear-gradient(135deg, #16a34a, #15803d)" }}
                           >
                             {actionId === r.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
@@ -3619,7 +3619,7 @@ export default function AdminPage() {
                           <button
                             disabled={actionId === r.id}
                             onClick={() => changerStatutRdv(r.id, "termine")}
-                            className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition-all hover:shadow-sm disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-bold text-white transition-all hover:shadow-sm disabled:opacity-50"
                             style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}
                           >
                             <Check size={14} /> Marquer terminé
@@ -3628,7 +3628,7 @@ export default function AdminPage() {
                         <button
                           disabled={actionId === r.id}
                           onClick={() => changerStatutRdv(r.id, "annule")}
-                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all hover:shadow-sm disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-bold transition-all hover:shadow-sm disabled:opacity-50"
                           style={{ border: "1px solid #fecaca", color: "#b91c1c", background: "#fff" }}
                         >
                           <X size={14} /> Annuler
@@ -3649,8 +3649,8 @@ export default function AdminPage() {
             {/* Bandeau de rôle */}
             <div className="mt-10 mb-4 flex items-center gap-2">
               <ShieldAlert size={18} style={{ color: "#b45309" }} />
-              <h2 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Espace gérant</h2>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>réservé</span>
+              <h2 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Espace gérant</h2>
+              <span className="text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92600a" }}>réservé</span>
             </div>
 
             {/* Archives (éléments supprimés par les agents) */}
@@ -3661,9 +3661,9 @@ export default function AdminPage() {
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #fde9d2, #f8d4a8)" }}>
                       <Archive size={18} style={{ color: "#b45309" }} />
                     </div>
-                    <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Éléments archivés</h3>
+                    <h3 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Éléments archivés</h3>
                   </div>
-                  <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
+                  <span className="text-sm font-bold px-3 py-1 rounded-full" style={{ background: "#eaf4f4", color: "#2a8a8a" }}>
                     {archRecherche.trim() ? `${totalArchivesAffiches} / ${totalArchives}` : `${totalArchives} archivé(s)`}
                   </span>
                 </div>
@@ -3675,11 +3675,11 @@ export default function AdminPage() {
                       value={archRecherche}
                       onChange={(e) => setArchRecherche(e.target.value)}
                       placeholder="Rechercher dans les archives (client, email, n° de contrat, produit…)"
-                      className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-white border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                      className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-base bg-white border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                       style={{ borderColor: "#e0ecec" }}
                     />
                     {archRecherche && (
-                      <button onClick={() => setArchRecherche("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Effacer"><X size={15} /></button>
+                      <button onClick={() => setArchRecherche("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800" aria-label="Effacer"><X size={15} /></button>
                     )}
                   </div>
                   <FiltreTri
@@ -3702,10 +3702,10 @@ export default function AdminPage() {
 
               {totalArchives === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-12 px-6">
-                  <p className="text-gray-400 text-sm">Rien d&apos;archivé. Tout ce qu&apos;un rédacteur supprime apparaîtra ici, avec son auteur.</p>
+                  <p className="text-gray-600 text-base">Rien d&apos;archivé. Tout ce qu&apos;un rédacteur supprime apparaîtra ici, avec son auteur.</p>
                 </div>
               ) : totalArchivesAffiches === 0 ? (
-                <div className="py-12 text-center text-sm text-gray-400">Aucun résultat dans les archives pour cette recherche.</div>
+                <div className="py-12 text-center text-base text-gray-600">Aucun résultat dans les archives pour cette recherche.</div>
               ) : (
                 <div className="divide-y divide-[#eef4f4] max-h-[26rem] overflow-y-auto">
                   {archivesTriees.map((a) => (
@@ -3732,8 +3732,8 @@ export default function AdminPage() {
                       <History size={18} style={{ color: "#2a8a8a" }} />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-lg font-bold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
-                      <p className="text-xs text-gray-400">{journalTotal.toLocaleString("fr-FR")} entrée{journalTotal > 1 ? "s" : ""} · recherche instantanée</p>
+                      <h3 className="text-xl font-extrabold" style={{ color: "#1a2e5a" }}>Journal d&apos;audit</h3>
+                      <p className="text-sm text-gray-600">{journalTotal.toLocaleString("fr-FR")} entrée{journalTotal > 1 ? "s" : ""} · recherche instantanée</p>
                     </div>
                   </div>
                   {journalTotal > 0 && (
@@ -3741,7 +3741,7 @@ export default function AdminPage() {
                       type="button"
                       onClick={viderJournal}
                       title="Supprimer toutes les entrées du journal"
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:bg-red-50 flex-shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold border transition-all hover:bg-red-50 flex-shrink-0"
                       style={{ borderColor: "#f7caca", color: "#b42318" }}
                     >
                       <Trash2 size={14} /> Vider le journal
@@ -3758,11 +3758,11 @@ export default function AdminPage() {
                       value={journalQ}
                       onChange={(e) => setJournalQ(e.target.value)}
                       placeholder="Rechercher (auteur, élément, n° d'ID, résumé…)"
-                      className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-white border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
+                      className="w-full pl-10 pr-9 py-2.5 rounded-2xl text-base bg-white border focus:outline-none focus:ring-2 focus:ring-[#2a8a8a]"
                       style={{ borderColor: "#e0ecec" }}
                     />
                     {journalQ && (
-                      <button onClick={() => setJournalQ("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Effacer">
+                      <button onClick={() => setJournalQ("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800" aria-label="Effacer">
                         <X size={15} />
                       </button>
                     )}
@@ -3779,7 +3779,7 @@ export default function AdminPage() {
                         <button
                           key={f.v || "tous"}
                           onClick={() => setJournalAction(f.v)}
-                          className="px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                          className="px-3 py-2 rounded-xl text-sm font-bold transition-all"
                           style={actif ? { background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)", color: "#fff" } : { background: "#fff", color: "#1a2e5a", border: "1px solid #e0ecec" }}
                         >
                           {f.label}
@@ -3807,7 +3807,7 @@ export default function AdminPage() {
               {journalChargement ? (
                 <div className="py-12 flex justify-center"><Loader2 className="animate-spin" size={26} style={{ color: "#2a8a8a" }} /></div>
               ) : journal.length === 0 ? (
-                <div className="py-12 text-center text-sm text-gray-400">
+                <div className="py-12 text-center text-base text-gray-600">
                   {journalQ || journalAction ? "Aucun résultat pour cette recherche." : "Aucune action enregistrée pour l'instant."}
                 </div>
               ) : (
@@ -3819,11 +3819,11 @@ export default function AdminPage() {
                       return (
                         <div key={j.id} className="px-6 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-2">
                           <div className="min-w-0">
-                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full capitalize" style={{ background: fond, color: couleur }}>{j.action}</span>
-                            <span className="text-sm text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
+                            <span className="text-sm font-extrabold px-2.5 py-0.5 rounded-full capitalize" style={{ background: fond, color: couleur }}>{j.action}</span>
+                            <span className="text-base text-gray-700 ml-2">{j.resume ?? `${j.entite} ${j.entiteId}`}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <p className="text-xs text-gray-400">
+                            <p className="text-sm text-gray-600">
                               par <strong style={{ color: "#1a2e5a" }}>{j.auteurEmail}</strong> · {new Date(j.createdAt).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                             </p>
                             <button
@@ -3849,21 +3849,21 @@ export default function AdminPage() {
                     const fin = Math.min(journalTotal, journalPage * JOURNAL_TAILLE);
                     return (
                       <div className="px-6 sm:px-8 py-4 flex items-center justify-between gap-3 border-t" style={{ borderColor: "#eef4f4" }}>
-                        <p className="text-xs text-gray-400">{debut}–{fin} sur {journalTotal.toLocaleString("fr-FR")}</p>
+                        <p className="text-sm text-gray-600">{debut}–{fin} sur {journalTotal.toLocaleString("fr-FR")}</p>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => setJournalPage((p) => Math.max(1, p - 1))}
                             disabled={journalPage <= 1}
-                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border transition-all disabled:opacity-40 hover:shadow-sm"
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold border transition-all disabled:opacity-40 hover:shadow-sm"
                             style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}
                           >
                             <ArrowLeft size={13} /> Précédent
                           </button>
-                          <span className="text-xs font-semibold px-2" style={{ color: "#1a2e5a" }}>{journalPage} / {pages}</span>
+                          <span className="text-sm font-bold px-2" style={{ color: "#1a2e5a" }}>{journalPage} / {pages}</span>
                           <button
                             onClick={() => setJournalPage((p) => Math.min(pages, p + 1))}
                             disabled={journalPage >= pages}
-                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold border transition-all disabled:opacity-40 hover:shadow-sm"
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold border transition-all disabled:opacity-40 hover:shadow-sm"
                             style={{ borderColor: "#e0ecec", color: "#1a2e5a" }}
                           >
                             Suivant <ArrowRight size={13} />
@@ -3906,8 +3906,8 @@ export default function AdminPage() {
             >
               <div className="px-7 py-5 text-white rounded-t-3xl flex items-center justify-between" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>
                 <div>
-                  <h3 className="font-bold">Envoyer des propositions</h3>
-                  <p className="text-xs text-white/70">{propPour.produit?.nom} · {propPour.user?.prenom} {propPour.user?.nom}</p>
+                  <h3 className="font-extrabold">Envoyer des propositions</h3>
+                  <p className="text-sm text-white/70">{propPour.produit?.nom} · {propPour.user?.prenom} {propPour.user?.nom}</p>
                 </div>
                 <button onClick={() => setPropPour(null)}><X size={20} /></button>
               </div>
@@ -3917,18 +3917,18 @@ export default function AdminPage() {
                   {propProps.map((p, i) => (
                     <div key={i} className="rounded-2xl border p-4 space-y-4" style={{ borderColor: "#e6f0f0", background: "#f8fbfb" }}>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "#2a8a8a" }}>Proposition {i + 1}</span>
+                        <span className="text-sm font-extrabold uppercase tracking-wide" style={{ color: "#2a8a8a" }}>Proposition {i + 1}</span>
                         {propProps.length > 1 && (
-                          <button onClick={() => setPropProps((arr) => arr.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600" type="button">
+                          <button onClick={() => setPropProps((arr) => arr.filter((_, k) => k !== i))} className="inline-flex items-center gap-1 text-sm font-bold text-red-500 hover:text-red-600" type="button">
                             <Trash2 size={13} /> Retirer
                           </button>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Nom de la compagnie <span style={{ color: "#dc2626" }}>*</span></label>
+                        <label className="block text-base font-semibold text-gray-700 mb-2">Nom de la compagnie <span style={{ color: "#dc2626" }}>*</span></label>
                         <input
                           type="text" value={p.compagnie} onChange={(e) => majProp(i, "compagnie", e.target.value)} placeholder="ex. NSIA, SUNU, Sanlam Allianz…"
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-base"
                         />
                       </div>
                       <DocumentUpload
@@ -3941,17 +3941,17 @@ export default function AdminPage() {
                       />
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Prime (FCFA) <span style={{ color: "#dc2626" }}>*</span></label>
+                          <label className="block text-base font-semibold text-gray-700 mb-2">Prime (FCFA) <span style={{ color: "#dc2626" }}>*</span></label>
                           <input
                             type="number" value={p.prime} onChange={(e) => majProp(i, "prime", e.target.value)} placeholder="ex. 120000"
-                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
+                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-base"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Message (optionnel)</label>
+                          <label className="block text-base font-semibold text-gray-700 mb-2">Message (optionnel)</label>
                           <input
                             type="text" value={p.message} onChange={(e) => majProp(i, "message", e.target.value)} placeholder="Note pour le client…"
-                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-sm"
+                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-base"
                           />
                         </div>
                       </div>
@@ -3961,7 +3961,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setPropProps((arr) => [...arr, propVide()])}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed text-sm font-semibold transition-all hover:bg-gray-50"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed text-base font-bold transition-all hover:bg-gray-50"
                     style={{ borderColor: "#cfe3e3", color: "#2a8a8a" }}
                   >
                     <Plus size={16} /> Ajouter une autre proposition
@@ -3969,10 +3969,10 @@ export default function AdminPage() {
                 </div>
 
                 <div className="flex gap-3 pt-5">
-                  <button onClick={() => setPropPour(null)} className="flex-1 px-4 py-3 rounded-xl font-semibold text-sm border transition-all hover:bg-gray-50" style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}>
+                  <button onClick={() => setPropPour(null)} className="flex-1 px-4 py-3 rounded-xl font-bold text-base border transition-all hover:bg-gray-50" style={{ color: "#1a2e5a", borderColor: "#e0ecec" }}>
                     Annuler
                   </button>
-                  <button onClick={envoyerProposition} disabled={propEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
+                  <button onClick={envoyerProposition} disabled={propEnvoi} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-base text-white transition-all hover:shadow-lg disabled:opacity-60" style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}>
                     {propEnvoi ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                     Envoyer {propProps.filter((p) => p.docs.length > 0).length > 1 ? `(${propProps.filter((p) => p.docs.length > 0).length})` : ""} au client
                   </button>

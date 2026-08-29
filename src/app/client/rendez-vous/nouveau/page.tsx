@@ -83,8 +83,8 @@ export default function NouveauRendezVous() {
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#dcfce7" }}>
           <CheckCircle2 size={30} style={{ color: "#166534" }} />
         </div>
-        <h1 className="text-xl font-bold mb-1" style={{ color: "#1a2e5a" }}>Demande envoyée !</h1>
-        <p className="text-gray-500 text-sm">Notre équipe vous confirmera le créneau rapidement.</p>
+        <h1 className="text-2xl font-extrabold mb-1" style={{ color: "#1a2e5a" }}>Demande envoyée !</h1>
+        <p className="text-gray-700 text-base">Notre équipe vous confirmera le créneau rapidement.</p>
       </div>
     );
   }
@@ -101,8 +101,8 @@ export default function NouveauRendezVous() {
                 <CalendarClock size={24} />
               </div>
               <div>
-                <h1 className="text-xl font-bold leading-tight">Prendre rendez-vous</h1>
-                <p className="text-xs text-white/70">Rencontrez un conseiller KARHON</p>
+                <h1 className="text-2xl font-extrabold leading-tight">Prendre rendez-vous</h1>
+                <p className="text-sm text-white/70">Rencontrez un conseiller KARHON</p>
               </div>
             </div>
           </div>
@@ -110,9 +110,9 @@ export default function NouveauRendezVous() {
           <form onSubmit={envoyer} className="p-5 sm:p-7 space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date <span style={{ color: "#2a8a8a" }}>*</span></label>
+                <label className="block text-base font-semibold text-gray-700 mb-2">Date <span style={{ color: "#2a8a8a" }}>*</span></label>
                 <DatePicker value={date} onChange={choisirDate} min={aujourdhui} desactiverWeekends placeholder="Choisir une date" />
-                <p className="text-xs text-gray-400 mt-1.5">Jours ouvrés uniquement (hors week-end).</p>
+                <p className="text-sm text-gray-600 mt-1.5">Jours ouvrés uniquement (hors week-end).</p>
               </div>
               <Select label="Heure" name="heure" value={heure} onChange={(e) => setHeure(e.target.value)} options={heuresDispo} required />
             </div>
@@ -120,24 +120,24 @@ export default function NouveauRendezVous() {
             <Select label="Motif" name="motif" value={motif} onChange={(e) => setMotif(e.target.value)} options={MOTIFS} required />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Précisions (optionnel)</label>
+              <label className="block text-base font-semibold text-gray-700 mb-2">Précisions (optionnel)</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="Donnez plus de détails si besoin…"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-sm resize-none"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] focus:bg-white transition-all text-base resize-none"
               />
             </div>
 
             {erreur && (
-              <p className="p-3 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100">{erreur}</p>
+              <p className="p-3 bg-red-50 text-red-600 rounded-xl text-base border border-red-100">{erreur}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-white text-sm transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-60"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-white text-base transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-60"
               style={{ background: "linear-gradient(135deg, #2a8a8a, #1a2e5a)" }}
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <CalendarClock size={18} />}

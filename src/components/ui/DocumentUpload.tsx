@@ -162,16 +162,16 @@ export default function DocumentUpload({
 
   return (
     <div>
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+      <label className="flex items-center gap-2 text-base font-semibold text-gray-700 mb-2">
         <FileImage size={15} style={{ color: "#2a8a8a" }} />
         {label}
         {required ? (
           <span style={{ color: "#2a8a8a" }}>*</span>
         ) : (
-          <span className="text-gray-400 font-normal">(facultatif)</span>
+          <span className="text-gray-600 font-medium">(facultatif)</span>
         )}
       </label>
-      {hint && <p className="text-xs text-gray-400 -mt-1 mb-2">{hint}</p>}
+      {hint && <p className="text-sm text-gray-600 -mt-1 mb-2">{hint}</p>}
 
       {/* Inputs cachés : un pour la galerie/fichiers, un pour la caméra arrière. */}
       <input ref={inputFichier} type="file" accept="image/png,image/jpeg,image/webp,application/pdf" multiple={max > 1} hidden onChange={onSelection} />
@@ -198,7 +198,7 @@ export default function DocumentUpload({
             )}
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <CheckCircle2 size={15} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
-              <span className="text-xs text-gray-600 truncate">Document envoyé</span>
+              <span className="text-sm text-gray-800 truncate">Document envoyé</span>
             </div>
             <button
               type="button"
@@ -206,7 +206,7 @@ export default function DocumentUpload({
               className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors hover:bg-white"
               aria-label="Supprimer"
             >
-              <X size={15} className="text-gray-400" />
+              <X size={15} className="text-gray-600" />
             </button>
           </motion.div>
         ))}
@@ -219,7 +219,7 @@ export default function DocumentUpload({
             type="button"
             disabled={enCours}
             onClick={() => inputFichier.current?.click()}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed text-sm font-medium transition-all disabled:opacity-60"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed text-base font-semibold transition-all disabled:opacity-60"
             style={{ borderColor: "#cfe3e3", color: "#1a2e5a", backgroundColor: "#fbfdfd" }}
           >
             {enCours ? (
@@ -232,7 +232,7 @@ export default function DocumentUpload({
             type="button"
             disabled={enCours}
             onClick={() => inputCamera.current?.click()}
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all disabled:opacity-60 sm:flex-shrink-0"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-base font-semibold transition-all disabled:opacity-60 sm:flex-shrink-0"
             style={{ borderColor: "#cfe3e3", color: "#1a2e5a", backgroundColor: "#fbfdfd" }}
             title="Prendre une photo"
           >
@@ -251,7 +251,7 @@ export default function DocumentUpload({
 
       {/* Message d'erreur */}
       {erreur && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs" style={{ color: "#b42318" }}>
+        <p className="mt-2 flex items-center gap-1.5 text-sm" style={{ color: "#b42318" }}>
           <AlertCircle size={13} /> {erreur}
         </p>
       )}

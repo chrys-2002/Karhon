@@ -41,7 +41,7 @@ export default function Select({ label, name, value, onChange, options, required
   
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-base font-semibold text-gray-700 mb-2">
         {label} {required && <span style={{ color: "#2a8a8a" }}>*</span>}
       </label>
       
@@ -58,21 +58,21 @@ export default function Select({ label, name, value, onChange, options, required
               <selectedOption.Icon size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.7} />
             </span>
           ) : selectedOption?.icon ? (
-            <span className="text-lg flex-shrink-0">{selectedOption.icon}</span>
+            <span className="text-xl flex-shrink-0">{selectedOption.icon}</span>
           ) : null}
           <span className="min-w-0">
-            <span className={`block text-sm truncate ${!selectedOption ? "text-gray-400" : "text-gray-800 font-medium"}`}>
+            <span className={`block text-base truncate ${!selectedOption ? "text-gray-600" : "text-gray-800 font-semibold"}`}>
               {selectedOption ? selectedOption.label : "Sélectionnez une option"}
             </span>
             {selectedOption?.desc && (
-              <span className="block text-xs text-gray-400 truncate">{selectedOption.desc}</span>
+              <span className="block text-sm text-gray-600 truncate">{selectedOption.desc}</span>
             )}
           </span>
         </span>
         <motion.svg 
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
-          className="w-4 h-4 text-gray-400" 
+          className="w-4 h-4 text-gray-600" 
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
@@ -99,8 +99,8 @@ export default function Select({ label, name, value, onChange, options, required
                   onChange({ target: { name, value: option.value } });
                   setIsOpen(false);
                 }}
-                className={`w-full px-3 py-2.5 text-left text-sm transition-all flex items-center gap-3 ${
-                  value === option.value ? "font-semibold" : "text-gray-700"
+                className={`w-full px-3 py-2.5 text-left text-base transition-all flex items-center gap-3 ${
+                  value === option.value ? "font-bold" : "text-gray-700"
                 }`}
                 style={value === option.value ? { backgroundColor: "#eaf4f4", color: "#1a2e5a" } : undefined}
               >
@@ -109,11 +109,11 @@ export default function Select({ label, name, value, onChange, options, required
                     <option.Icon size={18} style={{ color: "#2a8a8a" }} strokeWidth={1.7} />
                   </span>
                 ) : option.icon ? (
-                  <span className="text-lg flex-shrink-0">{option.icon}</span>
+                  <span className="text-xl flex-shrink-0">{option.icon}</span>
                 ) : null}
                 <span className="flex-1 min-w-0">
                   <span className="block truncate">{option.label}</span>
-                  {option.desc && <span className="block text-xs text-gray-400 font-normal truncate">{option.desc}</span>}
+                  {option.desc && <span className="block text-sm text-gray-600 font-medium truncate">{option.desc}</span>}
                 </span>
                 {value === option.value && (
                   <Check size={16} className="ml-auto flex-shrink-0" style={{ color: "#2a8a8a" }} />
