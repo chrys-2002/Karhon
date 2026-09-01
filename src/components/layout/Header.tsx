@@ -260,35 +260,35 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              className="fixed top-0 right-0 bottom-0 w-72 bg-white shadow-2xl overflow-y-auto"
+              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl overflow-y-auto"
             >
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.35, ease: EASE_APPLE }}
-                className="p-6 flex justify-between items-center"
+                className="pl-5 pr-4 py-5 flex justify-between items-center gap-2"
               >
                 <div
-                  className="flex items-center gap-2 rounded-xl pl-2 pr-3 py-1 border"
+                  className="flex items-center gap-1.5 rounded-xl pl-1.5 pr-2.5 py-1 border min-w-0"
                   style={{ borderColor: "#e6f0f0" }}
                 >
-                  <div className="relative w-9 h-9">
+                  <div className="relative w-8 h-8 flex-shrink-0">
                     <Image
                       src="/images/logo/karhon-couleur.svg"
                       alt="KARHON Assurances"
                       fill
-                      sizes="36px"
+                      sizes="32px"
                       className="object-contain"
                     />
                   </div>
-                  <div className="flex items-baseline">
-                    <div className="font-extrabold text-xl leading-none" style={{ color: "#1a2e5a" }}>KARHON</div>
-                    <div className="text-sm ml-1 font-semibold" style={{ color: "#2a8a8a" }}>Assurances</div>
+                  <div className="flex items-baseline min-w-0">
+                    <div className="font-extrabold text-lg leading-none whitespace-nowrap" style={{ color: "#1a2e5a" }}>KARHON</div>
+                    <div className="text-sm ml-1 font-semibold whitespace-nowrap" style={{ color: "#2a8a8a" }}>Assurances</div>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center transition-all duration-200 hover:bg-gray-200 hover:rotate-90 active:scale-90"
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:bg-gray-200 hover:rotate-90 active:scale-90"
                 >
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
