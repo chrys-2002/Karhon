@@ -52,6 +52,7 @@ import MenuCategorie from "@/components/ui/MenuCategorie";
 import MessagesAdmin from "@/components/messages/MessagesAdmin";
 import SignalerDocument from "@/components/messages/SignalerDocument";
 import DashboardShell, { type NavItem } from "@/components/ui/DashboardShell";
+import ConfirmModal, { type ConfirmState } from "@/components/ui/ConfirmModal";
 
 // Construit un lien WhatsApp pré-rempli (format wa.me standard).
 // IMPORTANT : wa.me exige le numéro INTERNATIONAL complet avec l'indicatif pays.
@@ -886,10 +887,12 @@ export default function AdminPage() {
     return () => clearTimeout(t);
   }, [vue, estGerant, chargerJournal]);
 
+  // ── Confirmation centralisée (remplace les window.confirm natifs) ──
+  const [confirmAction, setConfirmAction] = useState<(ConfirmState & { action: () => void }) | null>(null);
+
   // Suppression d'une entrée du journal d'audit (gérant).
   const [journalSuppr, setJournalSuppr] = useState<string | null>(null);
   const supprimerJournalEntree = async (id: string) => {
-    if (!window.confirm("Supprimer définitivement cette entrée du journal ?")) return;
     setJournalSuppr(id);
     try {
       const r = await fetch(`/api/journal?id=${id}`, { method: "DELETE" });
@@ -898,13 +901,30 @@ export default function AdminPage() {
     } catch { afficherNotif("err", "Erreur réseau."); }
     finally { setJournalSuppr(null); }
   };
+  const demanderSuppressionJournalEntree = (id: string) => {
+    setConfirmAction({
+      titre: "Supprimer cette entrée ?",
+      message: "Cette entrée du journal d'audit sera supprimée définitivement.",
+      labelConfirmer: "Supprimer",
+      danger: true,
+      action: () => supprimerJournalEntree(id),
+    });
+  };
   const viderJournal = async () => {
-    if (!window.confirm("Vider entièrement le journal d'audit ? Cette action est irréversible.")) return;
     try {
       const r = await fetch(`/api/journal?all=1`, { method: "DELETE" });
       if (r.ok) { setJournal([]); setJournalTotal(0); afficherNotif("ok", "Journal vidé."); }
       else afficherNotif("err", "Impossible de vider le journal.");
     } catch { afficherNotif("err", "Erreur réseau."); }
+  };
+  const demanderViderJournal = () => {
+    setConfirmAction({
+      titre: "Vider le journal ?",
+      message: "Toutes les entrées du journal d'audit seront supprimées définitivement. Cette action est irréversible.",
+      labelConfirmer: "Vider",
+      danger: true,
+      action: viderJournal,
+    });
   };
 
   // Revient à la page 1 quand la recherche, le filtre, le tri ou la période change.
@@ -1266,7 +1286,6 @@ export default function AdminPage() {
 
   // ── ARCHIVER (suppression douce) — disponible pour tout le personnel ──
   const archiver = async (type: "devis" | "sinistres" | "contrats", id: string) => {
-    if (!window.confirm("Archiver cet élément ? Il quitte la liste active. Le gérant pourra toujours le consulter et le restaurer.")) return;
     setActionId(id);
     try {
       const res = await fetch(`/api/${type}/${id}`, { method: "DELETE" });
@@ -1284,6 +1303,15 @@ export default function AdminPage() {
     } finally {
       setActionId(null);
     }
+  };
+  const demanderArchivage = (type: "devis" | "sinistres" | "contrats", id: string) => {
+    setConfirmAction({
+      titre: "Archiver cet élément ?",
+      message: "Il quitte la liste active. Le gérant pourra toujours le consulter et le restaurer.",
+      labelConfirmer: "Archiver",
+      danger: false,
+      action: () => archiver(type, id),
+    });
   };
 
   // ── RESTAURER un élément archivé — gérant uniquement ──
@@ -1311,7 +1339,6 @@ export default function AdminPage() {
 
   // ── PURGER définitivement un élément archivé — gérant uniquement ──
   const purger = async (type: "devis" | "sinistres" | "contrats", id: string) => {
-    if (!window.confirm("Supprimer DÉFINITIVEMENT cet élément ? Cette action est IRRÉVERSIBLE : la donnée sera effacée pour de bon.")) return;
     setActionId(id);
     try {
       const res = await fetch(`/api/${type}/${id}?purge=1`, { method: "DELETE" });
@@ -1330,6 +1357,15 @@ export default function AdminPage() {
     } finally {
       setActionId(null);
     }
+  };
+  const demanderPurge = (type: "devis" | "sinistres" | "contrats", id: string) => {
+    setConfirmAction({
+      titre: "Suppression définitive",
+      message: "Cette action est IRRÉVERSIBLE : la donnée sera effacée pour de bon.",
+      labelConfirmer: "Supprimer",
+      danger: true,
+      action: () => purger(type, id),
+    });
   };
 
   // ── Relance générique (devis, sinistre ou contrat) ──
@@ -2940,7 +2976,7 @@ export default function AdminPage() {
                         <ActionsLigne
                           enCours={actionId === d.id}
                           onRelance={() => relancer("devis", d.id)}
-                          onSupprimer={() => archiver("devis", d.id)}
+                          onSupprimer={() => demanderArchivage("devis", d.id)}
                         />
                         <button
                           type="button"
@@ -3080,7 +3116,7 @@ export default function AdminPage() {
                         <ActionsLigne
                           enCours={actionId === s.id}
                           onRelance={() => relancer("sinistres", s.id)}
-                          onSupprimer={() => archiver("sinistres", s.id)}
+                          onSupprimer={() => demanderArchivage("sinistres", s.id)}
                         />
                       </div>
                     </div>
@@ -3249,7 +3285,7 @@ export default function AdminPage() {
                         <button
                           type="button"
                           disabled={actionId === c.id}
-                          onClick={() => archiver("contrats", c.id)}
+                          onClick={() => demanderArchivage("contrats", c.id)}
                           title="Archiver cette souscription"
                           className="inline-flex items-center justify-center w-9 h-9 rounded-xl transition-all hover:bg-red-50 disabled:opacity-50"
                           style={{ border: "1px solid #f7caca", color: "#b42318" }}
@@ -3716,7 +3752,7 @@ export default function AdminPage() {
                       par={a.par} le={a.le} dateEnvoi={a.dateEnvoi}
                       enCours={actionId === a.id}
                       onRestaurer={() => restaurer(a.kind, a.id)}
-                      onPurger={() => purger(a.kind, a.id)}
+                      onPurger={() => demanderPurge(a.kind, a.id)}
                     />
                   ))}
                 </div>
@@ -3739,7 +3775,7 @@ export default function AdminPage() {
                   {journalTotal > 0 && (
                     <button
                       type="button"
-                      onClick={viderJournal}
+                      onClick={demanderViderJournal}
                       title="Supprimer toutes les entrées du journal"
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold border transition-all hover:bg-red-50 flex-shrink-0"
                       style={{ borderColor: "#f7caca", color: "#b42318" }}
@@ -3828,7 +3864,7 @@ export default function AdminPage() {
                             </p>
                             <button
                               type="button"
-                              onClick={() => supprimerJournalEntree(j.id)}
+                              onClick={() => demanderSuppressionJournalEntree(j.id)}
                               disabled={journalSuppr === j.id}
                               title="Supprimer cette entrée"
                               className="flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:bg-red-50 disabled:opacity-50 flex-shrink-0"
@@ -3983,6 +4019,11 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
+      <ConfirmModal
+        state={confirmAction}
+        onConfirm={() => { const a = confirmAction?.action; setConfirmAction(null); a?.(); }}
+        onCancel={() => setConfirmAction(null)}
+      />
     </DashboardShell>
   );
 }

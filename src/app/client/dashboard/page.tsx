@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardShell, { type NavItem } from "@/components/ui/DashboardShell";
 import MessagesClient from "@/components/messages/MessagesClient";
+import ConfirmModal, { type ConfirmState } from "@/components/ui/ConfirmModal";
 import {
   FileText,
   AlertTriangle,
@@ -314,14 +315,23 @@ export default function Dashboard() {
 
   // Suppression douce d'un rendez-vous : on le retire de la liste (archivage côté serveur).
   const [rdvSuppr, setRdvSuppr] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<(ConfirmState & { action: () => void }) | null>(null);
   const archiverRdv = async (id: string) => {
-    if (!window.confirm("Retirer ce rendez-vous de votre liste ?")) return;
     setRdvSuppr(id);
     try {
       const res = await fetch(`/api/rendez-vous/${id}`, { method: "DELETE" });
       if (res.ok) setRdv((prev) => prev.filter((r) => r.id !== id));
     } catch { /* on ignore : la liste se resynchronise au prochain rafraîchissement */ }
     finally { setRdvSuppr(null); }
+  };
+  const demanderSuppressionRdv = (id: string) => {
+    setConfirmAction({
+      titre: "Retirer ce rendez-vous ?",
+      message: "Il sera retiré de votre liste. Votre conseiller pourra toujours le consulter.",
+      labelConfirmer: "Retirer",
+      danger: true,
+      action: () => archiverRdv(id),
+    });
   };
 
   // ── Indicateurs ──
@@ -1037,7 +1047,7 @@ export default function Dashboard() {
                       <span className="text-sm font-bold px-3 py-1 rounded-full capitalize" style={{ background: couleur.bg, color: couleur.fg }}>{statut.replace(/_/g, " ")}</span>
                       <button
                         type="button"
-                        onClick={() => archiverRdv(r.id)}
+                        onClick={() => demanderSuppressionRdv(r.id)}
                         disabled={rdvSuppr === r.id}
                         title="Retirer ce rendez-vous"
                         className="flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:bg-red-50 disabled:opacity-50 flex-shrink-0"
@@ -1151,6 +1161,13 @@ export default function Dashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmModal
+        state={confirmAction}
+        enCours={rdvSuppr !== null}
+        onConfirm={() => { const a = confirmAction?.action; setConfirmAction(null); a?.(); }}
+        onCancel={() => setConfirmAction(null)}
+      />
     </DashboardShell>
   );
 }

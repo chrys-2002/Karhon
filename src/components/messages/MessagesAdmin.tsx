@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import DocumentUpload from "@/components/ui/DocumentUpload";
+import ConfirmModal, { type ConfirmState } from "@/components/ui/ConfirmModal";
 import { Send, Loader2, FileText, MessagesSquare, Search, ArrowLeft, X, Paperclip, ChevronUp, ListChecks, Archive, Trash2 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
@@ -60,9 +61,9 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
   const [actionEnCours, setActionEnCours] = useState(false);
   const toggleSel = (id: string) => setSelIds((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const quitterSelection = () => { setSelection(false); setSelIds([]); };
+  const [confirmModal, setConfirmModal] = useState<ConfirmState>(null);
   const appliquer = async (action: "archiver" | "supprimer") => {
     if (selIds.length === 0 || actionEnCours) return;
-    if (action === "supprimer" && !window.confirm(`Supprimer définitivement ${selIds.length} message(s) ?`)) return;
     setActionEnCours(true);
     try {
       const r = await fetch("/api/messages", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: selIds, action }) });
@@ -287,7 +288,11 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
                   <button onClick={() => appliquer("archiver")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl border disabled:opacity-50" style={{ borderColor: "#e0ecec", color: MARINE }}>
                     {actionEnCours ? <Loader2 size={14} className="animate-spin" /> : <Archive size={14} />} Archiver
                   </button>
-                  <button onClick={() => appliquer("supprimer")} disabled={selIds.length === 0 || actionEnCours} className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}>
+                  <button
+                    onClick={() => setConfirmModal({ titre: "Supprimer ces messages ?", message: `${selIds.length} message(s) seront supprimés définitivement. Cette action est irréversible.`, labelConfirmer: "Supprimer", danger: true })}
+                    disabled={selIds.length === 0 || actionEnCours}
+                    className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-2 rounded-xl text-white disabled:opacity-50" style={{ background: "#dc2626" }}
+                  >
                     <Trash2 size={14} /> Supprimer
                   </button>
                 </div>
@@ -334,6 +339,13 @@ export default function MessagesAdmin({ cibleInitiale }: { cibleInitiale?: strin
           </>
         )}
       </div>
+
+      <ConfirmModal
+        state={confirmModal}
+        enCours={actionEnCours}
+        onConfirm={() => { setConfirmModal(null); appliquer("supprimer"); }}
+        onCancel={() => setConfirmModal(null)}
+      />
     </div>
   );
 }

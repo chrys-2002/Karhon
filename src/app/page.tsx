@@ -445,22 +445,21 @@ export default function Home() {
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
-          <motion.div key={`badge-${heroCurrent}`} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.45 }} className="absolute bottom-20 left-8 sm:left-14 flex items-center gap-3 z-10">
-            <div className="w-1 h-10 rounded-full" style={{ background: "#2a8a8a" }} />
+          <motion.div key={`badge-${heroCurrent}`} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.45 }} className="absolute bottom-16 left-8 sm:left-14 flex items-start gap-3 z-10">
+            <div className="w-1 h-10 rounded-full mt-1" style={{ background: "#2a8a8a" }} />
             <div>
               <p className="text-white font-bold text-base sm:text-lg leading-tight">{heroImages[heroCurrent].nom}</p>
               <p className="text-white/50 text-sm">{heroImages[heroCurrent].description}</p>
+              <div className="flex flex-row gap-2 mt-3">
+                {heroImages.map((_, i) => (
+                  <button key={i} onClick={() => { setHeroCurrent(i); if (heroTimerRef.current) clearInterval(heroTimerRef.current); heroTimerRef.current = setInterval(() => setHeroCurrent(prev => (prev + 1) % heroImages.length), 4500); }} className="rounded-full transition-all duration-300" style={{ height: "5px", width: i === heroCurrent ? "22px" : "5px", backgroundColor: i === heroCurrent ? "#2a8a8a" : "rgba(255,255,255,0.35)" }} />
+                ))}
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-16 right-8 sm:right-14 flex flex-col gap-2 z-10">
-          {heroImages.map((_, i) => (
-            <button key={i} onClick={() => { setHeroCurrent(i); if (heroTimerRef.current) clearInterval(heroTimerRef.current); heroTimerRef.current = setInterval(() => setHeroCurrent(prev => (prev + 1) % heroImages.length), 4500); }} className="rounded-full transition-all duration-300" style={{ width: "5px", height: i === heroCurrent ? "22px" : "5px", backgroundColor: i === heroCurrent ? "#2a8a8a" : "rgba(255,255,255,0.35)" }} />
-          ))}
-        </div>
-
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center pb-14 sm:pb-0">
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 50 }} transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}>
            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight leading-[0.95]">
   KARHON
@@ -471,10 +470,10 @@ export default function Home() {
               Votre interlocuteur unique, neutre et indépendant en assurance <br />en Côte d&apos;Ivoire.
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/devis" className="group px-8 py-4 rounded-full font-extrabold text-white text-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
+              <Link href="/devis" className="group px-6 sm:px-8 py-3 sm:py-4 rounded-full font-extrabold text-white text-base sm:text-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl flex items-center justify-center gap-2" style={{ background: "linear-gradient(135deg, #2a8a8a, #1e4a7a)" }}>
                 Demander une cotation gratuite <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/produits" className="px-8 py-4 rounded-full font-extrabold text-white text-lg border-2 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md">
+              <Link href="/produits" className="px-6 sm:px-8 py-3 sm:py-4 rounded-full font-extrabold text-white text-base sm:text-lg border-2 border-white/30 hover:border-white/60 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md">
                 Voir nos produits
               </Link>
             </motion.div>
