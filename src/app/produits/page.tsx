@@ -277,7 +277,7 @@ export default function ProduitsPage() {
 
   return (
     <div className="min-h-screen pt-28 pb-20" style={{ backgroundColor: "#f8fbfb" }}>
-      <div className="container mx-auto px-6">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="mb-6">
           <BackButton label="Retour" />
         </div>
@@ -367,16 +367,16 @@ export default function ProduitsPage() {
                   />
                   <div
                     className="absolute inset-0"
-                    style={{ background: "linear-gradient(160deg, rgba(26,46,90,0.15) 0%, rgba(26,46,90,0.65) 100%)" }}
+                    style={{ background: "linear-gradient(160deg, rgba(15,23,42,0.45) 0%, rgba(15,23,42,0.8) 100%)" }}
                   />
                   <div className="absolute top-4 left-4">
                     <div
                       className="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl"
                       style={{
-                        background: "rgba(255,255,255,0.14)",
+                        background: "rgba(15,23,42,0.55)",
                         backdropFilter: "blur(12px)",
                         border: "1px solid rgba(255,255,255,0.28)",
-                        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
                       }}
                     >
                       <div
@@ -385,7 +385,10 @@ export default function ProduitsPage() {
                       >
                         <produit.Icon size={15} color="#fff" strokeWidth={1.8} />
                       </div>
-                      <span className="text-white text-xs font-semibold tracking-wide leading-tight">
+                      <span
+                        className="text-white text-xs font-semibold tracking-wide leading-tight"
+                        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
+                      >
                         {produit.nom.split(" ").slice(0, 2).join(" ")}
                       </span>
                     </div>
@@ -393,7 +396,7 @@ export default function ProduitsPage() {
                   <div className="absolute bottom-3 right-4">
                     <span
                       className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white"
-                      style={{ background: "rgba(42,138,138,0.75)", backdropFilter: "blur(6px)" }}
+                      style={{ background: "rgba(42,138,138,0.9)", backdropFilter: "blur(6px)", textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}
                     >
                       {produit.categorie === "particuliers" ? "Particuliers"
                         : produit.categorie === "professionnelles" ? "Pro"
@@ -493,7 +496,7 @@ export default function ProduitsPage() {
                 <Image src={selectedProduit.image} alt={selectedProduit.nom} fill sizes="(max-width: 768px) 100vw, 896px" className="object-cover" />
                 <div
                   className="absolute inset-0"
-                  style={{ background: "linear-gradient(to bottom, rgba(26,46,90,0.35) 0%, rgba(26,46,90,0.88) 100%)" }}
+                  style={{ background: "linear-gradient(to bottom, rgba(15,23,42,0.55) 0%, rgba(15,23,42,0.94) 100%)" }}
                 />
                 <div className="absolute inset-0 p-8 flex justify-between items-end">
                   <div className="flex items-center gap-4">
@@ -507,8 +510,8 @@ export default function ProduitsPage() {
                       <selectedProduit.Icon size={30} color="#fff" strokeWidth={1.6} />
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold text-white leading-tight">{selectedProduit.nom}</h2>
-                      <p className="text-white/65 mt-1 text-sm">{selectedProduit.description}</p>
+                      <h2 className="text-3xl font-bold text-white leading-tight" style={{ textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>{selectedProduit.nom}</h2>
+                      <p className="text-white/90 mt-1 text-sm" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>{selectedProduit.description}</p>
                     </div>
                   </div>
                   <button

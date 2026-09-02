@@ -373,7 +373,7 @@ export default function DevisPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-28 pb-20">
-      <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
 
         <div className="mb-6">
           {/* Recule d'une étape ; à l'étape 1, quitte la page normalement. */}

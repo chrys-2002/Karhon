@@ -20,7 +20,7 @@ export default function AproposPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      <div className="container mx-auto px-6 pt-28 pb-4 max-w-6xl">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-4 max-w-6xl">
         <div className="mb-6">
           <BackButton label="Retour" />
         </div>
@@ -35,7 +35,7 @@ export default function AproposPage() {
         </motion.div>
       </div>
 
-      <div className="container mx-auto px-6 py-16 max-w-6xl">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-6xl">
 
         <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20">
           <h2 className="text-3xl font-bold mb-8 flex items-center gap-3" style={{ color: "#1a2e5a" }}>
