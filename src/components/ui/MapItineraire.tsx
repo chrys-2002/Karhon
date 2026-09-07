@@ -20,7 +20,7 @@ const OFFICE = {
   lat: 5.410389,
   lng: -3.98375,
   label: "KARHON Assurances",
-  adresse: "Rue Manglé Yves Éric Akran, Angré 8ème Tranche — Cocody, Abidjan",
+  adresse: "Rue Manglé Yves Éric Akran, Angré 8ème Tranche Cocody, Abidjan",
 };
 
 const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";

@@ -119,7 +119,7 @@ export default function ConseillerPage() {
             Bien assuré, l&apos;esprit tranquille.
           </h1>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            <strong style={{ color: "#1a2e5a" }}>KARHON Assurance</strong> est votre courtier neutre et indépendant à Abidjan. Nous vous expliquons tout, comparons le marché, et défendons vos intérêts — gratuitement. Trouvez en 1 minute l&apos;assurance qu&apos;il vous faut.
+            <strong style={{ color: "#1a2e5a" }}>KARHON Assurance</strong> est votre courtier neutre et indépendant à Abidjan. Nous vous expliquons tout, comparons le marché, et défendons vos intérêts gratuitement. Trouvez en 1 minute l&apos;assurance qu&apos;il vous faut.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <a href="#diagnostic" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl font-semibold text-sm text-white transition-all hover:scale-105 shadow-lg" style={{ background: "linear-gradient(135deg, #1a2e5a, #2a8a8a)" }}>

@@ -37,7 +37,7 @@ export default function PartenairesPage() {
           <p className="text-gray-500 max-w-2xl mx-auto">
             En tant que courtier neutre et indépendant,{" "}
             <strong style={{ color: MARINE }}>KARHON</strong>{" "}
-            négocie pour vous auprès de plusieurs compagnies de référence. Découvrez ce que chacune sait faire de mieux, ses avantages et ses garanties phares — sans classement, pour vous orienter vers l&apos;offre la plus adaptée.
+            négocie pour vous auprès de plusieurs compagnies de référence. Découvrez ce que chacune sait faire de mieux, ses avantages et ses garanties phares sans classement, pour vous orienter vers l&apos;offre la plus adaptée.
           </p>
         </motion.div>
 
