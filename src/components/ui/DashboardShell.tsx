@@ -204,10 +204,10 @@ export default function DashboardShell({
       };
       // Deux notes en tension (quasi-triton) qui alternent vite, façon alarme,
       // avec un court silence net entre chaque bip → 10 bips en 1,75 s.
-      const notes = [880, 1245];
-      const pas = 0.175;
-      const duree = 0.16;
-      for (let i = 0; i < 10; i++) {
+      const notes = [880, 1245 , 1445];
+      const pas = 0.120;
+      const duree = 0.20;
+      for (let i = 0; i < 6; i++) {
         bip(notes[i % notes.length], i * pas, duree);
       }
     } catch {}
