@@ -178,34 +178,37 @@ export default function DashboardShell({
     };
   }, [user, router]);
 
-  // Alerte à l'arrivée d'une nouvelle notification : son (3 notes montantes) +
-  // vibration sur les mobiles compatibles. Réutilise le contexte audio débloqué.
+  // Alerte à l'arrivée d'une nouvelle notification : son (bips alternés, plus
+  // marqué/urgent qu'avant) + vibration sur les mobiles compatibles. Dure
+  // environ 1,75 s au total. Réutilise le contexte audio débloqué.
   const jouerSon = () => {
-    // Vibration mobile (Android/Chrome) — alerte tactile d'environ 2 s.
-    try { navigator.vibrate?.([300, 120, 300, 120, 300, 120, 300, 120, 400]); } catch {}
+    // Vibration mobile (Android/Chrome) — alerte tactile d'environ 1,7 s, rythmée sur le son.
+    try { navigator.vibrate?.([100, 75, 100, 75, 100, 75, 100, 75, 100, 75, 100, 75, 100, 75, 100, 75, 100, 75, 100]); } catch {}
     try {
       const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AC) return;
       if (!audioCtxRef.current) audioCtxRef.current = new AC();
       const ctx = audioCtxRef.current;
       if (ctx.state === "suspended") ctx.resume().catch(() => {});
-      const bip = (freq: number, debut: number) => {
+      const bip = (freq: number, debut: number, duree: number) => {
         const o = ctx.createOscillator();
         const g = ctx.createGain();
         o.connect(g); g.connect(ctx.destination);
-        o.type = "sine";
+        o.type = "square"; // timbre plus dur/tranchant qu'un sinus → plus alarmant
         o.frequency.value = freq;
         g.gain.setValueAtTime(0.0001, ctx.currentTime + debut);
-        g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + debut + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + debut + 0.22);
+        g.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + debut + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + debut + duree);
         o.start(ctx.currentTime + debut);
-        o.stop(ctx.currentTime + debut + 0.24);
+        o.stop(ctx.currentTime + debut + duree + 0.02);
       };
-      // Mélodie de notes montantes répétée pour durer un peu plus de 2 secondes.
-      const notes = [784, 1047, 1319, 1047];
-      const pas = 0.2;
-      for (let i = 0, t = 0; t < 2.2; i++, t += pas) {
-        bip(notes[i % notes.length], t);
+      // Deux notes en tension (quasi-triton) qui alternent vite, façon alarme,
+      // avec un court silence net entre chaque bip → 10 bips en 1,75 s.
+      const notes = [880, 1245];
+      const pas = 0.175;
+      const duree = 0.16;
+      for (let i = 0; i < 10; i++) {
+        bip(notes[i % notes.length], i * pas, duree);
       }
     } catch {}
   };
