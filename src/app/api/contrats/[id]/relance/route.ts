@@ -51,7 +51,7 @@ export async function POST(
     // 1) Email (peut échouer si non configuré : on continue).
     const email = await envoyerEmail({
       to: contrat.user.email,
-      subject: `KARHON Assurances — Renouvellement de votre contrat`,
+      subject: `KARHON Assurances : Renouvellement de votre contrat`,
       html: gabaritRelance({ prenom: contrat.user.prenom, sujet, message: corps }),
     });
 
@@ -61,7 +61,7 @@ export async function POST(
       `Bonjour ${contrat.user.prenom},\n\n` +
       `${corps}\n\n` +
       `À votre disposition,\n` +
-      `KARHON Assurances — Cabinet de courtage, Abidjan\n` +
+      `KARHON Assurances, Cabinet de courtage, Abidjan\n` +
       `Tel : +2250787103939 / +2250576367272 / +2250105137059`;
 
     // 2) Marque la relance (date + compteur).

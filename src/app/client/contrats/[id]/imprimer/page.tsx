@@ -23,7 +23,7 @@ type Contrat = {
 };
 
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "-";
 
 export default function ImprimerContrat() {
   const { id } = useParams<{ id: string }>();
@@ -65,15 +65,15 @@ export default function ImprimerContrat() {
 
   const LABEL_SEGMENT: Record<string, string> = {
     particulier: "Particulier (usage personnel)",
-    professionnel: "Professionnel — flotte / pack auto",
+    professionnel: "Professionnel : flotte / pack auto",
     transport: "Transport professionnel",
   };
 
   const lignes: [string, string][] = [
     ["N° de contrat", contrat.numeroContrat],
-    ["Produit", contrat.produit?.nom ?? "—"],
+    ["Produit", contrat.produit?.nom ?? "-"],
     ["Catégorie", LABEL_SEGMENT[contrat.segment ?? "particulier"] ?? "Particulier (usage personnel)"],
-    ["Compagnie", contrat.compagnie ?? "—"],
+    ["Compagnie", contrat.compagnie ?? "-"],
     ["Durée souscrite", `${contrat.dureeMois} mois`],
     ["Date de début", fmtDate(contrat.dateDebut)],
     ["Date d'échéance", fmtDate(contrat.dateFin)],
@@ -102,7 +102,7 @@ export default function ImprimerContrat() {
               <img src="/images/logo/karhon-blanc.svg" alt="KARHON Assurances" className="h-11 w-auto" />
               <div>
                 <h1 className="text-xl font-bold leading-tight">KARHON Assurances</h1>
-                <p className="text-xs text-white/70">Cabinet de courtage — Abidjan</p>
+                <p className="text-xs text-white/70">Cabinet de courtage, Abidjan</p>
               </div>
             </div>
             <div className="text-right">
@@ -170,7 +170,7 @@ export default function ImprimerContrat() {
         {/* Pied de page */}
         <div className="px-8 py-4 text-center" style={{ background: "#f5fbfb" }}>
           <p className="text-xs text-gray-500">
-            Abidjan, Cocody — Angré 8ème Tranche (BP V 236) · +225 07 87 10 39 39 · +225 05 76 36 72 72 · +225 01 05 13 70 59 · infos@karhonassurance.com
+            Abidjan, Cocody, Angré 8ème Tranche (BP V 236) · +225 07 87 10 39 39 · +225 05 76 36 72 72 · +225 01 05 13 70 59 · infos@karhonassurance.com
           </p>
         </div>
       </div>

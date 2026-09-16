@@ -54,6 +54,10 @@ import SignalerDocument from "@/components/messages/SignalerDocument";
 import DashboardShell, { type NavItem } from "@/components/ui/DashboardShell";
 import ConfirmModal, { type ConfirmState } from "@/components/ui/ConfirmModal";
 
+// Compagnies partenaires (mêmes que celles affichées sur la page "À propos").
+const COMPAGNIES = ["ACTIVA", "AFG", "GNA", "NSIA", "SANLAM", "SUNU", "VITALIS", "WAFA", "Leadway"];
+const COMPAGNIES_OPTIONS = COMPAGNIES.map((nom) => ({ value: nom, label: nom }));
+
 // Construit un lien WhatsApp pré-rempli (format wa.me standard).
 // IMPORTANT : wa.me exige le numéro INTERNATIONAL complet avec l'indicatif pays.
 // Sans le 225, WhatsApp devine le pays selon l'appareil, ce qui échoue sur un
@@ -567,7 +571,7 @@ function LigneArchive({
           <p className="text-sm text-gray-600 mt-0.5">Envoyé le {dateHeure(dateEnvoi)}</p>
         )}
         <p className="text-sm mt-0.5" style={{ color: "#b42318" }}>
-          Archivé par <strong>{par ?? "—"}</strong>{le ? ` le ${dateHeure(le)}` : ""}
+          Archivé par <strong>{par ?? "-"}</strong>{le ? ` le ${dateHeure(le)}` : ""}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -1178,11 +1182,11 @@ export default function AdminPage() {
     const message =
       `Bonjour ${prenom},\n\n` +
       `Voici notre proposition de cotation pour ${d.produit?.nom ?? ""}${p.compagnie ? ` (${p.compagnie})` : ""}` +
-      (typeof p.prime === "number" ? ` — prime : ${p.prime.toLocaleString("fr-FR")} FCFA` : "") + ".\n" +
+      (typeof p.prime === "number" ? `, prime : ${p.prime.toLocaleString("fr-FR")} FCFA` : "") + ".\n" +
       (lienFiche ? `Consultez la fiche détaillée : ${lienFiche}\n` : "") +
       (p.message ? `\n${p.message}\n` : "") +
       `\nÀ votre disposition,\n` +
-      `KARHON Assurances — Cabinet de courtage, Abidjan\n` +
+      `KARHON Assurances, Cabinet de courtage, Abidjan\n` +
       `Tel : +2250787103939 / +2250576367272 / +2250105137059`;
 
     const tel = d.telephoneContact || d.user?.telephone;
@@ -1190,7 +1194,7 @@ export default function AdminPage() {
     if (!lien) { afficherNotif("warn", "Aucun numéro de téléphone pour ce client."); return; }
     try { await navigator.clipboard.writeText(message); } catch { /* presse-papier bloqué */ }
     window.open(lien, "_blank", "noopener,noreferrer");
-    afficherNotif("ok", "WhatsApp ouvert — si le texte ne s'affiche pas, collez-le avec Ctrl+V.");
+    afficherNotif("ok", "WhatsApp ouvert. Si le texte ne s'affiche pas, collez-le avec Ctrl+V.");
   };
 
   // Change le statut d'un devis via PATCH /api/devis/[id].
@@ -1419,7 +1423,7 @@ export default function AdminPage() {
         } catch { /* le presse-papier peut être bloqué selon le navigateur */ }
         window.open(lien, "_blank", "noopener,noreferrer");
         if (copie) {
-          afficherNotif("ok", "Message copié — si WhatsApp ne l'affiche pas, collez-le avec Ctrl+V.");
+          afficherNotif("ok", "Message copié. Si WhatsApp ne l'affiche pas, collez-le avec Ctrl+V.");
         }
       }
     } catch {
@@ -1541,7 +1545,7 @@ export default function AdminPage() {
   })();
 
   // Compagnie la plus choisie (compagniesStats est déjà trié par choix décroissants).
-  const compagnieTop = compagniesStats[0]?.nom ?? "—";
+  const compagnieTop = compagniesStats[0]?.nom ?? "-";
 
   // ── Analyse par compagnie : propositions + contrats + primes (rentabilité) ──
   const analyseCompagnies = (() => {
@@ -1614,7 +1618,7 @@ export default function AdminPage() {
       const props = d.propositions ?? [];
       if (props.length > 0) {
         const e = dans(mOff, d.user.email, nomDe(d.user));
-        for (const p of props) e.lignes.push({ titre: `Offre — ${p.compagnie ?? "compagnie"}`, detail: p.choisie ? "Choisie par le client" : (p.prime != null ? `${p.prime.toLocaleString("fr-FR")} FCFA` : undefined), date: d.dateCreation });
+        for (const p of props) e.lignes.push({ titre: `Offre : ${p.compagnie ?? "compagnie"}`, detail: p.choisie ? "Choisie par le client" : (p.prime != null ? `${p.prime.toLocaleString("fr-FR")} FCFA` : undefined), date: d.dateCreation });
       }
     }
     for (const c of contrats) {
@@ -1671,7 +1675,7 @@ export default function AdminPage() {
         .filter((c) => dansFen(c.derniereRelance, debut, fin))
         .map((c) => ({
           nom: nomC(c.user),
-          contact: c.user?.telephone ?? "—",
+          contact: c.user?.telephone ?? "-",
           produit: c.produit?.nom ?? "Contrat",
           numero: c.numeroContrat,
           echeance: c.dateFin,
@@ -1711,7 +1715,7 @@ export default function AdminPage() {
       })
       .map((c) => ({
         nom: nomC(c.user),
-        contact: c.user?.telephone ?? "—",
+        contact: c.user?.telephone ?? "-",
         produit: c.produit?.nom ?? "Contrat",
         numero: c.numeroContrat,
         echeance: c.dateFin,
@@ -1735,7 +1739,7 @@ export default function AdminPage() {
       if (!e) { e = { valeur: 0, clients: new Map() }; m.set(k, e); }
       e.valeur++;
       const u = user(x);
-      const email = u?.email ?? "—";
+      const email = u?.email ?? "-";
       const nom = `${u?.prenom ?? ""} ${u?.nom ?? ""}`.trim() || email;
       const c = e.clients.get(email);
       if (c) c.count++; else e.clients.set(email, { nom, email, count: 1 });
@@ -1997,8 +2001,8 @@ export default function AdminPage() {
                             <button key={c.id} onClick={() => ouvrirResultat("souscriptions", c)} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <FileSignature size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{c.user?.prenom} {c.user?.nom} — {c.produit?.nom ?? "Contrat"}</span>
-                                <span className="text-sm text-gray-600 block truncate">{c.numeroContrat} · {c.compagnie ?? "—"} · {c.user?.email}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{c.user?.prenom} {c.user?.nom} · {c.produit?.nom ?? "Contrat"}</span>
+                                <span className="text-sm text-gray-600 block truncate">{c.numeroContrat} · {c.compagnie ?? "-"} · {c.user?.email}</span>
                               </span>
                             </button>
                           ))}
@@ -2011,7 +2015,7 @@ export default function AdminPage() {
                             <button key={d.id} onClick={() => ouvrirResultat("devis")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <ClipboardList size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{d.user?.prenom} {d.user?.nom} — {d.produit?.nom ?? "Produit"}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{d.user?.prenom} {d.user?.nom} · {d.produit?.nom ?? "Produit"}</span>
                                 <span className="text-sm text-gray-600 block truncate">{d.statut.replace(/_/g, " ")} · {d.user?.email}</span>
                               </span>
                             </button>
@@ -2025,7 +2029,7 @@ export default function AdminPage() {
                             <button key={s.id} onClick={() => ouvrirResultat("sinistres")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <AlertTriangle size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{s.user?.prenom} {s.user?.nom} — {s.typeAssurance ?? "Sinistre"}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{s.user?.prenom} {s.user?.nom} · {s.typeAssurance ?? "Sinistre"}</span>
                                 <span className="text-sm text-gray-600 block truncate">{s.statut.replace(/_/g, " ")} · {s.user?.email}</span>
                               </span>
                             </button>
@@ -2039,7 +2043,7 @@ export default function AdminPage() {
                             <button key={r.id} onClick={() => ouvrirResultat("rdv")} className="w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-50">
                               <CalendarClock size={16} style={{ color: "#2a8a8a" }} className="flex-shrink-0" />
                               <span className="min-w-0 flex-1">
-                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{r.user?.prenom} {r.user?.nom} — {r.motif}</span>
+                                <span className="text-base font-bold block truncate" style={{ color: "#1a2e5a" }}>{r.user?.prenom} {r.user?.nom} · {r.motif}</span>
                                 <span className="text-sm text-gray-600 block truncate">{r.user?.email}</span>
                               </span>
                             </button>
@@ -2289,10 +2293,10 @@ export default function AdminPage() {
                                 <p className="text-sm text-gray-600 truncate">{r.produit} · N° {r.numero}</p>
                               </div>
                               <div className="col-span-3 min-w-0">
-                                {r.contact && r.contact !== "—" ? (
+                                {r.contact && r.contact !== "-" ? (
                                   <a href={`tel:${r.contact.replace(/\s+/g, "")}`} className="text-base hover:underline" style={{ color: "#2a8a8a" }}>{r.contact}</a>
                                 ) : (
-                                  <span className="text-base text-gray-600">—</span>
+                                  <span className="text-base text-gray-600">-</span>
                                 )}
                               </div>
                               <div className="col-span-3">
@@ -2335,10 +2339,10 @@ export default function AdminPage() {
                                   <p className="text-sm text-gray-600 truncate">{e.produit} · N° {e.numero}</p>
                                 </div>
                                 <div className="col-span-3 min-w-0">
-                                  {e.contact && e.contact !== "—" ? (
+                                  {e.contact && e.contact !== "-" ? (
                                     <a href={`tel:${e.contact.replace(/\s+/g, "")}`} className="text-base hover:underline" style={{ color: "#2a8a8a" }}>{e.contact}</a>
                                   ) : (
-                                    <span className="text-base text-gray-600">—</span>
+                                    <span className="text-base text-gray-600">-</span>
                                   )}
                                 </div>
                                 <div className="col-span-3">
@@ -2716,7 +2720,7 @@ export default function AdminPage() {
                         </div>
                         <div className="md:col-span-2 mt-1 md:mt-0">
                           <span className="md:hidden text-sm text-gray-600 mr-1">Tél :</span>
-                          <span className="text-base" style={{ color: "#334155" }}>{c.telephone || "—"}</span>
+                          <span className="text-base" style={{ color: "#334155" }}>{c.telephone || "-"}</span>
                         </div>
                         <div className="md:col-span-2 mt-1 md:mt-0">
                           <span className="md:hidden text-sm text-gray-600 mr-1">Inscrit le :</span>
@@ -3310,7 +3314,7 @@ export default function AdminPage() {
                         <>
                           {c.attestation.split("\n").filter(Boolean).map((doc, k, arr) => (
                             <a key={k} href={doc.split("|")[1] ?? doc} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-lg" style={{ color: "#166534", background: "#dcfce7" }}>
-                              <FileText size={13} /> {arr.length > 1 ? (doc.split("|")[0] || `Attestation ${k + 1}`) : "Attestation jointe"} — voir
+                              <FileText size={13} /> {arr.length > 1 ? (doc.split("|")[0] || `Attestation ${k + 1}`) : "Attestation jointe"} : voir
                             </a>
                           ))}
                           <span className="text-sm text-gray-600">Le client a été notifié.</span>
@@ -3442,7 +3446,7 @@ export default function AdminPage() {
                     </div>
                     <div>
                       <h2 className="text-xl font-extrabold leading-tight" style={{ color: "#1a2e5a" }}>Parcours des clients</h2>
-                      <p className="text-sm text-gray-600">De l&apos;inscription à la souscription — où perd-on des clients ?</p>
+                      <p className="text-sm text-gray-600">De l&apos;inscription à la souscription : où perd-on des clients ?</p>
                     </div>
                   </div>
 
@@ -3960,20 +3964,21 @@ export default function AdminPage() {
                           </button>
                         )}
                       </div>
-                      <div>
-                        <label className="block text-base font-semibold text-gray-700 mb-2">Nom de la compagnie <span style={{ color: "#dc2626" }}>*</span></label>
-                        <input
-                          type="text" value={p.compagnie} onChange={(e) => majProp(i, "compagnie", e.target.value)} placeholder="ex. NSIA, SUNU, Sanlam Allianz…"
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2a8a8a] transition-all text-base"
-                        />
-                      </div>
+                      <Select
+                        label="Nom de la compagnie"
+                        name="compagnie"
+                        value={p.compagnie}
+                        onChange={(e) => majProp(i, "compagnie", e.target.value)}
+                        options={COMPAGNIES_OPTIONS}
+                        required
+                      />
                       <DocumentUpload
                         label="Fiches de cotation (PDF)"
                         value={p.docs}
                         onChange={(urls) => majProp(i, "docs", urls)}
                         required
                         max={6}
-                        hint="PDF ou images — vous pouvez en sélectionner plusieurs à la fois."
+                        hint="PDF ou images. Vous pouvez en sélectionner plusieurs à la fois."
                       />
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div>

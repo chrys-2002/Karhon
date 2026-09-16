@@ -45,7 +45,7 @@ const REGLES: Regle[] = [
   {
     motsCles: ["adresse", "bureau", "où", "ou êtes", "localisation", "situé", "situe", "venir", "itinéraire", "itineraire"],
     reponse:
-      "Nos bureaux sont à Abidjan, Cocody — Angré 8ème Tranche (BP V 236). La page Contact affiche une carte avec l'itinéraire en temps réel depuis votre position.",
+      "Nos bureaux sont à Abidjan, Cocody, Angré 8ème Tranche (BP V 236). La page Contact affiche une carte avec l'itinéraire en temps réel depuis votre position.",
   },
   {
     motsCles: ["horaire", "ouvert", "heure", "ouverture", "fermé", "ferme"],

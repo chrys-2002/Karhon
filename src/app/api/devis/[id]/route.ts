@@ -50,7 +50,7 @@ export async function PATCH(
       });
       await journaliser({
         action: "restauration", entite: "devis", entiteId: id,
-        resume: `Cotation ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim(),
+        resume: `Cotation ${existant.produit?.nom ?? ""} : ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim(),
         auteurEmail: auth.email,
       });
       return NextResponse.json({ devis });
@@ -106,7 +106,7 @@ export async function DELETE(
     if (!existant) {
       return NextResponse.json({ erreur: "Cotation introuvable." }, { status: 404 });
     }
-    const resume = `Cotation ${existant.produit?.nom ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
+    const resume = `Cotation ${existant.produit?.nom ?? ""} : ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
     if (purge) {
       // Suppression DÉFINITIVE — réservée au gérant.

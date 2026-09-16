@@ -63,7 +63,7 @@ export async function GET(req: Request) {
 
       const email = await envoyerEmail({
         to: c.user.email,
-        subject: "KARHON Assurances — Renouvellement de votre contrat",
+        subject: "KARHON Assurances : Renouvellement de votre contrat",
         html: gabaritRelance({ prenom: c.user.prenom, sujet, message: corps }),
       });
 

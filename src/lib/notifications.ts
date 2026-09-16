@@ -58,7 +58,7 @@ export async function notifierAgents(opts: Base & { lien?: string; onglet?: stri
   try {
     await envoyerEmail({
       to: EMAIL_OPS,
-      subject: `KARHON — ${opts.titre}`,
+      subject: `KARHON : ${opts.titre}`,
       html: gabaritNotification({ titre: opts.titre, message: opts.message, lienTexte: "Ouvrir le back-office", lienUrl: `${APP_URL}${lien}` }),
     });
   } catch (e) {
@@ -83,7 +83,7 @@ export async function notifierClient(
     try {
       await envoyerEmail({
         to: opts.email,
-        subject: `KARHON — ${opts.titre}`,
+        subject: `KARHON : ${opts.titre}`,
         html: gabaritNotification({ titre: opts.titre, message: opts.message, lienTexte: "Ouvrir mon espace", lienUrl: `${APP_URL}${lien}` }),
       });
     } catch (e) {

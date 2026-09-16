@@ -35,7 +35,7 @@ export async function POST(
 
     const email = await envoyerEmail({
       to: sinistre.user.email,
-      subject: `KARHON Assurances — ${sujet}`,
+      subject: `KARHON Assurances : ${sujet}`,
       html: gabaritRelance({ prenom: sinistre.user.prenom, sujet, message: corps }),
     });
 
@@ -54,7 +54,7 @@ export async function POST(
         telephone: sinistre.user.telephone,
         message:
           `Bonjour ${sinistre.user.prenom},\n\n${corps}\n\n` +
-          `À votre disposition,\nKARHON Assurances — Cabinet de courtage, Abidjan\n` +
+          `À votre disposition,\nKARHON Assurances, Cabinet de courtage, Abidjan\n` +
           `Tel : +2250787103939 / +2250576367272 / +2250105137059`,
       },
     });

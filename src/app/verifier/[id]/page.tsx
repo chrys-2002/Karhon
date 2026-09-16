@@ -22,7 +22,7 @@ type Recu = {
 };
 
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "-";
 
 export default function VerifierPage() {
   const { id } = useParams<{ id: string }>();
@@ -82,9 +82,9 @@ export default function VerifierPage() {
 
               <div className="grid grid-cols-1 gap-y-3 rounded-2xl p-5" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
                 {([
-                  ["Assuré(e)", recu.assure || "—"],
-                  ["Produit", recu.produit ?? "—"],
-                  ["Compagnie", recu.compagnie ?? "—"],
+                  ["Assuré(e)", recu.assure || "-"],
+                  ["Produit", recu.produit ?? "-"],
+                  ["Compagnie", recu.compagnie ?? "-"],
                   ["N° de contrat", recu.numeroContrat],
                   ["Date d'effet", fmtDate(recu.dateDebut)],
                   ["Échéance", fmtDate(recu.dateFin)],
@@ -101,7 +101,7 @@ export default function VerifierPage() {
           )}
 
           <p className="text-[11px] text-gray-400 text-center mt-6">
-            KARHON Assurances — Abidjan, Cocody / Angré · +225 07 87 10 39 39 · +225 01 05 13 70 59
+            KARHON Assurances, Abidjan, Cocody / Angré · +225 07 87 10 39 39 · +225 01 05 13 70 59
           </p>
         </div>
       </div>

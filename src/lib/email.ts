@@ -76,7 +76,7 @@ export function gabaritNotification(opts: {
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto;border:1px solid #e0ecec;border-radius:16px;overflow:hidden">
     <div style="background:linear-gradient(135deg,#1a2e5a,#2a8a8a);padding:24px 28px;color:#fff">
       <h1 style="margin:0;font-size:20px">KARHON Assurances</h1>
-      <p style="margin:6px 0 0;font-size:13px;opacity:.8">Cabinet de courtage — Abidjan</p>
+      <p style="margin:6px 0 0;font-size:13px;opacity:.8">Cabinet de courtage, Abidjan</p>
     </div>
     <div style="padding:28px;color:#374151;font-size:15px;line-height:1.6">
       <h2 style="margin:0 0 12px;font-size:17px;color:#1a2e5a">${titre}</h2>
@@ -84,7 +84,7 @@ export function gabaritNotification(opts: {
       ${bouton}
     </div>
     <div style="background:#f5fbfb;padding:16px 28px;color:#9ca3af;font-size:12px;text-align:center">
-      Abidjan, Cocody — Angré 8ème Tranche · infos@karhonassurance.com
+      Abidjan, Cocody, Angré 8ème Tranche · infos@karhonassurance.com
     </div>
   </div>`;
 }
@@ -100,7 +100,7 @@ export function gabaritRelance(opts: {
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto;border:1px solid #e0ecec;border-radius:16px;overflow:hidden">
     <div style="background:linear-gradient(135deg,#1a2e5a,#2a8a8a);padding:24px 28px;color:#fff">
       <h1 style="margin:0;font-size:20px">KARHON Assurances</h1>
-      <p style="margin:6px 0 0;font-size:13px;opacity:.8">Cabinet de courtage — Abidjan</p>
+      <p style="margin:6px 0 0;font-size:13px;opacity:.8">Cabinet de courtage, Abidjan</p>
     </div>
     <div style="padding:28px;color:#374151;font-size:15px;line-height:1.6">
       <p>Bonjour ${prenom},</p>
@@ -113,7 +113,7 @@ export function gabaritRelance(opts: {
       <p style="margin-top:24px;color:#6b7280">Bien cordialement,<br/>L'équipe KARHON Assurances</p>
     </div>
     <div style="background:#f5fbfb;padding:16px 28px;color:#9ca3af;font-size:12px;text-align:center">
-      Abidjan, Cocody — Angré 8ème Tranche · infos@karhonassurance.com
+      Abidjan, Cocody, Angré 8ème Tranche · infos@karhonassurance.com
     </div>
   </div>`;
 }

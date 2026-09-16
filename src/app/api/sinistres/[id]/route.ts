@@ -37,7 +37,7 @@ export async function PATCH(
     if (!existant) {
       return NextResponse.json({ erreur: "Sinistre introuvable." }, { status: 404 });
     }
-    const resume = `Sinistre ${existant.typeAssurance ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
+    const resume = `Sinistre ${existant.typeAssurance ?? ""} : ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
     // Cas 1 : restauration (réservé au gérant).
     if (body?.restaurer === true) {
@@ -99,7 +99,7 @@ export async function DELETE(
     if (!existant) {
       return NextResponse.json({ erreur: "Sinistre introuvable." }, { status: 404 });
     }
-    const resume = `Sinistre ${existant.typeAssurance ?? ""} — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
+    const resume = `Sinistre ${existant.typeAssurance ?? ""} : ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
     if (purge) {
       const g = await exigerGerant();

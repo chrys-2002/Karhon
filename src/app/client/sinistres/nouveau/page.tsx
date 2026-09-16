@@ -211,7 +211,7 @@ export default function NouveauSinistre() {
               onChange={(e) => setChamp(e.target.name, e.target.value)}
               options={souscriptions.map((c) => ({
                 value: c.id,
-                label: `${c.produit?.nom ?? "Souscription"} — N° ${c.numeroContrat}`,
+                label: `${c.produit?.nom ?? "Souscription"} · N° ${c.numeroContrat}`,
                 desc: c.dateDebut ? `Souscrit le ${formatDateSouscription(c.dateDebut)}` : undefined,
               }))}
               required

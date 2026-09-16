@@ -84,7 +84,7 @@ const PROFILS = [
 const GARANTIES = [
   { titre: "Accompagnement sinistre", texte: "Nous montons votre dossier et négocions avec la compagnie jusqu'à l'indemnisation." },
   { titre: "Transparence totale", texte: "Garanties, exclusions, tarifs : tout est expliqué clairement, sans petites lignes cachées." },
-  { titre: "Proximité à Abidjan", texte: "Nos conseillers sont joignables et disponibles, à Cocody — Angré, pour un suivi humain." },
+  { titre: "Proximité à Abidjan", texte: "Nos conseillers sont joignables et disponibles, à Cocody, Angré, pour un suivi humain." },
   { titre: "Les meilleures compagnies", texte: "Nous travaillons avec les assureurs les plus solides du marché ivoirien." },
 ];
 
@@ -99,7 +99,7 @@ const ETAPES = [
 // ── FAQ ──────────────────────────────────────────────────────
 const FAQ = [
   { q: "Combien coûte le service d'un courtier ?", r: "Rien pour vous. Le conseil, la souscription et la gestion de vos contrats sont gratuits : nous sommes rémunérés par les compagnies d'assurance." },
-  { q: "Pourquoi passer par KARHON Assurance plutôt qu'aller directement chez un assureur ?", r: "Parce que nous comparons plusieurs compagnies pour vous, négocions les meilleures conditions, et surtout nous défendons VOTRE intérêt en cas de sinistre — un assureur ne défend que le sien." },
+  { q: "Pourquoi passer par KARHON Assurance plutôt qu'aller directement chez un assureur ?", r: "Parce que nous comparons plusieurs compagnies pour vous, négocions les meilleures conditions, et surtout nous défendons VOTRE intérêt en cas de sinistre. Un assureur ne défend que le sien." },
   { q: "Puis-je souscrire pour une courte durée ?", r: "Oui. Selon le produit, vous pouvez souscrire pour 1, 2, 3, 6 mois ou 1 an. Nous vous conseillons la durée la plus avantageuse." },
   { q: "Que se passe-t-il en cas de sinistre ?", r: "Vous nous contactez, nous montons votre dossier et nous nous occupons de tout face à la compagnie, jusqu'à votre indemnisation." },
 ];

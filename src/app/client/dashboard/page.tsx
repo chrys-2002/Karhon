@@ -102,7 +102,7 @@ const fmtDateHeure = (iso?: string) =>
     ? new Date(iso).toLocaleString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).replace(",", " à")
     : "";
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "short", year: "numeric" }) : "-";
 
 // Compteur animé (montée en douceur de 0 → valeur).
 function Compteur({ value }: { value: number }) {
@@ -526,7 +526,7 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-600 mb-3">Renouvellements sur les 6 prochains mois — survolez pour le détail</p>
+              <p className="text-sm text-gray-600 mb-3">Renouvellements sur les 6 prochains mois, survolez pour le détail</p>
               <div className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={echeancesData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
@@ -629,16 +629,16 @@ export default function Dashboard() {
             <ul className="divide-y divide-[#eef4f4]">
               {[...contrats].sort((a, b) => new Date(b.dateDebut ?? 0).getTime() - new Date(a.dateDebut ?? 0).getTime()).map((c) => {
                 const ouvert = contratOuvert === c.id;
-                const segLabel = c.segment === "professionnel" ? "Professionnel — flotte / pack auto" : c.segment === "transport" ? "Transport professionnel" : "Particulier (usage personnel)";
+                const segLabel = c.segment === "professionnel" ? "Professionnel : flotte / pack auto" : c.segment === "transport" ? "Transport professionnel" : "Particulier (usage personnel)";
                 const lignes: [string, string][] = [
-                  ["Produit", c.produit?.nom ?? "—"],
+                  ["Produit", c.produit?.nom ?? "-"],
                   ["N° de contrat", c.numeroContrat],
                   ["Catégorie", segLabel],
-                  ["Compagnie", c.compagnie ?? "—"],
+                  ["Compagnie", c.compagnie ?? "-"],
                   ["Date de début", fmtDate(c.dateDebut)],
                   ["Échéance", fmtDate(c.dateFin)],
-                  ["Durée", c.dureeMois ? `${c.dureeMois} mois` : "—"],
-                  ["Prime", typeof c.primeAnnuelle === "number" ? `${c.primeAnnuelle.toLocaleString("fr-FR")} FCFA` : "—"],
+                  ["Durée", c.dureeMois ? `${c.dureeMois} mois` : "-"],
+                  ["Prime", typeof c.primeAnnuelle === "number" ? `${c.primeAnnuelle.toLocaleString("fr-FR")} FCFA` : "-"],
                   ["Statut", (c.statut ?? "actif").replace(/_/g, " ")],
                 ];
                 return (
@@ -754,9 +754,9 @@ export default function Dashboard() {
                           <div className="pt-3">
                             <div className="rounded-2xl p-4 grid sm:grid-cols-2 gap-x-8 gap-y-2.5" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
                               {([
-                                ["Produit", d.produit?.nom ?? "—"],
-                                ["Demande du", d.dateCreation ? fmtDateHeure(d.dateCreation) : "—"],
-                                ["Catégorie", d.segment === "professionnel" ? "Professionnel — flotte" : d.segment === "transport" ? "Transport professionnel" : "Particulier"],
+                                ["Produit", d.produit?.nom ?? "-"],
+                                ["Demande du", d.dateCreation ? fmtDateHeure(d.dateCreation) : "-"],
+                                ["Catégorie", d.segment === "professionnel" ? "Professionnel : flotte" : d.segment === "transport" ? "Transport professionnel" : "Particulier"],
                                 ["Statut", libStatut(d.statut)],
                                 ...(typeof d.montantEstime === "number" ? [["Montant estimé", `${d.montantEstime.toLocaleString("fr-FR")} FCFA`]] : []),
                                 ["Offres reçues", String(props.length)],
@@ -948,10 +948,10 @@ export default function Dashboard() {
                   : statut === "en_cours" ? { bg: "#fef9c3", fg: "#854d0e" }
                   : { bg: "#eaf4f4", fg: TEAL };
                 const lignesSin: [string, string][] = [
-                  ["Type d'assurance", s.typeAssurance ?? "—"],
-                  ["Déclaré le", s.dateDeclaration ? fmtDateHeure(s.dateDeclaration) : "—"],
-                  ["Survenu le", s.dateSurvenance ? `${fmtDate(s.dateSurvenance)}${s.heureSurvenance ? ` à ${s.heureSurvenance}` : ""}` : "—"],
-                  ["Lieu", s.lieu || "—"],
+                  ["Type d'assurance", s.typeAssurance ?? "-"],
+                  ["Déclaré le", s.dateDeclaration ? fmtDateHeure(s.dateDeclaration) : "-"],
+                  ["Survenu le", s.dateSurvenance ? `${fmtDate(s.dateSurvenance)}${s.heureSurvenance ? ` à ${s.heureSurvenance}` : ""}` : "-"],
+                  ["Lieu", s.lieu || "-"],
                   ...(typeof s.montantEstime === "number" ? [["Montant estimé", `${s.montantEstime.toLocaleString("fr-FR")} FCFA`]] as [string, string][] : []),
                   ["Statut", statut.replace(/_/g, " ")],
                 ];
@@ -1027,8 +1027,8 @@ export default function Dashboard() {
                   : statut === "termine" ? { bg: "#eaf4f4", fg: TEAL }
                   : { bg: "#fef9c3", fg: "#854d0e" };
                 const lignesRdv: [string, string][] = [
-                  ["Motif", r.motif ?? "—"],
-                  ["Date et heure", r.dateHeure ? fmtDateHeure(r.dateHeure) : "—"],
+                  ["Motif", r.motif ?? "-"],
+                  ["Date et heure", r.dateHeure ? fmtDateHeure(r.dateHeure) : "-"],
                   ["Statut", statut.replace(/_/g, " ")],
                 ];
                 return (

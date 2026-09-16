@@ -41,7 +41,7 @@ type Contrat = {
 type Client = { nom?: string; prenom?: string; email?: string; telephone?: string };
 
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "—";
+  iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "Africa/Abidjan", day: "2-digit", month: "long", year: "numeric" }) : "-";
 
 export default function RecuPage() {
   const { id } = useParams<{ id: string }>();
@@ -94,7 +94,7 @@ export default function RecuPage() {
   }
 
   const logoCompagnie = contrat.compagnie ? LOGOS_COMPAGNIE[contrat.compagnie] : undefined;
-  const segment = contrat.segment === "professionnel" ? "Professionnel — flotte" : contrat.segment === "transport" ? "Transport professionnel" : "Particulier";
+  const segment = contrat.segment === "professionnel" ? "Professionnel : flotte" : contrat.segment === "transport" ? "Transport professionnel" : "Particulier";
 
   return (
     <div className="min-h-screen py-8 px-4" style={{ background: "#f4f8f8" }}>
@@ -143,9 +143,9 @@ export default function RecuPage() {
 
           <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3 rounded-2xl p-5" style={{ background: "#f8fbfb", border: "1px solid #eef4f4" }}>
             {([
-              ["Produit", contrat.produit?.nom ?? "—"],
+              ["Produit", contrat.produit?.nom ?? "-"],
               ["Catégorie", segment],
-              ["Compagnie", contrat.compagnie || "—"],
+              ["Compagnie", contrat.compagnie || "-"],
               ["N° de contrat", contrat.numeroContrat],
               ...(contrat.numeroPolice ? [["N° de police", contrat.numeroPolice]] as [string, string][] : []),
               ["Date d'effet", fmtDate(contrat.dateDebut)],
@@ -198,7 +198,7 @@ export default function RecuPage() {
             Ce reçu atteste de votre souscription auprès de KARHON Assurances, cabinet de courtage à Abidjan (Cocody / Angré).
             Il confirme l&apos;enregistrement de votre contrat et le règlement de votre prime. Conservez-le précieusement.
           </p>
-          <p className="text-xs font-semibold" style={{ color: MARINE }}>KARHON Assurances — Abidjan · +225 07 87 10 39 39 · +225 01 05 13 70 59</p>
+          <p className="text-xs font-semibold" style={{ color: MARINE }}>KARHON Assurances, Abidjan · +225 07 87 10 39 39 · +225 01 05 13 70 59</p>
         </div>
       </div>
 

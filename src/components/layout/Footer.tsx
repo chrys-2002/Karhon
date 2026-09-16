@@ -129,7 +129,7 @@ function LocationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                   <h3 className="font-bold text-sm mb-1" style={{ color: "#1a2e5a" }}>Adresse physique</h3>
                   <p className="text-gray-700 text-sm leading-relaxed">
                     <strong>Rue Manglé Yves Éric Akran</strong><br />
-                    Angré 8ème Tranche — Cocody<br />
+                    Angré 8ème Tranche, Cocody<br />
                     Abidjan, Côte d&apos;Ivoire
                   </p>
                 </div>
@@ -300,7 +300,7 @@ export default function Footer() {
 
           {/* Bas de page */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 text-xs" style={{ borderTop: "1px solid rgba(42,138,138,0.2)", color: "#5a7a7a" }}>
-            <p>© {new Date().getFullYear()} KARHON Assurances — Tous droits réservés</p>
+            <p>© {new Date().getFullYear()} KARHON Assurances. Tous droits réservés</p>
             <button
               onClick={() => setIsLocationOpen(true)}
               className="hover:underline transition-colors hover:text-white cursor-pointer"

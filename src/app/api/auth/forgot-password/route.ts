@@ -65,7 +65,7 @@ export async function POST(req: Request) {
 
     const envoi = await envoyerEmail({
       to: user.email,
-      subject: "KARHON Assurances — Réinitialisation de votre mot de passe",
+      subject: "KARHON Assurances : Réinitialisation de votre mot de passe",
       html,
     });
 

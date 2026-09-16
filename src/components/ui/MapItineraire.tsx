@@ -253,7 +253,7 @@ export default function MapItineraire() {
         <div className="text-sm text-gray-500 flex items-center gap-2">
           {statut === "denied" ? (
             <span className="flex items-center gap-2" style={{ color: "#dc2626" }}>
-              <AlertTriangle size={16} /> Localisation refusée — autorise-la dans le navigateur.
+              <AlertTriangle size={16} /> Localisation refusée. Autorise-la dans le navigateur.
             </span>
           ) : !hasPosition ? (
             <span className="flex items-center gap-2">
@@ -266,7 +266,7 @@ export default function MapItineraire() {
             </span>
           ) : (
             <span className="flex items-center gap-2" style={{ color: "#2a8a8a" }}>
-              <LocateFixed size={16} /> Position détectée — prêt à calculer l&apos;itinéraire.
+              <LocateFixed size={16} /> Position détectée, prêt à calculer l&apos;itinéraire.
             </span>
           )}
         </div>

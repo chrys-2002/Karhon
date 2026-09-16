@@ -33,15 +33,15 @@ export async function POST(req: Request) {
     const corps =
       `Nouveau message depuis le formulaire de contact.\n\n` +
       `Nom : ${nomComplet}\n` +
-      `Email : ${emailOk ? email.trim() : "—"}\n` +
-      `Téléphone : ${telOk ? telephone.trim() : "—"}\n` +
+      `Email : ${emailOk ? email.trim() : "-"}\n` +
+      `Téléphone : ${telOk ? telephone.trim() : "-"}\n` +
       `Type de demande : ${motifLisible}\n\n` +
       `Message :\n${String(message).trim()}`;
 
     const envoi = await envoyerEmail({
       to: EMAIL_OPS,
-      subject: `Contact site — ${motifLisible} — ${nomComplet}`,
-      html: gabaritNotification({ titre: `Nouveau message — ${motifLisible}`, message: corps }),
+      subject: `Contact site · ${motifLisible} · ${nomComplet}`,
+      html: gabaritNotification({ titre: `Nouveau message : ${motifLisible}`, message: corps }),
       text: corps,
       // « Répondre » renverra directement vers le visiteur (si email valide).
       replyTo: emailOk ? email.trim() : undefined,

@@ -62,7 +62,7 @@ export async function PATCH(
     if (!existant) {
       return NextResponse.json({ erreur: "Contrat introuvable." }, { status: 404 });
     }
-    const resume = `Contrat ${existant.numeroContrat} (${existant.produit?.nom ?? ""}) — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
+    const resume = `Contrat ${existant.numeroContrat} (${existant.produit?.nom ?? ""}) : ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
     if (body?.restaurer === true) {
       const g = await exigerGerant();
@@ -147,7 +147,7 @@ export async function DELETE(
     if (!existant) {
       return NextResponse.json({ erreur: "Contrat introuvable." }, { status: 404 });
     }
-    const resume = `Contrat ${existant.numeroContrat} (${existant.produit?.nom ?? ""}) — ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
+    const resume = `Contrat ${existant.numeroContrat} (${existant.produit?.nom ?? ""}) : ${existant.user?.prenom ?? ""} ${existant.user?.nom ?? ""}`.trim();
 
     if (purge) {
       const g = await exigerGerant();

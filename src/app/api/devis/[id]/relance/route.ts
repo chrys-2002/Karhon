@@ -37,7 +37,7 @@ export async function POST(
     // 1) Envoi de l'email (peut échouer si non configuré : on continue).
     const email = await envoyerEmail({
       to: devis.user.email,
-      subject: `KARHON Assurances — ${sujet}`,
+      subject: `KARHON Assurances : ${sujet}`,
       html: gabaritRelance({ prenom: devis.user.prenom, sujet, message: corps }),
     });
 
@@ -59,7 +59,7 @@ export async function POST(
         telephone: devis.telephoneContact || devis.user.telephone,
         message:
           `Bonjour ${devis.user.prenom},\n\n${corps}\n\n` +
-          `À votre disposition,\nKARHON Assurances — Cabinet de courtage, Abidjan\n` +
+          `À votre disposition,\nKARHON Assurances, Cabinet de courtage, Abidjan\n` +
           `Tel : +2250787103939 / +2250576367272 / +2250105137059`,
       },
     });

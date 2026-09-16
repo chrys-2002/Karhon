@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     await notifierAgents({
       type: "rendezvous",
       titre: "Nouvelle demande de rendez-vous",
-      message: `${nomClient} souhaite un rendez-vous le ${quand} — motif : ${rdv.motif}.`,
+      message: `${nomClient} souhaite un rendez-vous le ${quand}, motif : ${rdv.motif}.`,
       onglet: "rdv",
       ref: rdv.id,
     });
