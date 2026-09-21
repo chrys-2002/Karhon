@@ -25,6 +25,21 @@ export const metadata: Metadata = {
     title: "KARHON Assurances - Cabinet de Courtage à Abidjan",
     description:
       "Courtier en assurances neutre et indépendant en Côte d'Ivoire. Devis gratuit, sans honoraires.",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "KARHON Assurances",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KARHON Assurances - Cabinet de Courtage à Abidjan",
+    description:
+      "Courtier en assurances neutre et indépendant en Côte d'Ivoire. Devis gratuit, sans honoraires.",
+    images: ["/images/og-image.png"],
   },
 };
 
