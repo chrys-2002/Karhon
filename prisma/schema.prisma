@@ -271,6 +271,10 @@ model RendezVous {
   notes     String?
   createdAt DateTime         @default(now()) // date de création de la demande
 
+  // Suivi des relances internes (rappel au personnel qu'un rdv en attente traîne).
+  derniereRelance DateTime?
+  nombreRelances  Int       @default(0)
+
   // Suppression douce (archivage) : le client peut retirer un rendez-vous de sa liste.
   supprime   Boolean   @default(false)
   supprimeLe DateTime?

@@ -1,0 +1,260 @@
+<mxfile host="app.diagrams.net" modified="2026-09-21T00:00:00.000Z" agent="5.0" version="24.0.0" type="device">
+  <diagram name="Diagramme de classes" id="classes1">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="titre" value="Diagramme de classes &#8212; Plateforme KARHON Assurances" style="text;html=1;fontStyle=1;fontSize=20;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="-40" width="700" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ADMIN ==================== -->
+        <mxCell id="admin_title" value="Admin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="380" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_attrs" value="- id : String&lt;br&gt;- nom : String&lt;br&gt;- prenom : String&lt;br&gt;- email : String&lt;br&gt;- motDePasse : String&lt;br&gt;- role : RoleAdmin&lt;br&gt;- dateCreation : Date" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="380" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="admin_methods" value="+ seConnecter(email : String, motDePasse : String) : Booleen&lt;br&gt;+ gererDevis(devis : Devis, statut : StatutDevis) : Devis&lt;br&gt;+ gererSinistres(sinistre : Sinistre, statut : StatutSinistre) : Sinistre&lt;br&gt;+ enregistrerSouscription(devis : Devis, compagnie : String) : Contrat&lt;br&gt;+ relancerClient(entite : String, id : String) : Booleen&lt;br&gt;+ archiver(entite : String, id : String) : Booleen&lt;br&gt;+ restaurer(entite : String, id : String) : Booleen&lt;br&gt;+ purger(entite : String, id : String) : Booleen&lt;br&gt;+ consulterJournal() : JournalAudit[]&lt;br&gt;+ gererRendezVous(rdv : RendezVous, statut : StatutRendezVous) : RendezVous&lt;br&gt;+ envoyerProposition(devis : Devis, compagnie : String, fiche : String) : Proposition&lt;br&gt;+ envoyerMessage(client : Client, contenu : String) : Message&lt;br&gt;+ consulterMessages() : Message[]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="194" width="380" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== JOURNAL AUDIT ==================== -->
+        <mxCell id="journal_title" value="JournalAudit" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="460" y="40" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="journal_attrs" value="- id : String&lt;br&gt;- action : String&lt;br&gt;- entite : String&lt;br&gt;- entiteId : String&lt;br&gt;- resume : String&lt;br&gt;- auteurEmail : String&lt;br&gt;- auteurNom : String&lt;br&gt;- createdAt : Date" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="460" y="70" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== RENDEZ-VOUS ==================== -->
+        <mxCell id="rdv_title" value="RendezVous" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="rdv_attrs" value="- id : String&lt;br&gt;- dateHeure : Date&lt;br&gt;- statut : StatutRendezVous&lt;br&gt;- motif : String&lt;br&gt;- notes : String" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="880" y="70" width="260" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="rdv_methods" value="+ confirmer() : void&lt;br&gt;+ annuler() : void&lt;br&gt;+ terminer() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="880" y="162" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== NOTIFICATION (NOUVEAU) ==================== -->
+        <mxCell id="notif_title" value="Notification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="40" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="notif_attrs" value="- id : String&lt;br&gt;- cible : String&lt;br&gt;- type : String&lt;br&gt;- titre : String&lt;br&gt;- message : String&lt;br&gt;- lien : String&lt;br&gt;- lu : Booleen&lt;br&gt;- createdAt : Date" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="70" width="260" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="notif_methods" value="+ marquerLue() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="210" width="260" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== PROPOSITION ==================== -->
+        <mxCell id="proposition_title" value="Proposition" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="proposition_attrs" value="- id : String&lt;br&gt;- compagnie : String&lt;br&gt;- documents : String[]&lt;br&gt;- prime : Float&lt;br&gt;- message : String&lt;br&gt;- choisie : Booleen&lt;br&gt;- vueClient : Booleen&lt;br&gt;- dateEnvoi : Date&lt;br&gt;- dateChoix : Date" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="260" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="proposition_methods" value="+ choisir() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="746" width="260" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DEVIS ==================== -->
+        <mxCell id="devis_title" value="Devis" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="460" y="560" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="devis_attrs" value="- id : String&lt;br&gt;- dateCreation : Date&lt;br&gt;- statut : StatutDevis&lt;br&gt;- description : String&lt;br&gt;- montantEstime : Float" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="460" y="590" width="260" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="devis_methods" value="+ changerStatut(statut : StatutDevis) : void&lt;br&gt;+ relancer(message : String) : Booleen&lt;br&gt;+ archiver() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="460" y="682" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== PRODUIT ==================== -->
+        <mxCell id="produit_title" value="Produit" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="880" y="560" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="produit_attrs" value="- id : String&lt;br&gt;- nom : String&lt;br&gt;- type : TypeProduit&lt;br&gt;- categorie : String&lt;br&gt;- description : String&lt;br&gt;- garanties : String[]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="880" y="590" width="240" height="108" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CLIENT ==================== -->
+        <mxCell id="client_title" value="Client" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="560" width="320" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="client_attrs" value="- id : String&lt;br&gt;- nom : String&lt;br&gt;- prenom : String&lt;br&gt;- email : String&lt;br&gt;- telephone : String&lt;br&gt;- adresse : String&lt;br&gt;- motDePasse : String&lt;br&gt;- googleId : String&lt;br&gt;- resetToken : String&lt;br&gt;- resetTokenExpiry : Date" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="590" width="320" height="172" as="geometry" />
+        </mxCell>
+        <mxCell id="client_methods" value="+ sInscrire(donnees : Client) : Client&lt;br&gt;+ seConnecter(email : String, motDePasse : String) : Booleen&lt;br&gt;+ seDeconnecter() : void&lt;br&gt;+ modifierProfil(donnees : Client) : Client&lt;br&gt;+ reinitialiserMotDePasse(token : String, nouveau : String) : Booleen&lt;br&gt;+ envoyerMessage(contenu : String) : Message&lt;br&gt;+ consulterNotifications() : Notification[]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="762" width="320" height="124" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CONTRAT ==================== -->
+        <mxCell id="contrat_title" value="Contrat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1040" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="contrat_attrs" value="- id : String&lt;br&gt;- numeroContrat : String&lt;br&gt;- dateDebut : Date&lt;br&gt;- dateFin : Date&lt;br&gt;- primeAnnuelle : Float&lt;br&gt;- compagnie : String&lt;br&gt;- statut : StatutContrat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1070" width="260" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="contrat_methods" value="+ calculerEcheance() : Date&lt;br&gt;+ relancer(message : String) : Booleen&lt;br&gt;+ archiver() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1194" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== SINISTRE ==================== -->
+        <mxCell id="sinistre_title" value="Sinistre" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="880" y="1040" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sinistre_attrs" value="- id : String&lt;br&gt;- dateSurvenance : Date&lt;br&gt;- lieu : String&lt;br&gt;- description : String&lt;br&gt;- montantEstime : Float&lt;br&gt;- statut : StatutSinistre" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="880" y="1070" width="260" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="sinistre_methods" value="+ declarer(donnees : Sinistre) : Sinistre&lt;br&gt;+ changerStatut(statut : StatutSinistre) : void&lt;br&gt;+ relancer(message : String) : Booleen" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="880" y="1178" width="260" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== MESSAGE (NOUVEAU) ==================== -->
+        <mxCell id="message_title" value="Message" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#000000;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="1040" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="message_attrs" value="- id : String&lt;br&gt;- expediteur : String&lt;br&gt;- auteurEmail : String&lt;br&gt;- contenu : String&lt;br&gt;- piecesJointes : String[]&lt;br&gt;- contexte : String&lt;br&gt;- contexteId : String&lt;br&gt;- lu : Booleen&lt;br&gt;- archive : Booleen" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="1070" width="280" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="message_methods" value="+ envoyer() : Message&lt;br&gt;+ marquerLu() : void&lt;br&gt;+ archiver() : void" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#000000;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="1226" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== LEGENDE ==================== -->
+        <mxCell id="legende" value="Fond jaune = classes ajoutees (Message, Notification) absentes du diagramme original" style="text;html=1;fontStyle=2;fontSize=12;align=left;verticalAlign=middle;fontColor=#B8860B;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1320" width="700" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== RELATIONS ==================== -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="admin_title" target="journal_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e1">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e1b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e1">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;" edge="1" parent="1" source="client_title" target="devis_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e2">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e2b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e2">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;" edge="1" parent="1" source="client_title" target="contrat_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e3">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e3b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e3">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;" edge="1" parent="1" source="client_title" target="sinistre_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e4">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e4b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e4">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="client_title" target="rdv_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e5">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e5b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e5">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;" edge="1" parent="1" source="devis_title" target="proposition_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e6">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e6b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e6">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;" edge="1" parent="1" source="produit_title" target="devis_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e7">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e7b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e7">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="produit_title" target="contrat_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e8">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e8b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e8">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;" edge="1" parent="1" source="contrat_title" target="sinistre_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e9">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e9b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e9">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#B8860B;" edge="1" parent="1" source="client_title" target="message_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e10">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e10b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e10">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#B8860B;" edge="1" parent="1" source="client_title" target="notif_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11a" value="0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e11">
+          <mxGeometry x="-0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e11b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e11">
+          <mxGeometry x="0.7" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#B8860B;" edge="1" parent="1" source="admin_title" target="message_title">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1440" y="90" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12a" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e12">
+          <mxGeometry x="-0.85" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e12b" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="e12">
+          <mxGeometry x="0.85" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

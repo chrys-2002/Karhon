@@ -9,11 +9,11 @@
 //    variables d'environnement. Définis-les juste avant de lancer le script.
 //
 // Lancer en LOCAL (PowerShell) :
-//   $env:GERANT_PASSWORD="…"; $env:AGENT1_PASSWORD="…"; $env:AGENT2_PASSWORD="…"; $env:AGENT3_PASSWORD="…"
+//   $env:GERANT_PASSWORD="…"; $env:AGENT1_PASSWORD="…"; $env:AGENT2_PASSWORD="…"; $env:AGENT3_PASSWORD="…"; $env:AGENT4_PASSWORD="…"; $env:AGENT5_PASSWORD="…"
 //   npx tsx prisma/creer-equipe.ts
 //
 // Lancer en PROD (PowerShell) : ajoute aussi $env:DATABASE_URL="<URL_NEON>"
-//   $env:DATABASE_URL="<URL_NEON>"; $env:GERANT_PASSWORD="…"; $env:AGENT1_PASSWORD="…"; $env:AGENT2_PASSWORD="…"; $env:AGENT3_PASSWORD="…"
+//   $env:DATABASE_URL="<URL_NEON>"; $env:GERANT_PASSWORD="…"; $env:AGENT1_PASSWORD="…"; $env:AGENT2_PASSWORD="…"; $env:AGENT3_PASSWORD="…"; $env:AGENT4_PASSWORD="…"; $env:AGENT5_PASSWORD="…"
 //   npx tsx prisma/creer-equipe.ts
 //
 // Puis FERME la fenêtre PowerShell (pour ne pas laisser traîner les secrets).
@@ -28,6 +28,8 @@ const equipe = [
   { email: "agent1@karhon.ci", nom: "Agent", prenom: "Agent 1", role: "agent" as const, envVar: "AGENT1_PASSWORD" },
   { email: "agent2@karhon.ci", nom: "Agent", prenom: "Agent 2", role: "agent" as const, envVar: "AGENT2_PASSWORD" },
   { email: "agent3@karhon.ci", nom: "Agent", prenom: "Agent 3", role: "agent" as const, envVar: "AGENT3_PASSWORD" },
+  { email: "agent4@karhon.ci", nom: "Agent", prenom: "Agent 4", role: "agent" as const, envVar: "AGENT4_PASSWORD" },
+  { email: "agent5@karhon.ci", nom: "Agent", prenom: "Agent 5", role: "agent" as const, envVar: "AGENT5_PASSWORD" },
 ];
 
 async function main() {
@@ -37,7 +39,7 @@ async function main() {
     console.error("❌ Mots de passe manquants. Définis ces variables d'environnement avant de lancer :");
     console.error("   " + manquants.join(", "));
     console.error('\nExemple (PowerShell) :');
-    console.error('   $env:GERANT_PASSWORD="…"; $env:AGENT1_PASSWORD="…"; $env:AGENT2_PASSWORD="…"; $env:AGENT3_PASSWORD="…"');
+    console.error('   $env:GERANT_PASSWORD="…"; $env:AGENT1_PASSWORD="…"; $env:AGENT2_PASSWORD="…"; $env:AGENT3_PASSWORD="…"; $env:AGENT4_PASSWORD="…"; $env:AGENT5_PASSWORD="…"');
     console.error("   npx tsx prisma/creer-equipe.ts");
     process.exit(1);
   }
